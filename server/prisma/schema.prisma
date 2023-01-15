@@ -1,0 +1,203 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               Int               @id @unique @default(autoincrement())
+  username         String            @unique
+  displayname      String?
+  email            String            @unique
+  password         String            @db.MediumText
+  userType         UserType          @default(USER)
+  description      String?           @db.MediumText
+  createdAt        DateTime          @default(now())
+  deletedAt        DateTime?
+  avatarURL        String?           @db.MediumText
+  posts            Post[]
+  comments         Comment[]
+  groupsOwned      Group[]
+  groupsFollowed   UserFollowGroup[]
+  postReactions    PostReaction[]
+  commentReations  CommentReation[]
+  reportedPosts    PostReport[]
+  reportedComments CommentReport[]
+
+  @@index([username, email])
+  @@map("users")
+}
+
+model Group {
+  id               Int               @id @unique @default(autoincrement())
+  groupname        String            @unique
+  displayname      String?
+  userID           Int
+  owner            User              @relation(fields: [userID], references: [id])
+  description      String?           @db.MediumText
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  deletedAt        DateTime?
+  avatarURL        String?           @db.MediumText
+  posts            Post[]
+  usersFollowGroup UserFollowGroup[]
+
+  @@index([groupname, displayname])
+  @@map("groups")
+}
+
+model Post {
+  id          Int            @id @unique @default(autoincrement())
+  title       String         @db.VarChar(200)
+  content     String         @db.LongText
+  groupID     Int
+  userID      Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+  user        User           @relation(fields: [userID], references: [id])
+  group       Group          @relation(fields: [groupID], references: [id])
+  comments    Comment[]
+  attachments Attachment[]
+  reations    PostReaction[]
+  reports     PostReport[]
+
+  @@index([title, groupID, userID])
+  @@map("posts")
+}
+
+model Comment {
+  id           Int              @id @unique @default(autoincrement())
+  content      String           @db.LongText
+  parentPostID Int
+  parentPost   Post             @relation(fields: [parentPostID], references: [id])
+  ownerID      Int?
+  User         User?            @relation(fields: [ownerID], references: [id])
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  deletedAt    DateTime?
+  reations     CommentReation[]
+  reports      CommentReport[]
+
+  @@index([parentPostID, ownerID])
+  @@map("comments")
+}
+
+model Attachment {
+  id        Int            @id @unique @default(autoincrement())
+  url       String         @db.MediumText
+  postID    Int
+  owner     Post           @relation(fields: [postID], references: [id])
+  type      AttachmentType
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  deletedAt DateTime?
+
+  @@index([postID])
+  @@map("attachments")
+}
+
+model UserFollowGroup {
+  userID       Int
+  follower     User            @relation(fields: [userID], references: [id])
+  groupID      Int
+  group        Group           @relation(fields: [groupID], references: [id])
+  role         UserInGroupType @default(USER)
+  timeUnbanned DateTime        @default(now())
+
+  @@unique([userID, groupID])
+  @@index([userID, groupID, role])
+  @@map("user_follow_groups")
+}
+
+model PostReaction {
+  id         Int          @id @unique @default(autoincrement())
+  userID     Int
+  owner      User         @relation(fields: [userID], references: [id])
+  postID     Int
+  parentPost Post         @relation(fields: [postID], references: [id])
+  reaction   ReactionType @default(NONE)
+
+  @@index([userID, postID])
+  @@map("post_reactions")
+}
+
+model CommentReation {
+  id            Int          @id @unique @default(autoincrement())
+  userID        Int
+  owner         User         @relation(fields: [userID], references: [id])
+  commentID     Int
+  parentComment Comment      @relation(fields: [commentID], references: [id])
+  reaction      ReactionType @default(NONE)
+
+  @@index([userID, commentID])
+  @@map("comment_reactions")
+}
+
+model PostReport {
+  id           Int          @id @unique @default(autoincrement())
+  userID       Int
+  reporter     User         @relation(fields: [userID], references: [id])
+  postID       Int?
+  reportedPost Post?        @relation(fields: [postID], references: [id])
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  status       ReportStatus @default(UNHANDLED)
+  bannedReason String       @db.VarChar(500)
+
+  @@index([status, postID, bannedReason])
+  @@map("post_reports")
+}
+
+model CommentReport {
+  id              Int          @id @unique @default(autoincrement())
+  userID          Int
+  reporter        User         @relation(fields: [userID], references: [id])
+  commentID       Int?
+  reportedComment Comment?     @relation(fields: [commentID], references: [id])
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  status          ReportStatus @default(UNHANDLED)
+  bannedReason    String       @db.VarChar(500)
+
+  @@index([status, commentID, bannedReason])
+  @@map("comment_reports")
+}
+
+enum UserType {
+  SUPERADMIN
+  USER
+}
+
+enum UserInGroupType {
+  SUPERADMIN
+  MODERATOR
+  USER
+  SOFTBANNED
+  BANNED
+}
+
+enum ReactionType {
+  DOWNVOTE
+  NONE
+  UPVOTE
+}
+
+enum AttachmentType {
+  PNG
+  JPEG
+  MP4
+  DOCX
+}
+
+enum ReportStatus {
+  APPROVE
+  UNHANDLED
+  BAN
+}
