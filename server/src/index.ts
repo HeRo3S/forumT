@@ -1,11 +1,16 @@
-import express from "express";
+import dotenv from 'dotenv';
+import express from 'express';
+import routes from './routes/index.js';
 
-const PORT = 5000;
+// *setup dotenv
+dotenv.config();
+
+// *initialize, setup body parser, and setup route for express app
 const app = express();
+app.use(express.json());
+app.use('/', routes);
 
-app.get("/test", (req, res) => {
-  res.status(200).send("Hello World");
-});
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// *run app on specific port
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`);
 });
