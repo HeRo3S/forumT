@@ -1,3 +1,4 @@
+import cors from 'cors';
 import dotenv from 'dotenv';
 import express from 'express';
 import routes from './routes/index.js';
@@ -7,6 +8,7 @@ dotenv.config();
 
 // *initialize, setup body parser, and setup route for express app
 const app = express();
+app.use(cors());
 app.use(express.json());
 app.use('/', routes);
 

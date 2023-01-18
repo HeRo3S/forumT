@@ -4,10 +4,10 @@ import NotFound from '../pages/NotFound';
 import Register from '../pages/Register';
 
 const routes = [
-  { path: '/', component: Home() },
-  { path: '/login', component: Login() },
-  { path: '/register', component: Register() },
-  { path: '*', component: NotFound() },
+  { path: '/', component: Home },
+  { path: '/login', component: Login },
+  { path: '/register', component: Register },
+  { path: '*', component: NotFound },
 ];
 
 export default routes;

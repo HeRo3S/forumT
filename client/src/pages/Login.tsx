@@ -4,8 +4,12 @@ import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { Link } from 'react-router-dom';
+import { useAppDispatch } from '../redux/store';
 
 function Login() {
+  // *Testing login thunk
+  const dispatch = useAppDispatch();
+
   return (
     <Container
       maxWidth="sm"
@@ -25,9 +29,9 @@ function Login() {
         <Grid2 xs={10}>
           <TextField
             fullWidth
-            label="Email"
-            type="email"
-            helperText="Nhập email của bạn"
+            label="Tên đăng nhập hoặc email"
+            type="text"
+            helperText="Nhập tên đăng nhập hoặc email của bạn"
           />
         </Grid2>
         <Grid2 xs={10}>

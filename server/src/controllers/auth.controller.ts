@@ -58,6 +58,7 @@ const PostRegisterController = async (req: Request, res: Response) => {
     // return successful response
     return res.status(200).json(responseData);
   } catch (err) {
+    console.log(err);
     return res.status(500).json(err);
   }
 };
@@ -85,6 +86,7 @@ const PostLoginController = async (req: Request, res: Response) => {
     const { password, ...responseData } = existedUser;
     return res.status(200).json(responseData);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 };
