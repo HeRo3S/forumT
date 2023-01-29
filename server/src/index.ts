@@ -6,7 +6,7 @@ import routes from './routes/index.js';
 // *setup dotenv
 dotenv.config();
 
-// *initialize, setup body parser, and setup route for express app
+// *setup middleware
 const app = express();
 app.use(cors());
 app.use(express.json());

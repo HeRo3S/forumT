@@ -21,6 +21,7 @@ model User {
   createdAt        DateTime          @default(now())
   deletedAt        DateTime?
   avatarURL        String?           @db.MediumText
+  refreshToken     String?           @db.MediumText
   posts            Post[]
   comments         Comment[]
   groupsOwned      Group[]
