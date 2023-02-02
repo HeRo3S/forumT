@@ -1,6 +1,7 @@
 import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Navbar from './components/navbar/Navbar';
 import { store } from './redux/store';
 import defaultTheme from './style/muitheme';
 import routes from './utils/routes';
@@ -8,6 +9,7 @@ import routes from './utils/routes';
 function App() {
   return (
     <div className="App">
+      <Navbar />
       <Routes>
         {routes.map((route) => (
           <Route

@@ -6,7 +6,7 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../redux/features/authSlice';
-import { useAppDispatch } from '../redux/store';
+import { useAppDispatch } from '../redux/hook';
 import { ReqUser } from '../utils/interfaces/reqAPI';
 
 function Login() {

@@ -1,0 +1,17 @@
+#navbar {
+  position: sticky;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 5px 5px;
+}
+
+#leftNav > button {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  aspect-ratio: fix;
+  max-width: 30px;
+}

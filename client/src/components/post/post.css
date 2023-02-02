@@ -1,7 +1,17 @@
-.reactionBar {
-  flex: 1;
+.postContainer.css-1oqqzyl-MuiContainer-root {
+  display: flex;
+  width: 50%;
+  max-width: 1000px;
+  /* min-height: 200px; */
+}
+
+.reactionBar.css-p4z6b7-MuiGrid2-root {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
+}
+
+.contentBar.css-132xdmq-MuiGrid2-root {
+  margin-left: 20px;
 }
