@@ -1,3 +1,4 @@
+import DetailPost from '../pages/DetailPost';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
@@ -7,6 +8,8 @@ const routes = [
   { path: '/', component: Home },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
+  { path: '/g/:groupID' },
+  { path: '/g/:groupID/:postID', component: DetailPost },
   { path: '*', component: NotFound },
 ];
 

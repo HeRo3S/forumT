@@ -1,11 +1,11 @@
-import { Typography } from '@mui/material';
 import Post from '../components/post/Post';
 
 function Home() {
   return (
     <div>
-      <Typography variant="h3">Home</Typography>
-      <Post />
+      <Post type="DEFAULT" />
+      <Post type="MEDIA" />
+      <Post type="LINK" />
     </div>
   );
 }

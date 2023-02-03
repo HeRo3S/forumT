@@ -1,17 +1,27 @@
-.postContainer.css-1oqqzyl-MuiContainer-root {
+.postContainer.MuiContainer-root {
   display: flex;
   width: 50%;
   max-width: 1000px;
-  /* min-height: 200px; */
+  margin-bottom: 20px;
+  cursor: pointer;
 }
 
-.reactionBar.css-p4z6b7-MuiGrid2-root {
+.reactionBar.MuiGrid2-root {
   display: flex;
   flex-direction: column;
   justify-content: start;
   align-items: center;
 }
 
-.contentBar.css-132xdmq-MuiGrid2-root {
+.contentBar.MuiGrid2-root {
   margin-left: 20px;
+}
+
+.postBody.MuiGrid2-root {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+img {
+  width: 100%;
 }
