@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
-import prisma from '../client.js';
+import prisma from '../addons/prismaClient.js';
 
 const config = {
   saltLength: 16,

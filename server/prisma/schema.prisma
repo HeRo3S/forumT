@@ -57,19 +57,20 @@ model Post {
   id          Int            @id @unique @default(autoincrement())
   title       String         @db.VarChar(200)
   content     String         @db.LongText
-  groupID     Int
+  groupName   String
   userID      Int
+  type        PostType       @default(DEFAULT)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
   user        User           @relation(fields: [userID], references: [id])
-  group       Group          @relation(fields: [groupID], references: [id])
+  group       Group          @relation(fields: [groupName], references: [groupname])
   comments    Comment[]
   attachments Attachment[]
   reations    PostReaction[]
   reports     PostReport[]
 
-  @@index([title, groupID, userID])
+  @@index([title, groupName, userID])
   @@map("posts")
 }
 
@@ -107,13 +108,13 @@ model Attachment {
 model UserFollowGroup {
   userID       Int
   follower     User            @relation(fields: [userID], references: [id])
-  groupID      Int
-  group        Group           @relation(fields: [groupID], references: [id])
+  groupName    String
+  group        Group           @relation(fields: [groupName], references: [groupname])
   role         UserInGroupType @default(USER)
   timeUnbanned DateTime        @default(now())
 
-  @@unique([userID, groupID])
-  @@index([userID, groupID, role])
+  @@unique([userID, groupName])
+  @@index([userID, groupName, role])
   @@map("user_follow_groups")
 }
 
@@ -182,6 +183,13 @@ enum UserInGroupType {
   USER
   SOFTBANNED
   BANNED
+}
+
+enum PostType {
+  DEFAULT
+  MEDIA
+  ATTACHMENT
+  POLL
 }
 
 enum ReactionType {

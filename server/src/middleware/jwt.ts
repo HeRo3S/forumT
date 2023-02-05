@@ -1,12 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-interface ExtendRequest extends Request {
-  [key: string]: unknown;
-}
-
 export function authenticateToken(
-  req: ExtendRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
