@@ -1,4 +1,4 @@
-import { User } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 import crypto from 'crypto';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
@@ -14,7 +14,7 @@ const config = {
 
 async function PostLoginController(req: Request, res: Response) {
   try {
-    var existedUser = await prisma.user.findUnique({
+    let existedUser = await prisma.user.findUnique({
       where: {
         username: req?.body?.username,
         email: req?.body?.email,
@@ -32,13 +32,13 @@ async function PostLoginController(req: Request, res: Response) {
     }
     // create token
     const { accessToken, refreshToken } = generateToken(existedUser?.username);
-    //update refreshToken to DB
+    // update refreshToken to DB
     existedUser = await prisma.user.update({
       where: {
         username: existedUser.username,
       },
       data: {
-        refreshToken: refreshToken,
+        refreshToken,
       },
     });
     // return successful response
@@ -58,13 +58,6 @@ async function PostLoginController(req: Request, res: Response) {
 
 async function PostRegisterController(req: Request, res: Response) {
   try {
-    // return error if username has been created
-    const existedUser = await prisma.user.findUnique({
-      where: {
-        username: req?.body?.username,
-      },
-    });
-    existedUser && res.status(409).json('This account has been existed!');
     // create new user using prisma
     const hashedPassword: string = await hashingPassword(req?.body?.password);
     const { accessToken, refreshToken } = generateToken(req?.body?.username);
@@ -73,7 +66,7 @@ async function PostRegisterController(req: Request, res: Response) {
         username: req?.body?.username,
         email: req?.body?.email,
         password: hashedPassword,
-        refreshToken: refreshToken,
+        refreshToken,
       },
     });
     // remove password and token when return data
@@ -87,21 +80,29 @@ async function PostRegisterController(req: Request, res: Response) {
     });
     return res.status(200).json({ userInfo, accessToken });
   } catch (err) {
-    console.log(err);
-    return res.status(500).json(err);
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        // return error if username has been created
+        case 'P2002':
+          res.status(409).json('This account has existed!');
+          break;
+        default:
+          res.status(500).json(err.message);
+      }
+    }
   }
 }
 
 async function hashingPassword(password: string): Promise<string> {
   return new Promise((resolve, reject) => {
-    //created randomize salt to hash
+    // created randomize salt to hash
     const salt = crypto.randomBytes(config.saltLength).toString('hex');
     // hash function
     // https://nodejs.org/api/crypto.html#crypto_crypto_scrypt_password_salt_keylen_options_callback
     crypto.scrypt(password, salt, config.keyLength, (err, derivedKey) => {
       if (err) reject(err);
-      //need salt before the hashed password to verify afterward
-      resolve(salt + ':' + derivedKey.toString('hex'));
+      // need salt before the hashed password to verify afterward
+      resolve(`${salt}:${derivedKey.toString('hex')}`);
     });
   });
 }
@@ -137,7 +138,7 @@ function generateToken(username: string): {
       expiresIn: process.env.REFRESH_EXPIRE,
     }
   );
-  return { accessToken: accessToken, refreshToken: refreshToken };
+  return { accessToken, refreshToken };
 }
 
 export { PostRegisterController, PostLoginController };
