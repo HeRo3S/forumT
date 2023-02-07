@@ -22,16 +22,14 @@ async function PostLoginController(req: Request, res: Response) {
     });
     // return error when account is not existed
     if (!existedUser) {
-      res.status(400).json('This account is not existed!');
-      return;
+      return res.status(400).json('This account is not existed!');
     }
     // return error when password is not corrected
     if (!verifyPassword(req?.body?.password, existedUser.password)) {
-      res.status(403).json('Wrong password!');
-      return;
+      return res.status(403).json('Wrong password!');
     }
     // create token
-    const { accessToken, refreshToken } = generateToken(existedUser?.username);
+    const { accessToken, refreshToken } = generateToken(existedUser);
     // update refreshToken to DB
     existedUser = await prisma.user.update({
       where: {
@@ -41,18 +39,22 @@ async function PostLoginController(req: Request, res: Response) {
         refreshToken,
       },
     });
-    // return successful response
     const userInfo: Partial<typeof existedUser> = existedUser;
     delete userInfo.password;
     delete userInfo.refreshToken;
-    res.cookie('refreshToken', refreshToken, {
+    // return successful response
+    res.cookie('jwt', refreshToken, {
       httpOnly: true,
       maxAge: config.refreshExpire,
     });
-    res.status(200).json({ userInfo, accessToken });
+    return res.status(200).json({ userInfo, accessToken });
   } catch (err) {
-    console.log(err);
-    res.status(500).json(err);
+    if (err instanceof Prisma.PrismaClientValidationError) {
+      res.status(400).json({ message: err.message });
+    } else {
+      res.status(500).json(err);
+      throw err;
+    }
   }
 }
 
@@ -70,11 +72,11 @@ async function PostRegisterController(req: Request, res: Response) {
       },
     });
     // remove password and token when return data
-    const userInfo: Partial<typeof user> = user;
+    const userInfo: Partial<typeof user> = { ...user };
     delete userInfo.password;
     delete userInfo.refreshToken;
     // return successful response
-    res.cookie('refreshToken', refreshToken, {
+    res.cookie('jwt', refreshToken, {
       httpOnly: true,
       maxAge: config.refreshExpire,
     });
@@ -88,8 +90,40 @@ async function PostRegisterController(req: Request, res: Response) {
           break;
         default:
           res.status(500).json(err.message);
+          throw err;
       }
+    } else {
+      res.status(500).json(err);
+      throw err;
     }
+  }
+}
+
+async function HandleRefreshToken(req: Request, res: Response) {
+  try {
+    const { cookies } = req;
+    if (!cookies?.jwt) return res.status(403).json("can't find refresh token");
+    const user = await prisma.user.findFirst({
+      where: {
+        refreshToken: cookies.jwt,
+      },
+    });
+    if (!user)
+      return res.status(403).json("can't find user with this refresh token");
+    jwt.verify(
+      cookies.jwt as string,
+      process.env.REFRESH_TOKEN as string,
+      (err, decoded) => {
+        if (err || (decoded as Partial<User>).username !== user.username)
+          return res.status(400).json("can't decode refresh token");
+        const { accessToken } = generateToken(user);
+        return res.status(200).json({ accessToken });
+      }
+    );
+    return null;
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
   }
 }
 
@@ -120,25 +154,20 @@ async function verifyPassword(
   });
 }
 
-function generateToken(username: string): {
+export function generateToken(user: User): {
   accessToken: string;
   refreshToken: string;
 } {
-  const accessToken = jwt.sign(
-    { username },
-    process.env.ACCESS_TOKEN as string,
-    {
-      expiresIn: process.env.ACCESS_EXPIRE,
-    }
-  );
-  const refreshToken = jwt.sign(
-    { username },
-    process.env.REFRESH_TOKEN as string,
-    {
-      expiresIn: process.env.REFRESH_EXPIRE,
-    }
-  );
+  const userInfo: Partial<User> = { ...user };
+  delete userInfo.password;
+  delete userInfo.refreshToken;
+  const accessToken = jwt.sign(userInfo, process.env.ACCESS_TOKEN as string, {
+    expiresIn: process.env.ACCESS_EXPIRE,
+  });
+  const refreshToken = jwt.sign(userInfo, process.env.REFRESH_TOKEN as string, {
+    expiresIn: process.env.REFRESH_EXPIRE,
+  });
   return { accessToken, refreshToken };
 }
 
-export { PostRegisterController, PostLoginController };
+export { PostRegisterController, PostLoginController, HandleRefreshToken };

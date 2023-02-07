@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -21,15 +18,15 @@ model User {
   createdAt        DateTime          @default(now())
   deletedAt        DateTime?
   avatarURL        String?           @db.MediumText
-  refreshToken     String?           @db.MediumText
-  posts            Post[]
+  refreshToken     String            @db.Text
+  commentReations  CommentReation[]
+  reportedComments CommentReport[]
   comments         Comment[]
   groupsOwned      Group[]
-  groupsFollowed   UserFollowGroup[]
   postReactions    PostReaction[]
-  commentReations  CommentReation[]
   reportedPosts    PostReport[]
-  reportedComments CommentReport[]
+  posts            Post[]
+  groupsFollowed   UserFollowGroup[]
 
   @@index([username, email])
   @@map("users")
@@ -39,17 +36,18 @@ model Group {
   id               Int               @id @unique @default(autoincrement())
   groupname        String            @unique
   displayname      String?
-  userID           Int
-  owner            User              @relation(fields: [userID], references: [id])
+  ownername        String
   description      String?           @db.MediumText
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   deletedAt        DateTime?
   avatarURL        String?           @db.MediumText
+  owner            User              @relation(fields: [ownername], references: [username])
   posts            Post[]
   usersFollowGroup UserFollowGroup[]
 
   @@index([groupname, displayname])
+  @@index([ownername], map: "groups_ownername_fkey")
   @@map("groups")
 }
 
@@ -57,20 +55,22 @@ model Post {
   id          Int            @id @unique @default(autoincrement())
   title       String         @db.VarChar(200)
   content     String         @db.LongText
-  groupName   String
-  userID      Int
+  groupname   String
+  username    String
   type        PostType       @default(DEFAULT)
   createdAt   DateTime       @default(now())
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
-  user        User           @relation(fields: [userID], references: [id])
-  group       Group          @relation(fields: [groupName], references: [groupname])
-  comments    Comment[]
   attachments Attachment[]
+  comments    Comment[]
   reations    PostReaction[]
   reports     PostReport[]
+  group       Group          @relation(fields: [groupname], references: [groupname])
+  user        User           @relation(fields: [username], references: [username])
 
-  @@index([title, groupName, userID])
+  @@index([title, groupname, username])
+  @@index([groupname], map: "posts_groupname_fkey")
+  @@index([username], map: "posts_username_fkey")
   @@map("posts")
 }
 
@@ -78,16 +78,17 @@ model Comment {
   id           Int              @id @unique @default(autoincrement())
   content      String           @db.LongText
   parentPostID Int
-  parentPost   Post             @relation(fields: [parentPostID], references: [id])
-  ownerID      Int?
-  User         User?            @relation(fields: [ownerID], references: [id])
+  username     String
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   deletedAt    DateTime?
   reations     CommentReation[]
   reports      CommentReport[]
+  parentPost   Post             @relation(fields: [parentPostID], references: [id])
+  User         User             @relation(fields: [username], references: [username])
 
-  @@index([parentPostID, ownerID])
+  @@index([parentPostID, username])
+  @@index([username], map: "comments_username_fkey")
   @@map("comments")
 }
 
@@ -95,80 +96,87 @@ model Attachment {
   id        Int            @id @unique @default(autoincrement())
   url       String         @db.MediumText
   postID    Int
-  owner     Post           @relation(fields: [postID], references: [id])
   type      AttachmentType
   createdAt DateTime       @default(now())
   updatedAt DateTime       @updatedAt
   deletedAt DateTime?
+  post      Post           @relation(fields: [postID], references: [id])
 
   @@index([postID])
   @@map("attachments")
 }
 
 model UserFollowGroup {
-  userID       Int
-  follower     User            @relation(fields: [userID], references: [id])
-  groupName    String
-  group        Group           @relation(fields: [groupName], references: [groupname])
+  username     String
+  groupname    String
   role         UserInGroupType @default(USER)
   timeUnbanned DateTime        @default(now())
+  group        Group           @relation(fields: [groupname], references: [groupname])
+  follower     User            @relation(fields: [username], references: [username])
 
-  @@unique([userID, groupName])
-  @@index([userID, groupName, role])
+  @@unique([username, groupname])
+  @@index([username, groupname, role])
+  @@index([groupname], map: "user_follow_groups_groupname_fkey")
   @@map("user_follow_groups")
 }
 
 model PostReaction {
   id         Int          @id @unique @default(autoincrement())
-  userID     Int
-  owner      User         @relation(fields: [userID], references: [id])
+  username   String
   postID     Int
-  parentPost Post         @relation(fields: [postID], references: [id])
   reaction   ReactionType @default(NONE)
+  parentPost Post         @relation(fields: [postID], references: [id])
+  user       User         @relation(fields: [username], references: [username])
 
-  @@index([userID, postID])
+  @@index([username, postID])
+  @@index([postID], map: "post_reactions_postID_fkey")
   @@map("post_reactions")
 }
 
 model CommentReation {
   id            Int          @id @unique @default(autoincrement())
-  userID        Int
-  owner         User         @relation(fields: [userID], references: [id])
+  username      String
   commentID     Int
-  parentComment Comment      @relation(fields: [commentID], references: [id])
   reaction      ReactionType @default(NONE)
+  parentComment Comment      @relation(fields: [commentID], references: [id])
+  user          User         @relation(fields: [username], references: [username])
 
-  @@index([userID, commentID])
+  @@index([username, commentID])
+  @@index([commentID], map: "comment_reactions_commentID_fkey")
   @@map("comment_reactions")
 }
 
 model PostReport {
   id           Int          @id @unique @default(autoincrement())
-  userID       Int
-  reporter     User         @relation(fields: [userID], references: [id])
+  username     String
   postID       Int?
-  reportedPost Post?        @relation(fields: [postID], references: [id])
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   status       ReportStatus @default(UNHANDLED)
   bannedReason String       @db.VarChar(500)
+  reportedPost Post?        @relation(fields: [postID], references: [id])
+  reporter     User         @relation(fields: [username], references: [username])
 
   @@index([status, postID, bannedReason])
+  @@index([postID], map: "post_reports_postID_fkey")
+  @@index([username], map: "post_reports_username_fkey")
   @@map("post_reports")
 }
 
 model CommentReport {
   id              Int          @id @unique @default(autoincrement())
-  userID          Int
-  reporter        User         @relation(fields: [userID], references: [id])
+  username        String
   commentID       Int?
-  reportedComment Comment?     @relation(fields: [commentID], references: [id])
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   status          ReportStatus @default(UNHANDLED)
   bannedReason    String       @db.VarChar(500)
+  reportedComment Comment?     @relation(fields: [commentID], references: [id])
+  reporter        User         @relation(fields: [username], references: [username])
 
   @@index([status, commentID, bannedReason])
+  @@index([commentID], map: "comment_reports_commentID_fkey")
+  @@index([username], map: "comment_reports_username_fkey")
   @@map("comment_reports")
 }
 

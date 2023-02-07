@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 // eslint-disable-next-line import/prefer-default-export
 export function authenticateToken(
@@ -13,11 +13,11 @@ export function authenticateToken(
   if (!token) res.status(401).json('Token not found');
   jwt.verify(
     <string>token,
-    process.env.TOKEN_SECRET as string,
+    <string>process.env.ACCESS_TOKEN,
     (err, decoded) => {
       if (err) return res.status(403).json(err);
       if (decoded) {
-        req.user = (<JwtPayload>decoded).username;
+        req.user = <typeof req.user>decoded;
       }
       next();
       return null;

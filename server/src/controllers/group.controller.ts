@@ -4,16 +4,16 @@ import prisma from '../addons/prismaClient.js';
 
 export async function CreateGroupController(req: Request, res: Response) {
   try {
-    if (req.user === req.body.user.username) {
-      const createdGroup = prisma.group.create({
-        data: {
-          groupname: req.body.groupname,
-          displayname: req.body.displayname || '',
-          userID: req.body.user.id,
-        },
-      });
-      res.status(200).json(createdGroup);
-    }
+    if (!req.user?.username)
+      return res.status(403).json("can't find username in decoded jwt");
+    const createdGroup = await prisma.group.create({
+      data: {
+        groupname: req.body.groupname,
+        displayname: req.body.displayname,
+        ownername: req.user.username as string,
+      },
+    });
+    return res.status(200).json(createdGroup);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {
@@ -22,21 +22,71 @@ export async function CreateGroupController(req: Request, res: Response) {
           res.status(409).json('This group has existed!');
           break;
         default:
-          res.status(500).json(err.message);
+          res.status(500).json({ code: err.code, message: err.message });
+          throw err;
       }
+    } else {
+      res.status(500).json(err);
+      throw err;
     }
   }
 }
-export async function GetAllGroupsExistedController(
-  req: Request,
-  res: Response
-) {}
+
+export async function SearchGroupsController(req: Request, res: Response) {
+  try {
+    const keyword = req.query.keyword as string;
+    const followingGroupList = await prisma.group.findMany({
+      where: {
+        groupname: {
+          contains: keyword,
+        },
+      },
+    });
+    return res.status(200).json(followingGroupList);
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
+  }
+}
+
 export async function GetGroupsUserFollowingController(
   req: Request,
   res: Response
 ) {
-  // TODO here
+  try {
+    if (!req.user?.username)
+      return res.status(403).json("can't find username in decoded jwt");
+    const followingGroupList = await prisma.group.findMany({
+      where: {
+        usersFollowGroup: {
+          every: {
+            username: req.user.username,
+          },
+        },
+      },
+    });
+    return res.status(200).json(followingGroupList);
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
+  }
 }
 
-export async function GetGroupPostsController(req: Request, res: Response) {}
-export async function PostGroupPostController(req: Request, res: Response) {}
+export async function CheckUserFollowingGroup(req: Request, res: Response) {
+  try {
+    if (!req.user?.username)
+      return res.status(403).json("can't find username in decoded jwt");
+    const followingGroupRecord = await prisma.userFollowGroup.findUnique({
+      where: {
+        username_groupname: {
+          username: <string>req.user.username,
+          groupname: req.body.groupname,
+        },
+      },
+    });
+    return res.status(200).json(followingGroupRecord);
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
+  }
+}
