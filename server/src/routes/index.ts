@@ -6,7 +6,7 @@ import postRoute from './post.js';
 const routesList = [
   { path: '/auth', router: authRoute },
   { path: '/g', router: groupRoute },
-  { path: '/g/:groupname/', router: postRoute },
+  { path: '/g/:groupname/post', router: postRoute },
 ];
 const routes = Router();
 

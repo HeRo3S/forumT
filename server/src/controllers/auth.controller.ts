@@ -45,6 +45,8 @@ async function PostLoginController(req: Request, res: Response) {
     // return successful response
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
+      sameSite: 'none',
+      secure: true,
       maxAge: config.refreshExpire,
     });
     return res.status(200).json({ userInfo, accessToken });
@@ -78,6 +80,8 @@ async function PostRegisterController(req: Request, res: Response) {
     // return successful response
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
+      sameSite: 'none',
+      secure: true,
       maxAge: config.refreshExpire,
     });
     return res.status(200).json({ userInfo, accessToken });
@@ -121,6 +125,45 @@ async function HandleRefreshToken(req: Request, res: Response) {
       }
     );
     return null;
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
+  }
+}
+
+export async function HandleLogout(req: Request, res: Response) {
+  try {
+    const { cookies } = req;
+    if (!cookies?.jwt) return res.status(403).json("can't find refresh token");
+    const user = await prisma.user.findFirst({
+      where: {
+        refreshToken: cookies.jwt,
+      },
+    });
+    if (!user) {
+      res.clearCookie('jwt', {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      });
+      return res.sendStatus(204);
+    }
+    // *remove token
+    const updatingUser = await prisma.user.update({
+      where: {
+        username: user.username,
+      },
+      data: {
+        refreshToken: '',
+      },
+    });
+    // *remove cookies, set `secure: true` for https request
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    return res.sendStatus(204);
   } catch (err) {
     res.status(500).json(err);
     throw err;

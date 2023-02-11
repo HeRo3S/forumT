@@ -17,7 +17,7 @@ export async function CreateGroupController(req: Request, res: Response) {
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {
-        // return error if username has been created
+        // return error if groupname has been created
         case 'P2002':
           res.status(409).json('This group has existed!');
           break;
@@ -88,5 +88,19 @@ export async function CheckUserFollowingGroup(req: Request, res: Response) {
   } catch (err) {
     res.status(500).json(err);
     throw err;
+  }
+}
+
+export async function GetGroupPostsController(req: Request, res: Response) {
+  try {
+    const groupname = req.params?.groupname;
+    const groupPosts = await prisma.post.findMany({
+      where: {
+        groupname,
+      },
+    });
+    res.status(200).json(groupPosts);
+  } catch (err) {
+    res.status(500).json(err);
   }
 }
