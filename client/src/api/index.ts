@@ -23,7 +23,6 @@ instance.interceptors.response.use(
   (error) => refreshJWT(error)
 );
 
-// *checking if there is jwt in redux to add into the request
 function loadAccessTokenIntoHeader(config: AxiosRequestConfig) {
   const { accessToken } = store.getState().auth;
   if (accessToken && config.headers)
@@ -33,27 +32,30 @@ function loadAccessTokenIntoHeader(config: AxiosRequestConfig) {
     );
   return config;
 }
-// *sending refreshJWT request if req get 403 error
+
 async function refreshJWT(error: AxiosError) {
   const { response, config } = error;
   const { status, data } = response as AxiosResponse;
-  if (status === 403 && data?.name === 'TokenExpiredError') {
+  if (areRefreshConditionsMatch(status, data)) {
     try {
-      const accessToken = await (store.dispatch as AppDispatch)(
-        refreshAccessToken()
-      ).unwrap();
-      if (accessToken && config?.headers) {
-        (config.headers as AxiosHeaders).set(
-          'Authorization',
-          `Bearer ${accessToken}`
-        );
-        instance.request(config);
+      await (store.dispatch as AppDispatch)(refreshAccessToken()).unwrap();
+      if (config) {
+        // *instance interceptor will load the new token
+        return await instance.request(config);
       }
     } catch (err) {
-      (store.dispatch as AppDispatch)(logout());
+      await (store.dispatch as AppDispatch)(logout());
       throw err;
     }
   }
+  return Promise.reject(error);
+}
+
+function areRefreshConditionsMatch(status: number, data: any): boolean {
+  return (
+    (status === 403 && data?.name === 'TokenExpiredError') ||
+    (status === 401 && data === 'Token not found')
+  );
 }
 
 export default instance;

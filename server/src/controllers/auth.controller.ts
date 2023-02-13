@@ -39,9 +39,6 @@ async function PostLoginController(req: Request, res: Response) {
         refreshToken,
       },
     });
-    const userInfo: Partial<typeof existedUser> = existedUser;
-    delete userInfo.password;
-    delete userInfo.refreshToken;
     // return successful response
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
@@ -49,7 +46,7 @@ async function PostLoginController(req: Request, res: Response) {
       secure: true,
       maxAge: config.refreshExpire,
     });
-    return res.status(200).json({ userInfo, accessToken });
+    return res.status(200).json({ accessToken });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientValidationError) {
       res.status(400).json({ message: err.message });
@@ -64,19 +61,23 @@ async function PostRegisterController(req: Request, res: Response) {
   try {
     // create new user using prisma
     const hashedPassword: string = await hashingPassword(req?.body?.password);
-    const { accessToken, refreshToken } = generateToken(req?.body?.username);
     const user: User = await prisma.user.create({
       data: {
         username: req?.body?.username,
         email: req?.body?.email,
         password: hashedPassword,
+        refreshToken: '',
+      },
+    });
+    const { accessToken, refreshToken } = generateToken(user);
+    await prisma.user.update({
+      where: {
+        username: user.username,
+      },
+      data: {
         refreshToken,
       },
     });
-    // remove password and token when return data
-    const userInfo: Partial<typeof user> = { ...user };
-    delete userInfo.password;
-    delete userInfo.refreshToken;
     // return successful response
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
@@ -84,7 +85,7 @@ async function PostRegisterController(req: Request, res: Response) {
       secure: true,
       maxAge: config.refreshExpire,
     });
-    return res.status(200).json({ userInfo, accessToken });
+    return res.status(200).json({ accessToken });
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       switch (err.code) {
@@ -106,7 +107,7 @@ async function PostRegisterController(req: Request, res: Response) {
 async function HandleRefreshToken(req: Request, res: Response) {
   try {
     const { cookies } = req;
-    if (!cookies?.jwt) return res.status(403).json("can't find refresh token");
+    if (!cookies?.jwt) return res.status(401).json("can't find refresh token");
     const user = await prisma.user.findFirst({
       where: {
         refreshToken: cookies.jwt,

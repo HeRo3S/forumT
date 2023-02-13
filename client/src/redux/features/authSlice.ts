@@ -1,5 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import jwt_decode from 'jwt-decode';
 import AuthService from '../../api/auth';
 import { ReqUser } from '../../config/interfaces/reqAPI';
 
@@ -41,7 +42,7 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(login.fulfilled, (state, action) => {
-        state.userInfo = action.payload.userInfo;
+        state.userInfo = decodeJWT(action.payload.accessToken);
         state.accessToken = action.payload.accessToken;
         state.isLoggedIn = true;
       })
@@ -51,7 +52,7 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
       })
       .addCase(register.fulfilled, (state, action) => {
-        state.userInfo = action.payload.userInfo;
+        state.userInfo = decodeJWT(action.payload.accessToken);
         state.accessToken = action.payload.accessToken;
         state.isLoggedIn = true;
       })
@@ -61,6 +62,7 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
       })
       .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        state.userInfo = decodeJWT(action.payload.accessToken);
         state.accessToken = action.payload.accessToken;
         state.isLoggedIn = true;
       })
@@ -81,5 +83,10 @@ const authSlice = createSlice({
       });
   },
 });
+
+function decodeJWT(accessToken: string) {
+  const userInfo = jwt_decode(accessToken);
+  return userInfo as object;
+}
 
 export default authSlice.reducer;
