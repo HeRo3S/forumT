@@ -149,7 +149,7 @@ export async function HandleLogout(req: Request, res: Response) {
       return res.sendStatus(204);
     }
     // *remove token
-    const updatingUser = await prisma.user.update({
+    await prisma.user.update({
       where: {
         username: user.username,
       },

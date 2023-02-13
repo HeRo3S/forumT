@@ -22,5 +22,11 @@ module.exports = {
   plugins: ['react', '@typescript-eslint'],
   rules: {
     'react/react-in-jsx-scope': 0,
+    '@typescript-eslint/no-use-before-define': [
+      'error',
+      {
+        functions: false,
+      },
+    ],
   },
 };

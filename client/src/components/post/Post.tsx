@@ -7,12 +7,8 @@ import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import postImage from '../../assets/dev_purpose/post.png';
-import { ResPost } from '../../utils/interfaces/resAPI';
+import { ResPost } from '../../config/interfaces/resAPI';
 import './post.css';
-
-interface IProps extends ResPost {
-  variant: string;
-}
 
 function renderBody(type: string) {
   switch (type) {
@@ -49,8 +45,8 @@ function renderBody(type: string) {
   }
 }
 
-function Post(props: IProps) {
-  const { id, type, groupID, variant } = props;
+function Post(props: ResPost) {
+  const { id, type, groupID } = props;
   const navigate = useNavigate();
 
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {

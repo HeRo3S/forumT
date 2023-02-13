@@ -8,7 +8,7 @@ const routes = [
   { path: '/', component: Home },
   { path: '/login', component: Login },
   { path: '/register', component: Register },
-  { path: '/g/:groupID' },
+  // { path: '/g/:groupID' },
   { path: '/g/:groupID/:postID', component: DetailPost },
   { path: '*', component: NotFound },
 ];

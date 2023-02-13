@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import AuthService from '../../api/auth';
-import { ReqUser } from '../../utils/interfaces/reqAPI';
+import { ReqUser } from '../../config/interfaces/reqAPI';
 
 const INITIAL_STATE = { userInfo: {}, accessToken: '', isLoggedIn: false };
 
@@ -20,6 +20,19 @@ export const register = createAsyncThunk(
     return response;
   }
 );
+
+export const refreshAccessToken = createAsyncThunk(
+  'auth/refreshToken',
+  async () => {
+    const response = await AuthService.refreshAccessToken();
+    return response;
+  }
+);
+
+export const logout = createAsyncThunk('auth/logout', async () => {
+  const response = await AuthService.logout();
+  return response;
+});
 
 const authSlice = createSlice({
   name: 'auth',
@@ -43,6 +56,25 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(register.rejected, (state) => {
+        state.userInfo = {};
+        state.accessToken = '';
+        state.isLoggedIn = false;
+      })
+      .addCase(refreshAccessToken.fulfilled, (state, action) => {
+        state.accessToken = action.payload.accessToken;
+        state.isLoggedIn = true;
+      })
+      .addCase(refreshAccessToken.rejected, (state) => {
+        state.userInfo = {};
+        state.accessToken = '';
+        state.isLoggedIn = false;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.userInfo = {};
+        state.accessToken = '';
+        state.isLoggedIn = false;
+      })
+      .addCase(logout.rejected, (state) => {
         state.userInfo = {};
         state.accessToken = '';
         state.isLoggedIn = false;

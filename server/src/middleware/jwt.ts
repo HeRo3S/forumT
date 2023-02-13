@@ -10,7 +10,11 @@ export function authenticateToken(
   const authHeader = req.headers.authorization;
   const token = authHeader && authHeader.split(' ')[1];
 
-  if (!token) res.status(401).json('Token not found');
+  if (!token) {
+    res.status(401).json('Token not found');
+    return;
+  }
+
   jwt.verify(
     <string>token,
     <string>process.env.ACCESS_TOKEN,
