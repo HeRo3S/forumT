@@ -2,9 +2,18 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
 import AuthService from '../../api/auth';
-import { ReqUser } from '../../config/interfaces/reqAPI';
+import { ReqUser } from '../../../types/interfaces/reqAPI';
 
-const INITIAL_STATE = { userInfo: {}, accessToken: '', isLoggedIn: false };
+interface State {
+  userInfo: { username?: string } | null;
+  accessToken: string;
+  isLoggedIn: boolean;
+}
+const INITIAL_STATE: State = {
+  userInfo: null,
+  accessToken: '',
+  isLoggedIn: false,
+};
 
 export const login = createAsyncThunk(
   'auth/login',
@@ -47,7 +56,7 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(login.rejected, (state) => {
-        state.userInfo = {};
+        state.userInfo = null;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
@@ -57,7 +66,7 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(register.rejected, (state) => {
-        state.userInfo = {};
+        state.userInfo = null;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
@@ -67,17 +76,17 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(refreshAccessToken.rejected, (state) => {
-        state.userInfo = {};
+        state.userInfo = null;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.userInfo = {};
+        state.userInfo = null;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
       .addCase(logout.rejected, (state) => {
-        state.userInfo = {};
+        state.userInfo = null;
         state.accessToken = '';
         state.isLoggedIn = false;
       });

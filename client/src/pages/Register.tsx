@@ -7,7 +7,7 @@ import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { register } from '../redux/features/authSlice';
 import { useAppDispatch } from '../redux/hook';
-import { ReqUser } from '../config/interfaces/reqAPI';
+import { ReqUser } from '../../types/interfaces/reqAPI';
 
 function Register() {
   const dispatch = useAppDispatch();

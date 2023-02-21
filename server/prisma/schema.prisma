@@ -19,7 +19,7 @@ model User {
   deletedAt        DateTime?
   avatarURL        String?           @db.MediumText
   refreshToken     String            @db.Text
-  commentReations  CommentReation[]
+  commentReactions CommentReaction[]
   reportedComments CommentReport[]
   comments         Comment[]
   groupsOwned      Group[]
@@ -63,7 +63,7 @@ model Post {
   deletedAt   DateTime?
   attachments Attachment[]
   comments    Comment[]
-  reations    PostReaction[]
+  reactions   PostReaction[]
   reports     PostReport[]
   group       Group          @relation(fields: [groupname], references: [groupname])
   user        User           @relation(fields: [username], references: [username])
@@ -75,17 +75,17 @@ model Post {
 }
 
 model Comment {
-  id           Int              @id @unique @default(autoincrement())
-  content      String           @db.LongText
+  id           Int               @id @unique @default(autoincrement())
+  content      String            @db.LongText
   parentPostID Int
   username     String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
   deletedAt    DateTime?
-  reations     CommentReation[]
+  reactions    CommentReaction[]
   reports      CommentReport[]
-  parentPost   Post             @relation(fields: [parentPostID], references: [id])
-  User         User             @relation(fields: [username], references: [username])
+  parentPost   Post              @relation(fields: [parentPostID], references: [id])
+  User         User              @relation(fields: [username], references: [username])
 
   @@index([parentPostID, username])
   @@index([username], map: "comments_username_fkey")
@@ -133,7 +133,7 @@ model PostReaction {
   @@map("post_reactions")
 }
 
-model CommentReation {
+model CommentReaction {
   id            Int          @id @unique @default(autoincrement())
   username      String
   commentID     Int

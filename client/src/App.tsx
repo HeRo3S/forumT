@@ -11,13 +11,13 @@ injectStore(store);
 
 function WrappedApp() {
   return (
-    <Provider store={store}>
-      <BrowserRouter>
+    <BrowserRouter>
+      <Provider store={store}>
         <ThemeProvider theme={defaultTheme}>
           <App />
         </ThemeProvider>
-      </BrowserRouter>
-    </Provider>
+      </Provider>
+    </BrowserRouter>
   );
 }
 

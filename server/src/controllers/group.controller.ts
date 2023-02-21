@@ -32,6 +32,20 @@ export async function CreateGroupController(req: Request, res: Response) {
   }
 }
 
+export async function GetGroupInfo(req: Request, res: Response) {
+  try {
+    const groupInfo = await prisma.group.findUnique({
+      where: {
+        groupname: req.params.groupname,
+      },
+    });
+    if (!groupInfo) res.status(400).json('Cannot find group');
+    res.status(200).json(groupInfo);
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
+  }
+}
 export async function SearchGroupsController(req: Request, res: Response) {
   try {
     const keyword = req.query.keyword as string;
@@ -40,6 +54,12 @@ export async function SearchGroupsController(req: Request, res: Response) {
         groupname: {
           contains: keyword,
         },
+      },
+      select: {
+        id: true,
+        groupname: true,
+        displayname: true,
+        avatarURL: true,
       },
     });
     return res.status(200).json(followingGroupList);

@@ -28,10 +28,23 @@ export interface ResPost {
   id: number;
   title: string;
   content: string;
-  groupID: number;
-  userID: number;
+  groupname: string;
+  username: string;
   type: string;
   createdAt: string;
   updatedAt: string;
   deletedAt?: string;
+}
+
+export interface ResGroupInfo {
+  [key: string]: unknown;
+  id: number;
+  groupname: string;
+  displayname?: string;
+  ownername: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  avatarURL: string;
 }

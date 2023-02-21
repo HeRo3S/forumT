@@ -26,7 +26,7 @@ function Navbar() {
 
       <Grid2 xs={3} id="rightNav">
         <Notifications />
-        {auth.accessToken !== '' ? (
+        {auth.userInfo ? (
           <button type="button">
             <span>{auth.userInfo.username}</span>
           </button>

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import axiosConfig from '../config/axios';
-import { ReqUser } from '../config/interfaces/reqAPI';
-import { ResUser } from '../config/interfaces/resAPI';
+import { ReqUser } from '../../types/interfaces/reqAPI';
+import { ResUser } from '../../types/interfaces/resAPI';
 
 const authInstance = axios.create(axiosConfig);
 

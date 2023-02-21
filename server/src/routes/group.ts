@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   CreateGroupController,
+  GetGroupInfo,
   GetGroupPostsController,
   GetGroupsUserFollowingController,
   SearchGroupsController,
@@ -17,6 +18,7 @@ groupRoute.get(
   authenticateToken,
   GetGroupsUserFollowingController
 );
-groupRoute.get('/:groupname/', GetGroupPostsController);
+groupRoute.get('/:groupname', GetGroupInfo);
+groupRoute.get('/:groupname/posts', GetGroupPostsController);
 
 export default groupRoute;

@@ -36,6 +36,19 @@ export async function CreatePostAttachmentController(
   req: Request,
   res: Response
 ) {}
+export async function GetPostController(req: Request, res: Response) {
+  try {
+    const postID = req.params?.postID;
+    const post = await prisma.post.findUnique({
+      where: {
+        id: +postID,
+      },
+    });
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
 export async function GetPostCommentsController(req: Request, res: Response) {}
 export async function ReactPostController(req: Request, res: Response) {}
 export async function PostCommentController(req: Request, res: Response) {}
