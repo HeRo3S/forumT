@@ -2,14 +2,15 @@ import { Router } from 'express';
 import {
   PostLoginController,
   PostRegisterController,
+  HandleRefreshToken,
+  HandleLogout,
 } from '../controllers/auth.controller.js';
 
 const authRoute = Router();
 
-// Create + Update account
 authRoute.post('/register', PostRegisterController);
-//Login account
 authRoute.post('/login', PostLoginController);
-// Delete
+authRoute.get('/refreshToken', HandleRefreshToken);
+authRoute.get('/logout', HandleLogout);
 
 export default authRoute;
