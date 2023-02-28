@@ -3,10 +3,15 @@ import { useParams } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
 import PostService from '../api/post';
 import Post from '../components/post/Post';
-import Loading from '../components/loading/Loading';
+import Loading from '../components/Loading';
+import Comment from '../components/post/Comment';
+import ContentContainer from '../components/common/mui/Layout';
+import { useAppSelector } from '../redux/hook';
+import Editor from '../components/common/editor/Editor';
 
 function DetailPost() {
   const { groupname, postID } = useParams();
+  const { userInfo } = useAppSelector((state) => state.auth);
   if (!(groupname && postID))
     return (
       <Typography variant="h1">Cannot find groupname or post ID</Typography>
@@ -17,7 +22,15 @@ function DetailPost() {
 
   if (postInfoError)
     return <Typography variant="h1">{postInfoError}</Typography>;
-  if (post) return <Post postInfo={post} />;
+  if (post)
+    return (
+      <ContentContainer>
+        <Post postInfo={post} />
+        <Typography variant="h5">Bình luận</Typography>
+        {userInfo && <Editor />}
+        <Comment />
+      </ContentContainer>
+    );
 }
 
 function GetPostInfo(groupname: string, postID: string) {

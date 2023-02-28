@@ -1,17 +1,32 @@
-import MessageIcon from '@mui/icons-material/Message';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import Container from '@mui/material/Container';
-import Typography from '@mui/material/Typography';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
+import Typography, { TypographyProps } from '@mui/material/Typography';
+import Grid from '@mui/material/Grid';
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Stack from '@mui/material/Stack';
+import Box, { BoxProps } from '@mui/material/Box';
+import { styled } from '@mui/material/styles';
+import Button from '@mui/material/Button';
 import { ResPost } from '../../../types/interfaces/resAPI';
-import './post.css';
+import ContentContainer from '../common/mui/Layout';
+import ReactionBar from './ReactionBar';
 
 interface IProps {
   postInfo: ResPost;
 }
+
+const StyledPostBody = styled(Box)<BoxProps>({
+  marginTop: '10px',
+  marginBottom: '10px',
+});
+
+const StyledUsernameTypo = styled(Typography)<TypographyProps>({
+  marginLeft: '20px',
+});
+
+const StyledPostImage = styled('img')({
+  width: '100%',
+});
+
 function Post(props: IProps) {
   const { postInfo } = props;
   const { id, type, groupname, username, content } = postInfo;
@@ -21,91 +36,61 @@ function Post(props: IProps) {
     e.preventDefault();
     navigate(`/g/${groupname}/post/${id}`);
   }
-  function handleOnClickReactionButton(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    e.stopPropagation();
-  }
   function handleOnClickLinkButton(e: React.MouseEvent<HTMLAnchorElement>) {
     e.stopPropagation();
   }
 
   return (
-    <Container
-      className="postContainer mainContainer"
-      onClick={(e) => handleOnClickContainer(e)}
+    <ContentContainer
+      onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+        handleOnClickContainer(e)
+      }
     >
-      <Grid2 xs={3} className="reactionBar">
-        <button type="button" className="reactionButton">
-          <ThumbUpIcon fontSize="small" />
-          <Typography variant="h6">1.2k</Typography>
-        </button>
-        <button
-          type="button"
-          className="reactionButton"
-          onClick={(e) => handleOnClickReactionButton(e)}
-        >
-          <ThumbDownIcon fontSize="small" />
-          <Typography variant="h6">1.2k</Typography>
-        </button>
-        <button
-          type="button"
-          className="reactionButton"
-          onClick={(e) => handleOnClickReactionButton(e)}
-        >
-          <MessageIcon fontSize="small" />
-          <Typography variant="h6">1.2k</Typography>
-        </button>
-      </Grid2>
-      <Grid2 xs container className="contentBar">
-        <Grid2 xs={12} display="flex" sx={{ marginTop: '10px' }}>
-          <Link
-            to={`/g/${groupname}`}
-            onClick={(e) => handleOnClickLinkButton(e)}
-          >
-            <Typography variant="subtitle1" className="boldText">
-              g/{groupname}
-            </Typography>
-          </Link>
-          <Link
-            to={`/u/${username}`}
-            onClick={(e) => handleOnClickLinkButton(e)}
-          >
-            <Typography
-              variant="subtitle1"
-              className="grayText"
-              sx={{ marginLeft: '20px' }}
-            >
-              Đăng bởi u/{username}
-            </Typography>
-          </Link>
-        </Grid2>
-        <Grid2 xs={12}>
-          <Typography variant="h4" className="boldText">
-            Đâu là tựa game tệ nhất 2022?
-          </Typography>
-        </Grid2>
-        <Grid2 xs={12} className="postBody">
-          {renderBody(type, content)}
-        </Grid2>
-        <Grid2 xs={12} display="flex">
-          <button type="button">
-            <Typography variant="subtitle2" className="grayText">
-              Báo cáo vi phạm
-            </Typography>
-          </button>
-          <button type="button">
-            <Typography variant="subtitle2" className="grayText">
-              Xoá bài viết
-            </Typography>
-          </button>
-          <button type="button">
-            <Typography variant="subtitle2" className="grayText">
-              Admin quản lý
-            </Typography>
-          </button>
-        </Grid2>
-      </Grid2>
-    </Container>
+      <Grid container>
+        <Grid item xs={2}>
+          <ReactionBar variant="post" id={id} />
+        </Grid>
+        <Grid item xs>
+          <Stack>
+            <Box sx={{ display: 'flex', marginTop: '10px' }}>
+              <Link
+                to={`/g/${groupname}`}
+                onClick={(e) => handleOnClickLinkButton(e)}
+              >
+                <Typography variant="subtitle1" className="boldText">
+                  g/{groupname}
+                </Typography>
+              </Link>
+              <Link
+                to={`/u/${username}`}
+                onClick={(e) => handleOnClickLinkButton(e)}
+              >
+                <StyledUsernameTypo variant="subtitle2">
+                  Đăng bởi u/{username}
+                </StyledUsernameTypo>
+              </Link>
+            </Box>
+            <Box>
+              <Typography variant="h4" className="boldText">
+                Đâu là tựa game tệ nhất 2022?
+              </Typography>
+            </Box>
+            <StyledPostBody>{renderBody(type, content)}</StyledPostBody>
+            <Box display="flex">
+              <Button>
+                <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
+              </Button>
+              <Button>
+                <Typography variant="subtitle2">Xoá bài viết</Typography>
+              </Button>
+              <Button>
+                <Typography variant="subtitle2">Admin quản lý</Typography>
+              </Button>
+            </Box>
+          </Stack>
+        </Grid>
+      </Grid>
+    </ContentContainer>
   );
 }
 
@@ -118,7 +103,7 @@ function renderBody(type: string, content: string) {
         </Typography>
       );
     case 'MEDIA':
-      return <img src={content} alt="postImage" />;
+      return <StyledPostImage src={content} alt="postImage" />;
     case 'LINK':
       return <Link to={content}>content</Link>;
     default:

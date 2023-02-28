@@ -28,5 +28,11 @@ module.exports = {
         functions: false,
       },
     ],
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: ['@mui/*/*/*'],
+      },
+    ],
   },
 };

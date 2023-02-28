@@ -2,7 +2,7 @@ import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { injectStore } from './api';
-import Navbar from './components/navbar/Navbar';
+import Navbar from './components/Navbar';
 import { store } from './redux/store';
 import routes from './routes';
 import defaultTheme from './style/muitheme';

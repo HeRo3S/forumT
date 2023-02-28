@@ -14,9 +14,8 @@ const config = {
 
 async function PostLoginController(req: Request, res: Response) {
   try {
-    let existedUser = await prisma.user.findUnique({
+    const existedUser = await prisma.user.findUnique({
       where: {
-        username: req?.body?.username,
         email: req?.body?.email,
       },
     });
@@ -30,15 +29,6 @@ async function PostLoginController(req: Request, res: Response) {
     }
     // create token
     const { accessToken, refreshToken } = generateToken(existedUser);
-    // update refreshToken to DB
-    existedUser = await prisma.user.update({
-      where: {
-        username: existedUser.username,
-      },
-      data: {
-        refreshToken,
-      },
-    });
     // return successful response
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
@@ -66,18 +56,9 @@ async function PostRegisterController(req: Request, res: Response) {
         username: req?.body?.username,
         email: req?.body?.email,
         password: hashedPassword,
-        refreshToken: '',
       },
     });
     const { accessToken, refreshToken } = generateToken(user);
-    await prisma.user.update({
-      where: {
-        username: user.username,
-      },
-      data: {
-        refreshToken,
-      },
-    });
     // return successful response
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
@@ -108,20 +89,17 @@ async function HandleRefreshToken(req: Request, res: Response) {
   try {
     const { cookies } = req;
     if (!cookies?.jwt) return res.status(401).json("can't find refresh token");
-    const user = await prisma.user.findFirst({
-      where: {
-        refreshToken: cookies.jwt,
-      },
-    });
-    if (!user)
-      return res.status(403).json("can't find user with this refresh token");
     jwt.verify(
       cookies.jwt as string,
       process.env.REFRESH_TOKEN as string,
-      (err, decoded) => {
-        if (err || (decoded as Partial<User>).username !== user.username)
-          return res.status(400).json("can't decode refresh token");
-        const { accessToken } = generateToken(user);
+      async (err, decoded) => {
+        if (err) return res.status(400).json(err);
+        const user = await prisma.user.findUnique({
+          where: {
+            username: (decoded as Partial<User>).username,
+          },
+        });
+        const { accessToken } = generateToken(<User>user);
         return res.status(200).json({ accessToken });
       }
     );
@@ -136,28 +114,6 @@ export async function HandleLogout(req: Request, res: Response) {
   try {
     const { cookies } = req;
     if (!cookies?.jwt) return res.status(403).json("can't find refresh token");
-    const user = await prisma.user.findFirst({
-      where: {
-        refreshToken: cookies.jwt,
-      },
-    });
-    if (!user) {
-      res.clearCookie('jwt', {
-        httpOnly: true,
-        sameSite: 'none',
-        secure: true,
-      });
-      return res.sendStatus(204);
-    }
-    // *remove token
-    await prisma.user.update({
-      where: {
-        username: user.username,
-      },
-      data: {
-        refreshToken: '',
-      },
-    });
     // *remove cookies, set `secure: true` for https request
     res.clearCookie('jwt', {
       httpOnly: true,

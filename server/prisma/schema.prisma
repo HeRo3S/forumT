@@ -18,7 +18,6 @@ model User {
   createdAt        DateTime          @default(now())
   deletedAt        DateTime?
   avatarURL        String?           @db.MediumText
-  refreshToken     String            @db.Text
   commentReactions CommentReaction[]
   reportedComments CommentReport[]
   comments         Comment[]
@@ -28,7 +27,7 @@ model User {
   posts            Post[]
   groupsFollowed   UserFollowGroup[]
 
-  @@index([username, email])
+  @@index([displayname])
   @@map("users")
 }
 
@@ -47,7 +46,6 @@ model Group {
   usersFollowGroup UserFollowGroup[]
 
   @@index([groupname, displayname])
-  @@index([ownername], map: "groups_ownername_fkey")
   @@map("groups")
 }
 
@@ -69,8 +67,6 @@ model Post {
   user        User           @relation(fields: [username], references: [username])
 
   @@index([title, groupname, username])
-  @@index([groupname], map: "posts_groupname_fkey")
-  @@index([username], map: "posts_username_fkey")
   @@map("posts")
 }
 
@@ -88,7 +84,6 @@ model Comment {
   User         User              @relation(fields: [username], references: [username])
 
   @@index([parentPostID, username])
-  @@index([username], map: "comments_username_fkey")
   @@map("comments")
 }
 
@@ -116,7 +111,6 @@ model UserFollowGroup {
 
   @@unique([username, groupname])
   @@index([username, groupname, role])
-  @@index([groupname], map: "user_follow_groups_groupname_fkey")
   @@map("user_follow_groups")
 }
 
@@ -129,7 +123,6 @@ model PostReaction {
   user       User         @relation(fields: [username], references: [username])
 
   @@index([username, postID])
-  @@index([postID], map: "post_reactions_postID_fkey")
   @@map("post_reactions")
 }
 
@@ -142,7 +135,6 @@ model CommentReaction {
   user          User         @relation(fields: [username], references: [username])
 
   @@index([username, commentID])
-  @@index([commentID], map: "comment_reactions_commentID_fkey")
   @@map("comment_reactions")
 }
 
@@ -158,8 +150,6 @@ model PostReport {
   reporter     User         @relation(fields: [username], references: [username])
 
   @@index([status, postID, bannedReason])
-  @@index([postID], map: "post_reports_postID_fkey")
-  @@index([username], map: "post_reports_username_fkey")
   @@map("post_reports")
 }
 
@@ -175,8 +165,6 @@ model CommentReport {
   reporter        User         @relation(fields: [username], references: [username])
 
   @@index([status, commentID, bannedReason])
-  @@index([commentID], map: "comment_reports_commentID_fkey")
-  @@index([username], map: "comment_reports_username_fkey")
   @@map("comment_reports")
 }
 
