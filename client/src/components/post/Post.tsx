@@ -6,12 +6,22 @@ import Stack from '@mui/material/Stack';
 import Box, { BoxProps } from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
-import { ResPost } from '../../../types/interfaces/resAPI';
-import ContentContainer from '../common/mui/Layout';
+import DOMPurify from 'dompurify';
+import {
+  ReactionStatsProps,
+  ResAttachment,
+  ResPost,
+} from '../../../types/interfaces/resAPI';
+import ContentContainer from '../common/Layout';
 import ReactionBar from './ReactionBar';
 
 interface IProps {
-  postInfo: ResPost;
+  postInfo: IPostInfo;
+}
+interface IPostInfo {
+  post: ResPost;
+  reaction: ReactionStatsProps;
+  attachment?: ResAttachment;
 }
 
 const StyledPostBody = styled(Box)<BoxProps>({
@@ -29,7 +39,9 @@ const StyledPostImage = styled('img')({
 
 function Post(props: IProps) {
   const { postInfo } = props;
-  const { id, type, groupname, username, content } = postInfo;
+  const { post, reaction, attachment } = postInfo;
+  const { id, type, groupname, username, title, content } = post;
+  const url = attachment?.url || '';
   const navigate = useNavigate();
 
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {
@@ -48,10 +60,10 @@ function Post(props: IProps) {
     >
       <Grid container>
         <Grid item xs={2}>
-          <ReactionBar variant="post" id={id} />
+          <ReactionBar variant="post" post={post} reaction={reaction} />
         </Grid>
         <Grid item xs>
-          <Stack>
+          <Stack sx={{ paddingRight: '10px' }}>
             <Box sx={{ display: 'flex', marginTop: '10px' }}>
               <Link
                 to={`/g/${groupname}`}
@@ -72,10 +84,10 @@ function Post(props: IProps) {
             </Box>
             <Box>
               <Typography variant="h4" className="boldText">
-                Đâu là tựa game tệ nhất 2022?
+                {title}
               </Typography>
             </Box>
-            <StyledPostBody>{renderBody(type, content)}</StyledPostBody>
+            <StyledPostBody>{renderBody(type, content, url)}</StyledPostBody>
             <Box display="flex">
               <Button>
                 <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
@@ -94,16 +106,22 @@ function Post(props: IProps) {
   );
 }
 
-function renderBody(type: string, content: string) {
+function renderBody(type: string, content: string, attachmentURL: string) {
+  const PUBLIC_FOLDER = 'http://localhost:5000/';
   switch (type) {
     case 'DEFAULT':
+      // eslint-disable-next-line no-case-declarations
+      const sanitizedHTMLContent = DOMPurify.sanitize(content);
       return (
-        <Typography variant="body1" className="text">
-          {content}
-        </Typography>
+        <Typography
+          variant="body1"
+          dangerouslySetInnerHTML={{ __html: sanitizedHTMLContent }}
+        />
       );
     case 'MEDIA':
-      return <StyledPostImage src={content} alt="postImage" />;
+      return (
+        <StyledPostImage src={PUBLIC_FOLDER + attachmentURL} alt="postImage" />
+      );
     case 'LINK':
       return <Link to={content}>content</Link>;
     default:

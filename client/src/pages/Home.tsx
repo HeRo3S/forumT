@@ -1,5 +1,6 @@
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
 import useSWR from 'swr';
-import { ResPost } from '../../types/interfaces/resAPI';
 import HomeService from '../api/home';
 import Post from '../components/post/Post';
 import { useAppSelector } from '../redux/hook';
@@ -9,8 +10,20 @@ function Home() {
 
   const { isLoading, posts, fetchDefaultPostsError } = FetchDefaultPosts();
 
-  if (posts)
-    return posts.map((p) => <Post key={p.id} postInfo={p as ResPost} />);
+  if (fetchDefaultPostsError)
+    return <Typography variant="h1">{fetchDefaultPostsError}</Typography>;
+
+  return (
+    <Box>
+      {posts &&
+        posts.map((p) => {
+          const { post } = p;
+          const { id } = post;
+          return <Post key={id} postInfo={p} />;
+        })}
+      ;
+    </Box>
+  );
 }
 
 function FetchDefaultPosts() {

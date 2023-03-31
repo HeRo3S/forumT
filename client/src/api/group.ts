@@ -1,12 +1,20 @@
 import instance from '.';
-import { ResGroupInfo, ResPost } from '../../types/interfaces/resAPI';
+import {
+  ReactionStatsProps,
+  ResGroupInfo,
+  ResPost,
+} from '../../types/interfaces/resAPI';
 
 async function getGroupInfo(groupname: string): Promise<ResGroupInfo> {
   const res = await instance.get(`/g/${groupname}`);
   return res.data;
 }
 
-async function getGroupPosts(groupname: string): Promise<ResPost[]> {
+interface IResGetGroupPosts {
+  post: ResPost;
+  reaction: ReactionStatsProps;
+}
+async function getGroupPosts(groupname: string): Promise<IResGetGroupPosts[]> {
   const res = await instance.get(`/g/${groupname}/posts`);
   return res.data;
 }

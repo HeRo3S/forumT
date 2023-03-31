@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
 import prisma from '../addons/prismaClient.js';
+import SearchService from '../services/search.service.js';
 
 export async function CreateGroupController(req: Request, res: Response) {
   try {
@@ -49,20 +50,8 @@ export async function GetGroupInfo(req: Request, res: Response) {
 export async function SearchGroupsController(req: Request, res: Response) {
   try {
     const keyword = req.query.keyword as string;
-    const followingGroupList = await prisma.group.findMany({
-      where: {
-        groupname: {
-          contains: keyword,
-        },
-      },
-      select: {
-        id: true,
-        groupname: true,
-        displayname: true,
-        avatarURL: true,
-      },
-    });
-    return res.status(200).json(followingGroupList);
+    const groups = await SearchService.SearchGroups(keyword);
+    return res.status(200).json(groups);
   } catch (err) {
     res.status(500).json(err);
     throw err;
@@ -119,7 +108,40 @@ export async function GetGroupPostsController(req: Request, res: Response) {
         groupname,
       },
     });
-    res.status(200).json(groupPosts);
+    const response: object[] = [];
+    await Promise.all(
+      groupPosts.map(async (p) => {
+        const { id } = p;
+        const nUpvote = await prisma.postReaction.count({
+          where: {
+            postID: +id,
+            reaction: 'UPVOTE',
+          },
+        });
+        const nDownvote = await prisma.postReaction.count({
+          where: {
+            postID: +id,
+            reaction: 'DOWNVOTE',
+          },
+        });
+        const nComments = await prisma.comment.count({
+          where: {
+            parentPostID: +id,
+          },
+        });
+        const attachments = await prisma.attachment.findMany({
+          where: {
+            postID: +id,
+          },
+        });
+        response.push({
+          post: p,
+          reaction: { nUpvote, nDownvote, nComments },
+          attachments,
+        });
+      })
+    );
+    return res.status(200).json(response);
   } catch (err) {
     res.status(500).json(err);
   }

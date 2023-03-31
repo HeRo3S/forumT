@@ -6,7 +6,7 @@ import { styled } from '@mui/material/styles';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ContentContainer from '../common/mui/Layout';
+import ContentContainer from '../common/Layout';
 import ReactionBar from './ReactionBar';
 
 const StyledPostBody = styled(Box)<BoxProps>({

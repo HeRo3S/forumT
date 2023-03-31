@@ -3,3 +3,9 @@ export interface ReqUser {
   email?: string;
   password?: string;
 }
+
+export interface ReqPost {
+  title: string;
+  content: string;
+  type: string;
+}

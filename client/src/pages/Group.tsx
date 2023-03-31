@@ -3,7 +3,7 @@ import Typography from '@mui/material/Typography';
 import { useParams } from 'react-router-dom';
 import useSWR from 'swr';
 import GroupService from '../api/group';
-import ContentContainer from '../components/common/mui/Layout';
+import ContentContainer from '../components/common/Layout';
 import Loading from '../components/Loading';
 import Post from '../components/post/Post';
 import GroupLogo from '../assets/dev_purpose/gamingLogo.png';
@@ -35,7 +35,12 @@ function Group() {
         <Typography variant="subtitle2">360 người đã theo dõi nhóm</Typography>
         <Button variant="contained">Tham gia nhóm</Button>
       </ContentContainer>
-      {posts && posts.map((p) => <Post key={p.id} postInfo={p} />)}
+      {posts &&
+        posts.map((p) => {
+          const { post } = p;
+          const { id } = post;
+          return <Post key={id} postInfo={p} />;
+        })}
     </>
   );
 }

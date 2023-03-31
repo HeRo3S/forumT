@@ -35,7 +35,6 @@ export interface ResPost {
   updatedAt: string;
   deletedAt?: string;
 }
-
 export interface ResGroupInfo {
   [key: string]: unknown;
   id: number;
@@ -47,4 +46,45 @@ export interface ResGroupInfo {
   updatedAt: string;
   deletedAt: string;
   avatarURL: string;
+}
+
+export interface ResComment {
+  [key: string]: unknown;
+  id: number;
+  content: string;
+  parentPostId: number;
+  username: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+}
+
+export interface ResPostReact {
+  [key: string]: unknown;
+  id: number;
+  username: string;
+  postID: number;
+  reaction: string;
+}
+
+export interface ResCommentReact {
+  [key: string]: unknown;
+  id: number;
+  username: string;
+  commentID: number;
+  reaction: string;
+}
+export interface ReactionStatsProps {
+  nUpvote: number;
+  nDownvote: number;
+  nComments: number;
+}
+
+export interface ResAttachment {
+  [key: string]: unknown;
+  id: number;
+  url: string;
+  postID: number;
+  type: string;
+  createdAt: string;
 }

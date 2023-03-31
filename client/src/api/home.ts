@@ -1,7 +1,11 @@
 import instance from '.';
-import { ResGroupInfo, ResPost } from '../../types/interfaces/resAPI';
+import { ReactionStatsProps, ResPost } from '../../types/interfaces/resAPI';
 
-async function fetchDefaultPosts(): Promise<Partial<ResPost>[]> {
+interface IResFetchDefaultPosts {
+  post: ResPost;
+  reaction: ReactionStatsProps;
+}
+async function fetchDefaultPosts(): Promise<IResFetchDefaultPosts[]> {
   const res = await instance.get(`g/gaming/posts`);
   return res.data;
 }

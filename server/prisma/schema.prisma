@@ -116,7 +116,7 @@ model UserFollowGroup {
 
 model PostReaction {
   id         Int          @id @unique @default(autoincrement())
-  username   String
+  username   String       @unique
   postID     Int
   reaction   ReactionType @default(NONE)
   parentPost Post         @relation(fields: [postID], references: [id])
@@ -128,7 +128,7 @@ model PostReaction {
 
 model CommentReaction {
   id            Int          @id @unique @default(autoincrement())
-  username      String
+  username      String       @unique
   commentID     Int
   reaction      ReactionType @default(NONE)
   parentComment Comment      @relation(fields: [commentID], references: [id])
@@ -185,6 +185,7 @@ enum PostType {
   DEFAULT
   MEDIA
   ATTACHMENT
+  LINK
   POLL
 }
 
