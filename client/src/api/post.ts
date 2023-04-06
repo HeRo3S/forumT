@@ -11,7 +11,7 @@ import {
 interface IGetPostInfo {
   post: ResPost;
   reaction: ReactionStatsProps;
-  attachment: ResAttachment;
+  attachments: ResAttachment[];
 }
 
 async function getPostInfo(

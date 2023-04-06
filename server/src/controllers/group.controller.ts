@@ -14,6 +14,15 @@ export async function CreateGroupController(req: Request, res: Response) {
         ownername: req.user.username as string,
       },
     });
+    if (createdGroup) {
+      await prisma.userFollowGroup.create({
+        data: {
+          username: req.user.username,
+          groupname: createdGroup.groupname,
+          role: 'MODERATOR',
+        },
+      });
+    }
     return res.status(200).json(createdGroup);
   } catch (err) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
@@ -41,7 +50,12 @@ export async function GetGroupInfo(req: Request, res: Response) {
       },
     });
     if (!groupInfo) res.status(400).json('Cannot find group');
-    res.status(200).json(groupInfo);
+    const nFollowers = await prisma.userFollowGroup.count({
+      where: {
+        groupname: groupInfo?.groupname,
+      },
+    });
+    res.status(200).json({ groupInfo, nFollowers });
   } catch (err) {
     res.status(500).json(err);
     throw err;
@@ -58,54 +72,15 @@ export async function SearchGroupsController(req: Request, res: Response) {
   }
 }
 
-export async function GetGroupsUserFollowingController(
-  req: Request,
-  res: Response
-) {
-  try {
-    if (!req.user?.username)
-      return res.status(403).json("can't find username in decoded jwt");
-    const followingGroupList = await prisma.group.findMany({
-      where: {
-        usersFollowGroup: {
-          every: {
-            username: req.user.username,
-          },
-        },
-      },
-    });
-    return res.status(200).json(followingGroupList);
-  } catch (err) {
-    res.status(500).json(err);
-    throw err;
-  }
-}
-
-export async function CheckUserFollowingGroup(req: Request, res: Response) {
-  try {
-    if (!req.user?.username)
-      return res.status(403).json("can't find username in decoded jwt");
-    const followingGroupRecord = await prisma.userFollowGroup.findUnique({
-      where: {
-        username_groupname: {
-          username: <string>req.user.username,
-          groupname: req.body.groupname,
-        },
-      },
-    });
-    return res.status(200).json(followingGroupRecord);
-  } catch (err) {
-    res.status(500).json(err);
-    throw err;
-  }
-}
-
 export async function GetGroupPostsController(req: Request, res: Response) {
   try {
     const groupname = req.params?.groupname;
     const groupPosts = await prisma.post.findMany({
       where: {
         groupname,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
     });
     const response: object[] = [];
@@ -132,6 +107,9 @@ export async function GetGroupPostsController(req: Request, res: Response) {
         const attachments = await prisma.attachment.findMany({
           where: {
             postID: +id,
+          },
+          orderBy: {
+            id: 'desc',
           },
         });
         response.push({

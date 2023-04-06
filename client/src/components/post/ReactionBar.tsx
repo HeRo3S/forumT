@@ -27,7 +27,9 @@ interface IButtonProps extends ButtonProps {
 const StyledReactionButton = styled(Button)<IButtonProps>(
   ({ reactState, reaction, theme }) => ({
     color:
-      reactState === reaction ? theme.palette.primary : theme.palette.grey[700],
+      reactState === reaction
+        ? theme.palette.primary.main
+        : theme.palette.grey[700],
   })
 );
 
@@ -94,7 +96,7 @@ function ReactionBar(props: IProps) {
         <StyledReactionButton
           reaction={REACTION.UPVOTE}
           startIcon={renderReactionStartIcon(REACTION.UPVOTE, reaction)}
-          size={variant === 'comment' ? 'small' : 'default'}
+          size={variant === 'comment' ? 'small' : 'medium'}
           reactState={reaction}
           onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
             handleOnClickReactionButton(e, REACTION.UPVOTE)
@@ -107,7 +109,7 @@ function ReactionBar(props: IProps) {
         <StyledReactionButton
           reaction={REACTION.DOWNVOTE}
           startIcon={renderReactionStartIcon(REACTION.DOWNVOTE, reaction)}
-          size={variant === 'comment' ? 'small' : 'default'}
+          size={variant === 'comment' ? 'small' : 'medium'}
           reactState={reaction}
           onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
             handleOnClickReactionButton(e, REACTION.DOWNVOTE)
@@ -152,7 +154,6 @@ function FetchUserPostReaction(
     },
     () => PostService.getUserReact(groupname, parentPostID)
   );
-  console.log(data);
   return {
     isLoading,
     data,

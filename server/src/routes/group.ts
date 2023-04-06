@@ -3,9 +3,12 @@ import {
   CreateGroupController,
   GetGroupInfo,
   GetGroupPostsController,
-  GetGroupsUserFollowingController,
   SearchGroupsController,
 } from '../controllers/group.controller.js';
+import {
+  GetGroupsUserFollowingController,
+  GetGroupsUserModeratingController,
+} from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
 
 const groupRoute = Router();
@@ -17,6 +20,11 @@ groupRoute.get(
   '/following',
   authenticateToken,
   GetGroupsUserFollowingController
+);
+groupRoute.get(
+  '/moderating',
+  authenticateToken,
+  GetGroupsUserModeratingController
 );
 groupRoute.get('/:groupname', GetGroupInfo);
 groupRoute.get('/:groupname/posts', GetGroupPostsController);

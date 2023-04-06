@@ -12,7 +12,7 @@ import {
   ResAttachment,
   ResPost,
 } from '../../../types/interfaces/resAPI';
-import ContentContainer from '../common/Layout';
+import { ContentContainer } from '../common/Layout';
 import ReactionBar from './ReactionBar';
 
 interface IProps {
@@ -21,7 +21,7 @@ interface IProps {
 interface IPostInfo {
   post: ResPost;
   reaction: ReactionStatsProps;
-  attachment?: ResAttachment;
+  attachments: ResAttachment[];
 }
 
 const StyledPostBody = styled(Box)<BoxProps>({
@@ -39,9 +39,8 @@ const StyledPostImage = styled('img')({
 
 function Post(props: IProps) {
   const { postInfo } = props;
-  const { post, reaction, attachment } = postInfo;
+  const { post, reaction, attachments } = postInfo;
   const { id, type, groupname, username, title, content } = post;
-  const url = attachment?.url || '';
   const navigate = useNavigate();
 
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {
@@ -87,7 +86,9 @@ function Post(props: IProps) {
                 {title}
               </Typography>
             </Box>
-            <StyledPostBody>{renderBody(type, content, url)}</StyledPostBody>
+            <StyledPostBody>
+              {renderBody(type, content, attachments)}
+            </StyledPostBody>
             <Box display="flex">
               <Button>
                 <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
@@ -106,8 +107,12 @@ function Post(props: IProps) {
   );
 }
 
-function renderBody(type: string, content: string, attachmentURL: string) {
-  const PUBLIC_FOLDER = 'http://localhost:5000/';
+function renderBody(
+  type: string,
+  content: string,
+  attachments: ResAttachment[]
+) {
+  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   switch (type) {
     case 'DEFAULT':
       // eslint-disable-next-line no-case-declarations
@@ -120,7 +125,10 @@ function renderBody(type: string, content: string, attachmentURL: string) {
       );
     case 'MEDIA':
       return (
-        <StyledPostImage src={PUBLIC_FOLDER + attachmentURL} alt="postImage" />
+        <StyledPostImage
+          src={PUBLIC_FOLDER + attachments[0].url}
+          alt="postImage"
+        />
       );
     case 'LINK':
       return <Link to={content}>content</Link>;

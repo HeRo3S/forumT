@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { POSTTYPE } from '../../types/enum';
 import { ResGroupInfo } from '../../types/interfaces/resAPI';
 import PostService from '../api/post';
-import ContentContainer from '../components/common/Layout';
+import { ContentContainer } from '../components/common/Layout';
 import Editor from '../components/common/richtextEditor/Editor';
 import socket from '../services/socket-io';
 
@@ -35,22 +35,20 @@ function CreatePost() {
 
   useEffect(() => {
     socket.emit('search/group', groupnameInput);
-  }, [groupnameInput]);
+    socket.on('search/group/response', (groups) => {
+      setGroupFetchList(groups);
+    });
 
-  socket.on('search/group/response', (groups) => {
-    setGroupFetchList(groups);
-  });
+    return () => {
+      socket.off('search/group/response');
+    };
+  }, [groupnameInput]);
 
   const handleMediaContentChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    // const reader = new FileReader();
-    // reader.readAsDataURL(file);
-    // reader.onload = () => {
-    //   setSelectedImage(reader.result as string);
-    // };
     setSelectedImage(file);
   };
 

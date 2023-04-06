@@ -1,9 +1,13 @@
+import { Grid } from '@mui/material';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import useSWR from 'swr';
 import HomeService from '../api/home';
+import { PageContainer } from '../components/common/Layout';
 import Post from '../components/post/Post';
+import LeftBar from '../components/LeftBar';
 import { useAppSelector } from '../redux/hook';
+import RightBar from '../components/RightBar';
 
 function Home() {
   const user = useAppSelector((state) => state.auth);
@@ -14,15 +18,21 @@ function Home() {
     return <Typography variant="h1">{fetchDefaultPostsError}</Typography>;
 
   return (
-    <Box>
-      {posts &&
-        posts.map((p) => {
-          const { post } = p;
-          const { id } = post;
-          return <Post key={id} postInfo={p} />;
-        })}
-      ;
-    </Box>
+    <PageContainer container>
+      <LeftBar />
+      <Grid item xs={8}>
+        <Box>
+          {posts &&
+            posts.map((p) => {
+              const { post } = p;
+              const { id } = post;
+              return <Post key={id} postInfo={p} />;
+            })}
+          ;
+        </Box>
+      </Grid>
+      <RightBar />
+    </PageContainer>
   );
 }
 

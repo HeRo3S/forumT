@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import {
-  CreateGroupPostController,
   GetPostController,
-  GetUserPostReactController,
   PostReactController,
 } from '../controllers/post.controller.js';
+import {
+  CreateGroupPostController,
+  GetUserPostReactController,
+} from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
 
 const postRoute = Router({ mergeParams: true });

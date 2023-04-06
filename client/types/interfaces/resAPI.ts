@@ -88,3 +88,11 @@ export interface ResAttachment {
   type: string;
   createdAt: string;
 }
+
+export interface ResUserFollowingGroup {
+  [key: string]: unknown;
+  username: string;
+  groupname: string;
+  role: string;
+  timeUnbanned: string;
+}

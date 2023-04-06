@@ -1,37 +1,92 @@
 import useSWR from 'swr';
 import { useParams } from 'react-router-dom';
 import Typography from '@mui/material/Typography';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Button from '@mui/material/Button';
+import { Socket, io } from 'socket.io-client';
 import PostService from '../api/post';
 import Post from '../components/post/Post';
 import Loading from '../components/Loading';
 import Comment from '../components/post/Comment';
-import ContentContainer from '../components/common/Layout';
+import { ContentContainer } from '../components/common/Layout';
 import { useAppSelector } from '../redux/hook';
 import Editor from '../components/common/richtextEditor/Editor';
+import CommentService from '../api/comment';
+import { ResComment } from '../../types/interfaces/resAPI';
 
 function DetailPost() {
+  const auth = useAppSelector((state) => state.auth);
   const { groupname, postID } = useParams();
-  const { userInfo } = useAppSelector((state) => state.auth);
+  const [newComments, setNewComments] = useState<ResComment[]>([]);
+  const [comment, setComment] = useState('');
+
+  const { userInfo, accessToken } = auth;
+  const socketRef = useRef<Socket>();
+  useEffect(() => {
+    const socket = io(import.meta.env.VITE_APP_SOCKET_URL, {
+      auth: {
+        token: accessToken,
+      },
+    });
+
+    socket.on('update/comment/response', (updatedComment) => {
+      console.log('updating comment');
+      setNewComments((prevComments) => [...prevComments, updatedComment]);
+    });
+
+    socketRef.current = socket;
+
+    return () => {
+      socket.off('update/comment/response');
+      socket.disconnect();
+    };
+  }, [accessToken]);
 
   if (!(groupname && postID))
     return (
       <Typography variant="h1">Cannot find groupname or post ID</Typography>
     );
 
-  const { isLoading, post, postInfoError } = GetPostInfo(groupname, postID);
-  if (isLoading) return <Loading />;
+  const {
+    isLoading: isPostLoading,
+    post,
+    postInfoError,
+  } = GetPostInfo(groupname, postID);
+  const {
+    isLoading: isCommentsLoading,
+    comments,
+    commentsError,
+  } = GetPostComments(groupname, postID);
 
-  if (postInfoError)
+  if (isPostLoading || isCommentsLoading) return <Loading />;
+
+  if (postInfoError || commentsError)
     return <Typography variant="h1">{postInfoError}</Typography>;
+
+  const handleSubmitComment = () => {
+    if (!socketRef?.current) return;
+    socketRef.current.emit('update/comment', postID, comment);
+  };
 
   if (post) {
     return (
       <ContentContainer>
         <Post postInfo={post} />
         <Typography variant="h5">Bình luận</Typography>
-        {userInfo && <Editor />}
-        {/* <Comment /> */}
+        {userInfo && (
+          <>
+            <Editor value={comment} setValue={setComment} />
+            <Button onClick={handleSubmitComment}>Đăng</Button>
+          </>
+        )}
+        {comments &&
+          comments.map((c) => {
+            return <Comment key={c.id} comment={c} />;
+          })}
+        {newComments &&
+          newComments.map((c) => {
+            return <Comment key={c.id} comment={c} />;
+          })}
       </ContentContainer>
     );
   }
@@ -46,6 +101,18 @@ function GetPostInfo(groupname: string, postID: string) {
     isLoading,
     post: data,
     postInfoError: error,
+  };
+}
+
+function GetPostComments(groupname: string, postID: string) {
+  const { isLoading, data, error } = useSWR(
+    `g/${groupname}/post/${postID}/comment`,
+    () => CommentService.getPostComments(groupname, postID)
+  );
+  return {
+    isLoading,
+    comments: data,
+    commentsError: error,
   };
 }
 

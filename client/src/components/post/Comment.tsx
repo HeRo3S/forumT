@@ -6,8 +6,10 @@ import { styled } from '@mui/material/styles';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ContentContainer from '../common/Layout';
+import DOMPurify from 'dompurify';
 import ReactionBar from './ReactionBar';
+import { ContentContainer } from '../common/Layout';
+import { ResComment } from '../../../types/interfaces/resAPI';
 
 const StyledPostBody = styled(Box)<BoxProps>({
   marginTop: '10px',
@@ -22,7 +24,15 @@ const StyledPostImage = styled('img')({
   width: '100%',
 });
 
-function Comment() {
+interface ICommentProps {
+  comment: ResComment;
+}
+
+function Comment(props: ICommentProps) {
+  const { comment } = props;
+  const { id, username, content } = comment;
+  const sanitizedHTMLContent = DOMPurify.sanitize(content);
+
   function handleOnClickContainer(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   );
@@ -30,18 +40,20 @@ function Comment() {
     <ContentContainer>
       <Grid container>
         <Grid item xs={2}>
-          <ReactionBar variant="comment" id={1} />
+          {/* <ReactionBar variant="comment" id={id} /> */}
         </Grid>
         <Grid item xs>
           <Stack>
             <Box>
-              <Link to="/u/123" onClick={(e) => handleOnClickLinkButton(e)}>
+              <Link to={`/u/${username}`}>
                 <StyledUsernameTypo variant="subtitle1">
-                  u/hung123
+                  u/{username}
                 </StyledUsernameTypo>
               </Link>
             </Box>
-            <StyledPostBody>Bài viểt hay quá!</StyledPostBody>
+            <StyledPostBody
+              dangerouslySetInnerHTML={{ __html: sanitizedHTMLContent }}
+            />
             <Box display="flex">
               <Button size="small">
                 <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
