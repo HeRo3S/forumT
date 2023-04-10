@@ -11,12 +11,13 @@ import {
 } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Socket } from 'socket.io-client';
 import { POSTTYPE } from '../../types/enum';
 import { ResGroupInfo } from '../../types/interfaces/resAPI';
 import PostService from '../api/post';
 import { ContentContainer } from '../components/common/Layout';
 import Editor from '../components/common/richtextEditor/Editor';
-import socket from '../services/socket-io';
+import createSocket from '../services/socket-io';
 
 const StyledSelectedImage = styled('img')({
   width: '100%',
@@ -27,22 +28,28 @@ function CreatePost() {
   const title = useRef('');
   const [content, setContent] = useState('');
   const [type, setType] = useState(POSTTYPE.DEFAULT);
+  const socketRef = useRef<Socket>();
   const navigate = useNavigate();
 
-  const [groupnameInput, setGroupnameInput] = useState('');
   const [groupFetchList, setGroupFetchList] = useState<ResGroupInfo[]>([]);
   const [selectedImage, setSelectedImage] = useState<File>();
 
   useEffect(() => {
-    socket.emit('search/group', groupnameInput);
-    socket.on('search/group/response', (groups) => {
-      setGroupFetchList(groups);
-    });
+    socketRef.current = createSocket();
+    if (socketRef.current) {
+      socketRef.current.connect();
+      socketRef.current.on('search/group/response', (groups) => {
+        setGroupFetchList(groups);
+      });
+    }
 
     return () => {
-      socket.off('search/group/response');
+      if (socketRef.current) {
+        socketRef.current.off('search/group/response');
+        socketRef.current.disconnect();
+      }
     };
-  }, [groupnameInput]);
+  }, []);
 
   const handleMediaContentChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -56,7 +63,8 @@ function CreatePost() {
     event: React.SyntheticEvent<Element, Event>,
     newValue: string
   ) => {
-    setGroupnameInput(newValue);
+    if (!socketRef.current) return;
+    socketRef.current.emit('search/group', newValue);
   };
 
   const handleOnchangeTitle = (
@@ -88,9 +96,9 @@ function CreatePost() {
       const formData = new FormData();
       formData.append('file', selectedImage as Blob);
       formData.append('postID', post.id.toString());
-      const attachment = await PostService.uploadFile(formData);
+      await PostService.uploadFile(formData);
     }
-    if (post) navigate(`g/${post.groupname}/post/${post.id}`);
+    if (post) navigate(`/g/${post.groupname}/post/${post.id}`);
   };
 
   function renderContentInput(currentType: POSTTYPE) {

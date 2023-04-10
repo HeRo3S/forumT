@@ -24,9 +24,8 @@ function Home() {
         <Box>
           {posts &&
             posts.map((p) => {
-              const { post } = p;
-              const { id } = post;
-              return <Post key={id} postInfo={p} />;
+              const { id, groupname } = p;
+              return <Post key={id} groupname={groupname} id={id} />;
             })}
           ;
         </Box>

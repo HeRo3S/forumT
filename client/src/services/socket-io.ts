@@ -1,19 +1,14 @@
-import { ToolkitStore } from '@reduxjs/toolkit/dist/configureStore';
 import { io } from 'socket.io-client';
 
-let store: ToolkitStore;
-export function injectStoreToSocket(_store: ToolkitStore) {
-  store = _store;
+function createSocket(accessToken?: string, postID?: number) {
+  const socket = io(import.meta.env.VITE_APP_SOCKET_URL);
+  if (accessToken)
+    socket.auth = {
+      token: accessToken,
+    };
+  socket.connect();
+  if (postID) socket.emit('join/post', postID);
+  return socket;
 }
 
-function loadTokenToAuthHeader() {
-  const { accessToken } = store.getState().auth;
-  const auth = {
-    token: accessToken,
-  };
-  return auth;
-}
-
-const socket = io('ws://localhost:5000');
-
-export default socket;
+export default createSocket;

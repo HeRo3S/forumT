@@ -82,44 +82,12 @@ export async function GetGroupPostsController(req: Request, res: Response) {
       orderBy: {
         createdAt: 'desc',
       },
+      select: {
+        id: true,
+        groupname: true,
+      },
     });
-    const response: object[] = [];
-    await Promise.all(
-      groupPosts.map(async (p) => {
-        const { id } = p;
-        const nUpvote = await prisma.postReaction.count({
-          where: {
-            postID: +id,
-            reaction: 'UPVOTE',
-          },
-        });
-        const nDownvote = await prisma.postReaction.count({
-          where: {
-            postID: +id,
-            reaction: 'DOWNVOTE',
-          },
-        });
-        const nComments = await prisma.comment.count({
-          where: {
-            parentPostID: +id,
-          },
-        });
-        const attachments = await prisma.attachment.findMany({
-          where: {
-            postID: +id,
-          },
-          orderBy: {
-            id: 'desc',
-          },
-        });
-        response.push({
-          post: p,
-          reaction: { nUpvote, nDownvote, nComments },
-          attachments,
-        });
-      })
-    );
-    return res.status(200).json(response);
+    return res.status(200).json(groupPosts);
   } catch (err) {
     res.status(500).json(err);
   }

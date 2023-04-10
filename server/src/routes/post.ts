@@ -1,11 +1,9 @@
 import { Router } from 'express';
-import {
-  GetPostController,
-  PostReactController,
-} from '../controllers/post.controller.js';
+import { GetPostController } from '../controllers/post.controller.js';
 import {
   CreateGroupPostController,
   GetUserPostReactController,
+  PostReactController,
 } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
 

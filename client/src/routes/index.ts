@@ -1,3 +1,4 @@
+import CreateGroup from '../pages/CreateGroup';
 import CreatePost from '../pages/CreatePost';
 import DetailPost from '../pages/DetailPost';
 import Group from '../pages/Group';
@@ -13,6 +14,7 @@ const routes = [
   { path: '/g/:groupname', component: Group },
   { path: '/g/:groupname/post/:postID', component: DetailPost },
   { path: '/create/post', component: CreatePost },
+  { path: '/create/group', component: CreateGroup },
   { path: '*', component: NotFound },
 ];
 

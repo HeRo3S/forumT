@@ -20,13 +20,30 @@ interface AuthenticatedSocket extends Socket {
 
 io.on('connection', (socket: AuthenticatedSocket) => {
   console.log('connection established');
+
+  socket.on('disconnect', () => {
+    console.log('connection shutdown');
+  });
+
   socket.on('search/group', async (keyword) => {
     const groups = await SearchService.SearchGroups(keyword);
     socket.emit('search/group/response', groups);
   });
 
-  socket.on('update/comment', async (postID, comment) => {
-    console.log(socket.handshake.auth);
+  socket.on('search/exact/group', async (keyword) => {
+    const group = await SearchService.SearchExactGroup(keyword);
+    socket.emit('search/exact/group/response', group);
+  });
+
+  socket.on('join/post', (postID) => {
+    socket.join(`post-${postID}`);
+  });
+
+  socket.on('leave/post', (postID) => {
+    socket.leave(`post-${postID}`);
+  });
+
+  socket.on('update/comment', async (groupname, postID, comment) => {
     const { token } = socket.handshake.auth;
     jwt.verify(
       <string>token,
@@ -38,10 +55,38 @@ io.on('connection', (socket: AuthenticatedSocket) => {
           const { username } = user;
           const updatedComment = await UpdateService.UpdateComments(
             username,
+            groupname,
             postID,
             comment
           );
-          io.emit('update/comment/response', updatedComment);
+          io.to(`post-${postID}`).emit(
+            'update/comment/response',
+            updatedComment
+          );
+        }
+      }
+    );
+  });
+
+  socket.on('update/postReaction', async (postID, reaction) => {
+    const { token } = socket.handshake.auth;
+    jwt.verify(
+      <string>token,
+      <string>process.env.ACCESS_TOKEN,
+      async (err, decoded) => {
+        if (err) throw new Error(`Authentication Error: ${err}`);
+        if (decoded) {
+          const user = <User>decoded;
+          const { username } = user;
+          const updatedComment = await UpdateService.UpdatePostReactions(
+            username,
+            postID,
+            reaction
+          );
+          io.to(`post-${postID}`).emit(
+            'update/postReaction/response',
+            updatedComment
+          );
         }
       }
     );

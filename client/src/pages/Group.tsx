@@ -48,9 +48,8 @@ function Group() {
         </ContentContainer>
         {posts &&
           posts.map((p) => {
-            const { post } = p;
-            const { id } = post;
-            return <Post key={id} postInfo={p} />;
+            const { id } = p;
+            return <Post key={id} groupname={groupname} id={id} />;
           })}
       </Grid>
     </PageContainer>
@@ -70,8 +69,12 @@ function FetchGroupPostsData(groupname: string) {
 }
 
 function FetchGroupInfo(groupname: string) {
-  const { isLoading, error, data } = useSWR(`g/${groupname}`, () =>
-    GroupService.getGroupInfo(groupname)
+  const { isLoading, error, data } = useSWR(
+    `g/${groupname}`,
+    () => GroupService.getGroupInfo(groupname),
+    {
+      revalidateOnFocus: false,
+    }
   );
   return {
     isGroupInfoLoading: isLoading,

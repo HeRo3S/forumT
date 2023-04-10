@@ -7,7 +7,7 @@ import Typography, { TypographyProps } from '@mui/material/Typography';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import ReactionBar from './ReactionBar';
+import ReactionBar from './PostReactionBar';
 import { ContentContainer } from '../common/Layout';
 import { ResComment } from '../../../types/interfaces/resAPI';
 

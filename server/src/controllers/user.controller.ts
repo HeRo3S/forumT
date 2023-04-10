@@ -1,6 +1,5 @@
 import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
-import { request } from 'http';
 import prisma from '../addons/prismaClient.js';
 
 export async function CreateGroupPostController(req: Request, res: Response) {
@@ -35,12 +34,56 @@ export async function CreateGroupPostController(req: Request, res: Response) {
 
 export async function GetUserPostReactController(req: Request, res: Response) {
   if (!req.user?.username) return res.status(400).json('cant find username');
-  const userReact = await prisma.postReaction.findUnique({
+  const userReact = await prisma.postReaction.findFirst({
     where: {
       username: req.user.username,
+      postID: +req.params.postID,
     },
   });
   return res.status(200).json(userReact);
+}
+
+export async function PostReactController(req: Request, res: Response) {
+  try {
+    if (!req.user?.username)
+      return res.status(400).json('did not find username');
+    const existedReaction = await prisma.postReaction.findFirst({
+      where: {
+        username: req.user.username,
+        postID: +req.params.postID,
+      },
+    });
+    if (!existedReaction) {
+      const newReaction = await prisma.postReaction.create({
+        data: {
+          username: req.user.username,
+          reaction: req.body.reaction,
+          postID: +req.params.postID,
+        },
+      });
+      return res.status(200).json(newReaction);
+    }
+    const updatedReaction = await prisma.postReaction.update({
+      where: {
+        id: existedReaction.id,
+      },
+      data: {
+        reaction: req.body.reaction,
+      },
+    });
+    return res.status(200).json(updatedReaction);
+  } catch (err) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      switch (err.code) {
+        default:
+          res.status(500).json({ code: err.code, message: err.message });
+          throw err;
+      }
+    } else {
+      res.status(500).json(err);
+      throw err;
+    }
+  }
 }
 
 export async function GetGroupsUserFollowingController(
@@ -59,7 +102,8 @@ export async function GetGroupsUserFollowingController(
         group: true,
       },
     });
-    return res.status(200).json(followingGroupList);
+    const result = followingGroupList.map((item) => item.group);
+    return res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
     throw err;
@@ -82,7 +126,8 @@ export async function GetGroupsUserModeratingController(
         group: true,
       },
     });
-    return res.status(200).json(moderatingGroupList);
+    const result = moderatingGroupList.map((item) => item.group);
+    return res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);
     throw err;

@@ -44,6 +44,7 @@ model Group {
   owner            User              @relation(fields: [ownername], references: [username])
   posts            Post[]
   usersFollowGroup UserFollowGroup[]
+  comments         Comment[]
 
   @@index([groupname, displayname])
   @@map("groups")
@@ -71,17 +72,19 @@ model Post {
 }
 
 model Comment {
-  id           Int               @id @unique @default(autoincrement())
-  content      String            @db.LongText
-  parentPostID Int
-  username     String
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  deletedAt    DateTime?
-  reactions    CommentReaction[]
-  reports      CommentReport[]
-  parentPost   Post              @relation(fields: [parentPostID], references: [id])
-  User         User              @relation(fields: [username], references: [username])
+  id              Int               @id @unique @default(autoincrement())
+  content         String            @db.LongText
+  parentPostID    Int
+  parentGroupname String
+  username        String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  reactions       CommentReaction[]
+  reports         CommentReport[]
+  parentPost      Post              @relation(fields: [parentPostID], references: [id])
+  parentGroup     Group             @relation(fields: [parentGroupname], references: [groupname])
+  user            User              @relation(fields: [username], references: [username])
 
   @@index([parentPostID, username])
   @@map("comments")
@@ -116,7 +119,7 @@ model UserFollowGroup {
 
 model PostReaction {
   id         Int          @id @unique @default(autoincrement())
-  username   String       @unique
+  username   String
   postID     Int
   reaction   ReactionType @default(NONE)
   parentPost Post         @relation(fields: [postID], references: [id])
@@ -128,7 +131,7 @@ model PostReaction {
 
 model CommentReaction {
   id            Int          @id @unique @default(autoincrement())
-  username      String       @unique
+  username      String
   commentID     Int
   reaction      ReactionType @default(NONE)
   parentComment Comment      @relation(fields: [commentID], references: [id])

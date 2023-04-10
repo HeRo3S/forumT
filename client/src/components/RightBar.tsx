@@ -12,10 +12,13 @@ const StyledUserProfilePlaceholder = styled(Stack)(({ theme }) => ({
 
 function RightBar() {
   const user = useAppSelector((state) => state.auth.userInfo);
-  const naviagte = useNavigate();
+  const navigate = useNavigate();
 
   const handleCreatePostButtonClick = () => {
-    naviagte('/create/post');
+    navigate('/create/post');
+  };
+  const handleCreateGroupButtonClick = () => {
+    navigate('/create/group');
   };
 
   if (!user) return <RightBarContainer item xs={2} />;
@@ -26,6 +29,7 @@ function RightBar() {
         <Typography variant="subtitle2">u/{user.username}</Typography>
         <Button>Xem hồ sơ</Button>
         <Button onClick={handleCreatePostButtonClick}>Tạo bài viết</Button>
+        <Button onClick={handleCreateGroupButtonClick}>Tạo nhóm</Button>
       </StyledUserProfilePlaceholder>
     </RightBarContainer>
   );

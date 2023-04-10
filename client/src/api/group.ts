@@ -6,6 +6,11 @@ import {
   ResPost,
 } from '../../types/interfaces/resAPI';
 
+async function createGroup(groupname: string, displayname: string) {
+  const res = await instance.post('/g/create', { groupname, displayname });
+  return res.data;
+}
+
 interface IGetGroupInfo {
   groupInfo: ResGroupInfo;
   nFollowers: number;
@@ -15,12 +20,7 @@ async function getGroupInfo(groupname: string): Promise<IGetGroupInfo> {
   return res.data;
 }
 
-interface IResGetGroupPosts {
-  post: ResPost;
-  reaction: ReactionStatsProps;
-  attachments: ResAttachment[];
-}
-async function getGroupPosts(groupname: string): Promise<IResGetGroupPosts[]> {
+async function getGroupPosts(groupname: string): Promise<ResPost[]> {
   const res = await instance.get(`/g/${groupname}/posts`);
   return res.data;
 }
@@ -35,11 +35,18 @@ async function fetchGroupsUserFollowing(): Promise<Partial<ResGroupInfo>[]> {
   return res.data;
 }
 
+async function fetchGroupsUserModerating(): Promise<Partial<ResGroupInfo>[]> {
+  const res = await instance.get(`g/moderating`);
+  return res.data;
+}
+
 const GroupService = {
+  createGroup,
   getGroupInfo,
   getGroupPosts,
   searchGroups,
   fetchGroupsUserFollowing,
+  fetchGroupsUserModerating,
 };
 
 export default GroupService;

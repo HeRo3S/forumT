@@ -7,22 +7,11 @@ import Box, { BoxProps } from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
 import Button from '@mui/material/Button';
 import DOMPurify from 'dompurify';
-import {
-  ReactionStatsProps,
-  ResAttachment,
-  ResPost,
-} from '../../../types/interfaces/resAPI';
+import useSWR from 'swr';
+import { ResAttachment } from '../../../types/interfaces/resAPI';
 import { ContentContainer } from '../common/Layout';
-import ReactionBar from './ReactionBar';
-
-interface IProps {
-  postInfo: IPostInfo;
-}
-interface IPostInfo {
-  post: ResPost;
-  reaction: ReactionStatsProps;
-  attachments: ResAttachment[];
-}
+import PostReactionBar from './PostReactionBar';
+import PostService from '../../api/post';
 
 const StyledPostBody = styled(Box)<BoxProps>({
   marginTop: '10px',
@@ -36,11 +25,13 @@ const StyledUsernameTypo = styled(Typography)<TypographyProps>({
 const StyledPostImage = styled('img')({
   width: '100%',
 });
+interface IProps {
+  id: number;
+  groupname: string;
+}
 
 function Post(props: IProps) {
-  const { postInfo } = props;
-  const { post, reaction, attachments } = postInfo;
-  const { id, type, groupname, username, title, content } = post;
+  const { id, groupname } = props;
   const navigate = useNavigate();
 
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {
@@ -51,6 +42,11 @@ function Post(props: IProps) {
     e.stopPropagation();
   }
 
+  const { isLoading, data: postInfo, error } = FetchPostInfo(groupname, id);
+  if (error || !postInfo) return <Typography>Error</Typography>;
+  const { post, reaction, attachments } = postInfo;
+  const { type, username, title, content } = post;
+
   return (
     <ContentContainer
       onClick={(e: React.MouseEvent<HTMLDivElement>) =>
@@ -59,7 +55,7 @@ function Post(props: IProps) {
     >
       <Grid container>
         <Grid item xs={2}>
-          <ReactionBar variant="post" post={post} reaction={reaction} />
+          <PostReactionBar variant="post" post={post} reaction={reaction} />
         </Grid>
         <Grid item xs>
           <Stack sx={{ paddingRight: '10px' }}>
@@ -139,6 +135,18 @@ function renderBody(
         </Typography>
       );
   }
+}
+
+function FetchPostInfo(groupname: string, postID: number) {
+  const { isLoading, data, error } = useSWR(
+    `g/${groupname}/post/${postID}`,
+    () => PostService.getPostInfo(groupname, postID.toString())
+  );
+  return {
+    isLoading,
+    data,
+    error,
+  };
 }
 
 export default Post;

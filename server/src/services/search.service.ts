@@ -18,6 +18,15 @@ async function SearchGroups(keyword: string) {
   return matchingGroups;
 }
 
-const SearchService = { SearchGroups };
+async function SearchExactGroup(keyword: string) {
+  const matching = await prisma.group.findUnique({
+    where: {
+      groupname: keyword,
+    },
+  });
+  return matching;
+}
+
+const SearchService = { SearchGroups, SearchExactGroup };
 
 export default SearchService;
