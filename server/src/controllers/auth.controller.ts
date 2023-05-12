@@ -3,7 +3,7 @@ import crypto from 'crypto';
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import ms from 'ms';
-import prisma from '../addons/prismaClient.js';
+import UserData from '../data/user.data.js';
 
 const config = {
   saltLength: 16,
@@ -14,12 +14,8 @@ const config = {
 
 async function PostLoginController(req: Request, res: Response) {
   try {
-    const existedUser = await prisma.user.findUnique({
-      where: {
-        email: req?.body?.email,
-      },
-    });
-    // return error when account is not existed
+    const existedUser = await UserData.read({ email: req?.body?.email });
+    // // return error when account is not existed
     if (!existedUser) {
       return res.status(400).json('This account is not existed!');
     }
@@ -51,12 +47,10 @@ async function PostRegisterController(req: Request, res: Response) {
   try {
     // create new user using prisma
     const hashedPassword: string = await hashingPassword(req?.body?.password);
-    const user: User = await prisma.user.create({
-      data: {
-        username: req?.body?.username,
-        email: req?.body?.email,
-        password: hashedPassword,
-      },
+    const user: User = await UserData.create({
+      username: req?.body?.username,
+      email: req?.body?.email,
+      hashedPassword,
     });
     const { accessToken, refreshToken } = generateToken(user);
     // return successful response
@@ -94,11 +88,8 @@ async function HandleRefreshToken(req: Request, res: Response) {
       process.env.REFRESH_TOKEN as string,
       async (err, decoded) => {
         if (err) return res.status(400).json(err);
-        const user = await prisma.user.findUnique({
-          where: {
-            username: (decoded as Partial<User>).username,
-          },
-        });
+        const { username } = decoded as Partial<User>;
+        const user = await UserData.read({ username });
         const { accessToken } = generateToken(<User>user);
         return res.status(200).json({ accessToken });
       }

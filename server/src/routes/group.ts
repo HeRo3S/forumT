@@ -8,6 +8,9 @@ import {
 import {
   GetGroupsUserFollowingController,
   GetGroupsUserModeratingController,
+  CheckUserFollowingGroup,
+  CreateUserFollowingGroup,
+  DeleteUserFollowingGroup,
 } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
 
@@ -26,7 +29,23 @@ groupRoute.get(
   authenticateToken,
   GetGroupsUserModeratingController
 );
+
 groupRoute.get('/:groupname', GetGroupInfo);
 groupRoute.get('/:groupname/posts', GetGroupPostsController);
 
+groupRoute.get(
+  '/:groupname/follow',
+  authenticateToken,
+  CheckUserFollowingGroup
+);
+groupRoute.post(
+  '/:groupname/follow',
+  authenticateToken,
+  CreateUserFollowingGroup
+);
+groupRoute.post(
+  '/:groupname/unfollow',
+  authenticateToken,
+  DeleteUserFollowingGroup
+);
 export default groupRoute;

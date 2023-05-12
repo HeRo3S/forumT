@@ -31,14 +31,7 @@ function Navbar() {
   const handleLoginButtonClick = async (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
-    //* sending jwt cookies either way since there is no way to check
-    if (auth.accessToken === '') {
-      try {
-        await dispatch(refreshAccessToken()).unwrap();
-      } catch (err) {
-        if (!auth.userInfo) navigate('/login');
-      }
-    }
+    navigate('/login');
   };
 
   const handleUserButtonClick = (

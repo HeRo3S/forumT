@@ -1,5 +1,8 @@
 import { Request, Response } from 'express';
-import prisma from '../addons/prismaClient.js';
+import AttachmentData from '../data/attachment.data.js';
+import CommentData from '../data/comment.data.js';
+import PostData from '../data/post.data.js';
+import PostReactionData from '../data/postReactions.data.js';
 
 export async function CreatePostAttachmentController(
   req: Request,
@@ -9,36 +12,15 @@ export async function CreatePostAttachmentController(
 export async function GetPostController(req: Request, res: Response) {
   try {
     const postID = req.params?.postID;
-    const post = await prisma.post.findUnique({
-      where: {
-        id: +postID,
-      },
+    const post = await PostData.readOnly(+postID);
+    const reactions = await PostReactionData.groupByPostID(+postID);
+    const nComments = await CommentData.count({ parentPostID: +postID });
+    const attachments = await AttachmentData.readMany({ postID: +postID });
+    res.status(200).json({
+      post,
+      reaction: { reactions, nComments },
+      attachments,
     });
-    const nUpvote = await prisma.postReaction.count({
-      where: {
-        postID: +postID,
-        reaction: 'UPVOTE',
-      },
-    });
-    const nDownvote = await prisma.postReaction.count({
-      where: {
-        postID: +postID,
-        reaction: 'DOWNVOTE',
-      },
-    });
-    const nComments = await prisma.comment.count({
-      where: {
-        parentPostID: +postID,
-      },
-    });
-    const attachments = await prisma.attachment.findMany({
-      where: {
-        postID: +postID,
-      },
-    });
-    res
-      .status(200)
-      .json({ post, reaction: { nUpvote, nDownvote, nComments }, attachments });
   } catch (err) {
     res.status(500).json(err);
   }

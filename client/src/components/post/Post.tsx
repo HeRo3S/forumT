@@ -1,6 +1,6 @@
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Box, { BoxProps } from '@mui/material/Box';
@@ -12,6 +12,8 @@ import { ResAttachment } from '../../../types/interfaces/resAPI';
 import { ContentContainer } from '../common/Layout';
 import PostReactionBar from './PostReactionBar';
 import PostService from '../../api/post';
+import { useAppSelector } from '../../redux/hook';
+import DeletePostDialog from '../common/dialog/DeletePostDialog';
 
 const StyledPostBody = styled(Box)<BoxProps>({
   marginTop: '10px',
@@ -33,6 +35,15 @@ interface IProps {
 function Post(props: IProps) {
   const { id, groupname } = props;
   const navigate = useNavigate();
+  const { userInfo } = useAppSelector((state) => state.auth);
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+
+  const openDeleteDialog = () => {
+    setDeleteDialogOpen(true);
+  };
+  const closeDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+  };
 
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -42,64 +53,84 @@ function Post(props: IProps) {
     e.stopPropagation();
   }
 
+  function handleOnclickDeletePostButton(
+    e: React.MouseEvent<HTMLButtonElement>
+  ) {
+    e.stopPropagation();
+    openDeleteDialog();
+  }
+
+  const handleOnClickConfirmDeletePost = async () => {
+    const res = await PostService.deletePost(groupname, id);
+  };
+
   const { isLoading, data: postInfo, error } = FetchPostInfo(groupname, id);
   if (error || !postInfo) return <Typography>Error</Typography>;
   const { post, reaction, attachments } = postInfo;
   const { type, username, title, content } = post;
 
   return (
-    <ContentContainer
-      onClick={(e: React.MouseEvent<HTMLDivElement>) =>
-        handleOnClickContainer(e)
-      }
-    >
-      <Grid container>
-        <Grid item xs={2}>
-          <PostReactionBar variant="post" post={post} reaction={reaction} />
-        </Grid>
-        <Grid item xs>
-          <Stack sx={{ paddingRight: '10px' }}>
-            <Box sx={{ display: 'flex', marginTop: '10px' }}>
-              <Link
-                to={`/g/${groupname}`}
-                onClick={(e) => handleOnClickLinkButton(e)}
-              >
-                <Typography variant="subtitle1" className="boldText">
-                  g/{groupname}
+    <>
+      <DeletePostDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={closeDeleteDialog}
+        handleOnClickConfirmButton={handleOnClickConfirmDeletePost}
+      />
+      <ContentContainer
+        onClick={(e: React.MouseEvent<HTMLDivElement>) =>
+          handleOnClickContainer(e)
+        }
+      >
+        <Grid container>
+          <Grid item xs={2}>
+            <PostReactionBar variant="post" post={post} reaction={reaction} />
+          </Grid>
+          <Grid item xs>
+            <Stack sx={{ paddingRight: '10px' }}>
+              <Box sx={{ display: 'flex', marginTop: '10px' }}>
+                <Link
+                  to={`/g/${groupname}`}
+                  onClick={(e) => handleOnClickLinkButton(e)}
+                >
+                  <Typography variant="subtitle1" className="boldText">
+                    g/{groupname}
+                  </Typography>
+                </Link>
+                <Link
+                  to={`/u/${username}`}
+                  onClick={(e) => handleOnClickLinkButton(e)}
+                >
+                  <StyledUsernameTypo variant="subtitle2">
+                    Đăng bởi u/{username}
+                  </StyledUsernameTypo>
+                </Link>
+              </Box>
+              <Box>
+                <Typography variant="h4" className="boldText">
+                  {title}
                 </Typography>
-              </Link>
-              <Link
-                to={`/u/${username}`}
-                onClick={(e) => handleOnClickLinkButton(e)}
-              >
-                <StyledUsernameTypo variant="subtitle2">
-                  Đăng bởi u/{username}
-                </StyledUsernameTypo>
-              </Link>
-            </Box>
-            <Box>
-              <Typography variant="h4" className="boldText">
-                {title}
-              </Typography>
-            </Box>
-            <StyledPostBody>
-              {renderBody(type, content, attachments)}
-            </StyledPostBody>
-            <Box display="flex">
-              <Button>
-                <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
-              </Button>
-              <Button>
-                <Typography variant="subtitle2">Xoá bài viết</Typography>
-              </Button>
-              <Button>
-                <Typography variant="subtitle2">Admin quản lý</Typography>
-              </Button>
-            </Box>
-          </Stack>
+              </Box>
+              <StyledPostBody>
+                {renderBody(type, content, attachments)}
+              </StyledPostBody>
+              <Box display="flex">
+                <Button>
+                  <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
+                </Button>
+                {userInfo?.username === username && (
+                  <Button onClick={(e) => handleOnclickDeletePostButton(e)}>
+                    <Typography variant="subtitle2">Xoá bài viết</Typography>
+                  </Button>
+                )}
+                {/* <Button>
+                  <Typography variant="subtitle2">Admin quản lý</Typography>
+                </Button> */}
+              </Box>
+            </Stack>
+          </Grid>
         </Grid>
-      </Grid>
-    </ContentContainer>
+      </ContentContainer>
+    </>
   );
 }
 
@@ -120,6 +151,8 @@ function renderBody(
         />
       );
     case 'MEDIA':
+      if (attachments.length === 0)
+        return <Typography variant="h4">Error</Typography>;
       return (
         <StyledPostImage
           src={PUBLIC_FOLDER + attachments[0].url}

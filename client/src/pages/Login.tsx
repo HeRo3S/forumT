@@ -2,10 +2,10 @@ import Button from '@mui/material/Button';
 import Container from '@mui/material/Container';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import Grid2 from '@mui/material/Unstable_Grid2/Grid2';
-import { useRef } from 'react';
+import Grid2 from '@mui/material/Unstable_Grid2';
+import { useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { login } from '../redux/features/authSlice';
+import { login, refreshAccessToken } from '../redux/features/authSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hook';
 import { ReqUser } from '../../types/interfaces/reqAPI';
 
@@ -14,6 +14,16 @@ function Login() {
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement>();
   const passwordRef = useRef<HTMLInputElement>();
+
+  //* sending jwt cookies either way since there is no way to check
+  useEffect(() => {
+    dispatch(refreshAccessToken())
+      .unwrap()
+      .then(() => {
+        navigate(-1);
+      });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleSubmitLogin(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();

@@ -74,9 +74,16 @@ export interface ResCommentReact {
   commentID: number;
   reaction: string;
 }
+
+export interface IReactionGroupBy {
+  reaction: string;
+  _count: number;
+}
 export interface ReactionStatsProps {
-  nUpvote: number;
-  nDownvote: number;
+  [key: string]: unknown;
+  // nUpvote: number;
+  // nDownvote: number;
+  reactions: IReactionGroupBy[];
   nComments: number;
 }
 

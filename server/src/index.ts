@@ -78,14 +78,14 @@ io.on('connection', (socket: AuthenticatedSocket) => {
         if (decoded) {
           const user = <User>decoded;
           const { username } = user;
-          const updatedComment = await UpdateService.UpdatePostReactions(
+          const updatedReactions = await UpdateService.UpdatePostReactions(
             username,
             postID,
             reaction
           );
           io.to(`post-${postID}`).emit(
             'update/postReaction/response',
-            updatedComment
+            updatedReactions
           );
         }
       }

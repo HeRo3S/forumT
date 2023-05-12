@@ -1,29 +1,12 @@
-import prisma from '../addons/prismaClient.js';
+import GroupData from '../data/group.data.js';
 
 async function SearchGroups(keyword: string) {
-  const matchingGroups = await prisma.group.findMany({
-    where: {
-      groupname: {
-        contains: keyword,
-      },
-    },
-    select: {
-      id: true,
-      groupname: true,
-      displayname: true,
-      avatarURL: true,
-    },
-    take: 5,
-  });
+  const matchingGroups = await GroupData.readContainKeyword({ keyword });
   return matchingGroups;
 }
 
 async function SearchExactGroup(keyword: string) {
-  const matching = await prisma.group.findUnique({
-    where: {
-      groupname: keyword,
-    },
-  });
+  const matching = GroupData.read({ keyword });
   return matching;
 }
 

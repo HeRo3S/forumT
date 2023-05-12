@@ -7,15 +7,32 @@ import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
 import Register from '../pages/Register';
 
-const routes = [
+interface RouteList {
+  path: string;
+  component: () => JSX.Element;
+}
+
+const normalRoutes: RouteList[] = [
   { path: '/', component: Home },
-  { path: '/login', component: Login },
-  { path: '/register', component: Register },
   { path: '/g/:groupname', component: Group },
   { path: '/g/:groupname/post/:postID', component: DetailPost },
-  { path: '/create/post', component: CreatePost },
-  { path: '/create/group', component: CreateGroup },
   { path: '*', component: NotFound },
 ];
+
+const authenticateRoutes: RouteList[] = [
+  { path: '/login', component: Login },
+  { path: '/register', component: Register },
+];
+
+const userRoutes: RouteList[] = [
+  { path: '/create/post', component: CreatePost },
+  { path: '/create/group', component: CreateGroup },
+];
+
+const routes = {
+  normalRoutes,
+  authenticateRoutes,
+  userRoutes,
+};
 
 export default routes;

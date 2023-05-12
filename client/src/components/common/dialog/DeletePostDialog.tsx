@@ -4,43 +4,37 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const StyledDialog = styled(Dialog)<DialogProps>(({ theme }) => ({}));
 
-interface ILoginDialogProps {
+interface IDeletePostDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  handleOnClickConfirmButton: () => void;
 }
 
-function LoginDialog(props: ILoginDialogProps) {
-  const { isOpen, onClose } = props;
-  const navigate = useNavigate();
+function DeletePostDialog(props: IDeletePostDialogProps) {
+  const { isOpen, onClose, handleOnClickConfirmButton } = props;
 
   const closeDialog = () => {
     onClose();
   };
 
-  const handleOnClickLogin = () => {
-    navigate('/login');
-  };
-
   return (
     <StyledDialog open={isOpen}>
-      <DialogTitle>Người dùng chưa đăng nhập</DialogTitle>
-      <DialogContent>
-        Để sử dụng tính năng này, vui lòng đăng nhập!
-      </DialogContent>
+      <DialogTitle>Xoá bài viết</DialogTitle>
+      <DialogContent>Bạn có chắc chắn muốn xoá bài viết?</DialogContent>
       <DialogActions>
         <Button variant="outlined" color="secondary" onClick={closeDialog}>
           Huỷ bỏ
         </Button>
-        <Button variant="outlined" onClick={handleOnClickLogin}>
-          Đăng nhập
+        <Button variant="outlined" onClick={handleOnClickConfirmButton}>
+          Xác nhận
         </Button>
       </DialogActions>
     </StyledDialog>
   );
 }
 
-export default LoginDialog;
+export default DeletePostDialog;

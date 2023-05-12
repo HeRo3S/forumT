@@ -66,28 +66,27 @@ function DetailPost() {
     socketRef.current.emit('update/comment', groupname, postID, comment);
   };
 
-  if (post) {
-    return (
-      <ContentContainer>
-        <Post groupname={groupname} id={+postID} />
-        <Typography variant="h5">Bình luận</Typography>
-        {userInfo && (
-          <>
-            <Editor value={comment} setValue={setComment} />
-            <Button onClick={handleSubmitComment}>Đăng</Button>
-          </>
-        )}
-        {comments &&
-          comments.map((c) => {
-            return <Comment key={c.id} comment={c} />;
-          })}
-        {newComments &&
-          newComments.map((c) => {
-            return <Comment key={c.id} comment={c} />;
-          })}
-      </ContentContainer>
-    );
-  }
+  if (!post) return <ContentContainer></ContentContainer>;
+  return (
+    <ContentContainer>
+      <Post groupname={groupname} id={+postID} />
+      <Typography variant="h5">Bình luận</Typography>
+      {userInfo && (
+        <>
+          <Editor value={comment} setValue={setComment} />
+          <Button onClick={handleSubmitComment}>Đăng</Button>
+        </>
+      )}
+      {comments &&
+        comments.map((c) => {
+          return <Comment key={c.id} comment={c} />;
+        })}
+      {newComments &&
+        newComments.map((c) => {
+          return <Comment key={c.id} comment={c} />;
+        })}
+    </ContentContainer>
+  );
 }
 
 function GetPostInfo(groupname: string, postID: string) {

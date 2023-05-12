@@ -1,26 +1,23 @@
 import { Prisma } from '@prisma/client';
 import { Request, Response } from 'express';
-import prisma from '../addons/prismaClient.js';
-import SearchService from '../services/search.service.js';
+import GroupData from '../data/group.data.js';
+import PostData from '../data/post.data.js';
+import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
 
 export async function CreateGroupController(req: Request, res: Response) {
   try {
     if (!req.user?.username)
       return res.status(403).json("can't find username in decoded jwt");
-    const createdGroup = await prisma.group.create({
-      data: {
-        groupname: req.body.groupname,
-        displayname: req.body.displayname,
-        ownername: req.user.username as string,
-      },
+    const createdGroup = await GroupData.create({
+      groupname: req.body.groupname,
+      displayname: req.body.displayname,
+      ownername: req.user.username as string,
     });
     if (createdGroup) {
-      await prisma.userFollowGroup.create({
-        data: {
-          username: req.user.username,
-          groupname: createdGroup.groupname,
-          role: 'MODERATOR',
-        },
+      await UserFollowingGroupData.create({
+        username: req.user.username,
+        groupname: createdGroup.groupname,
+        role: 'MODERATOR',
       });
     }
     return res.status(200).json(createdGroup);
@@ -44,16 +41,15 @@ export async function CreateGroupController(req: Request, res: Response) {
 
 export async function GetGroupInfo(req: Request, res: Response) {
   try {
-    const groupInfo = await prisma.group.findUnique({
-      where: {
-        groupname: req.params.groupname,
-      },
+    const groupInfo = await GroupData.read({
+      groupname: req.params.groupname,
     });
-    if (!groupInfo) res.status(400).json('Cannot find group');
-    const nFollowers = await prisma.userFollowGroup.count({
-      where: {
-        groupname: groupInfo?.groupname,
-      },
+    if (!groupInfo) {
+      res.status(400).json('Cannot find group');
+      return;
+    }
+    const nFollowers = await UserFollowingGroupData.count({
+      groupname: groupInfo.groupname,
     });
     res.status(200).json({ groupInfo, nFollowers });
   } catch (err) {
@@ -64,7 +60,7 @@ export async function GetGroupInfo(req: Request, res: Response) {
 export async function SearchGroupsController(req: Request, res: Response) {
   try {
     const keyword = req.query.keyword as string;
-    const groups = await SearchService.SearchGroups(keyword);
+    const groups = await GroupData.readContainKeyword({ keyword });
     return res.status(200).json(groups);
   } catch (err) {
     res.status(500).json(err);
@@ -75,18 +71,7 @@ export async function SearchGroupsController(req: Request, res: Response) {
 export async function GetGroupPostsController(req: Request, res: Response) {
   try {
     const groupname = req.params?.groupname;
-    const groupPosts = await prisma.post.findMany({
-      where: {
-        groupname,
-      },
-      orderBy: {
-        createdAt: 'desc',
-      },
-      select: {
-        id: true,
-        groupname: true,
-      },
-    });
+    const groupPosts = await PostData.readMany({ groupname });
     return res.status(200).json(groupPosts);
   } catch (err) {
     res.status(500).json(err);

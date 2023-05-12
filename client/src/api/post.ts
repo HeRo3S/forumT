@@ -36,6 +36,11 @@ async function uploadFile(formData: FormData) {
   return response.data;
 }
 
+async function deletePost(groupname: string, postID: number) {
+  const response = await instance.post(`/g/${groupname}/post/${postID}/delete`);
+  return response;
+}
+
 async function getUserReact(
   groupname: string,
   parentPostID: number
@@ -83,6 +88,7 @@ const PostService = {
   getPostInfo,
   createPost,
   uploadFile,
+  deletePost,
   getUserReact,
   postUserReact,
   getComments,

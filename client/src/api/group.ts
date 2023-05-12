@@ -1,5 +1,6 @@
 import instance from '.';
 import {
+  ResUserFollowingGroup,
   ReactionStatsProps,
   ResAttachment,
   ResGroupInfo,
@@ -40,13 +41,33 @@ async function fetchGroupsUserModerating(): Promise<Partial<ResGroupInfo>[]> {
   return res.data;
 }
 
+async function checkUserFollowingGroup(
+  groupname: string
+): Promise<ResUserFollowingGroup> {
+  const res = await instance.get(`g/${groupname}/follow`);
+  return res.data;
+}
+
+async function followGroup(groupname: string): Promise<ResUserFollowingGroup> {
+  const res = await instance.post(`g/${groupname}/follow`);
+  return res.data;
+}
+
+async function unfollowGroup(groupname: string) {
+  const res = await instance.post(`g/${groupname}/unfollow`);
+  return res.data;
+}
+
 const GroupService = {
   createGroup,
   getGroupInfo,
   getGroupPosts,
   searchGroups,
   fetchGroupsUserFollowing,
+  checkUserFollowingGroup,
   fetchGroupsUserModerating,
+  followGroup,
+  unfollowGroup,
 };
 
 export default GroupService;

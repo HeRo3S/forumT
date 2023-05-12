@@ -1,8 +1,9 @@
 import { ThemeProvider } from '@mui/material';
 import { Provider } from 'react-redux';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { Navigate, BrowserRouter, Route, Routes } from 'react-router-dom';
 import { injectStore } from './api';
 import Navbar from './components/Navbar';
+import { useAppSelector } from './redux/hook';
 import { store } from './redux/store';
 import routes from './routes';
 import defaultTheme from './style/muitheme';
@@ -22,15 +23,32 @@ function WrappedApp() {
 }
 
 function App() {
+  const user = useAppSelector((state) => state.auth.userInfo);
+  const { normalRoutes, authenticateRoutes, userRoutes } = routes;
+
   return (
     <div className="App">
       <Navbar />
       <Routes>
-        {routes.map((route) => (
+        {normalRoutes.map((route) => (
           <Route
             key={route.path}
             path={route.path}
             element={<route.component />}
+          />
+        ))}
+        {authenticateRoutes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={user ? <Navigate to="/" /> : <route.component />}
+          />
+        ))}
+        {userRoutes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={user ? <route.component /> : <Navigate to="/" />}
           />
         ))}
       </Routes>

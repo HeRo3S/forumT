@@ -13,6 +13,7 @@ import useSWR from 'swr';
 import { Socket } from 'socket.io-client';
 import { REACTION } from '../../../types/enum';
 import {
+  IReactionGroupBy,
   ReactionStatsProps,
   ResPost,
   ResPostReact,
@@ -52,17 +53,41 @@ interface IProps {
 function PostReactionBar(props: IProps) {
   const { variant, post, reaction: stats } = props;
   const { id, groupname } = post;
-  const { nUpvote, nDownvote, nComments } = stats || {};
+  const { reactions, nComments } = stats;
 
   const { userInfo: user, accessToken } = useAppSelector((state) => state.auth);
-  const [upvotes, setUpvotes] = useState(nUpvote);
-  const [downvotes, setDownvotes] = useState(nDownvote);
-  const [comments, setComments] = useState(nComments);
+  const [upvotes, setUpvotes] = useState(0);
+  const [downvotes, setDownvotes] = useState(0);
+  const [comments, setComments] = useState(0);
   const [reaction, setReaction] = useState(REACTION.NONE);
   const [isLoginDialogOpen, setLoginDialogOpen] = useState(false);
   const socketRef = useRef<Socket>();
 
   const { isLoading, data, error } = FetchUserPostReaction(groupname, id, user);
+
+  // eslint-disable-next-line @typescript-eslint/no-shadow
+  function UpdateReactionHooks(reactions: IReactionGroupBy[]) {
+    setUpvotes(0);
+    setDownvotes(0);
+    reactions.forEach((r) => {
+      const { reaction: rReaction, _count: count } = r;
+      switch (REACTION[rReaction as keyof typeof REACTION]) {
+        case REACTION.UPVOTE:
+          setUpvotes(count);
+          break;
+        case REACTION.DOWNVOTE:
+          setDownvotes(count);
+          break;
+        default:
+          break;
+      }
+    });
+  }
+
+  useEffect(() => {
+    setComments(nComments);
+    UpdateReactionHooks(reactions);
+  }, [reactions, nComments]);
 
   useEffect(() => {
     setReaction(REACTION[data?.reaction as keyof typeof REACTION]);
@@ -73,9 +98,10 @@ function PostReactionBar(props: IProps) {
     if (socketRef.current) {
       socketRef.current.on(
         'update/postReaction/response',
-        (updatedComment: ResPostReact) => {
-          setUpvotes(updatedComment.nUpvote as number);
-          setDownvotes(updatedComment.nDownvote as number);
+        (updatedReaction: IReactionGroupBy[]) => {
+          UpdateReactionHooks(updatedReaction);
+          // setUpvotes(updatedComment.nUpvote as number);
+          // setDownvotes(updatedComment.nDownvote as number);
         }
       );
     }

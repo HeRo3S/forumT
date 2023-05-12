@@ -1,5 +1,5 @@
-import { ReactionType } from '@prisma/client';
-import prisma from '../addons/prismaClient.js';
+import CommentData from '../data/comment.data.js';
+import PostReactionData from '../data/postReactions.data.js';
 
 async function UpdateComments(
   username: string,
@@ -7,13 +7,11 @@ async function UpdateComments(
   postID: string,
   comment: string
 ) {
-  const updatedComment = await prisma.comment.create({
-    data: {
-      username,
-      parentGroupname: groupname,
-      parentPostID: +postID,
-      content: comment,
-    },
+  const updatedComment = await CommentData.create({
+    username,
+    parentGroupname: groupname,
+    parentPostID: +postID,
+    content: comment,
   });
   return updatedComment;
 }
@@ -23,43 +21,14 @@ async function UpdatePostReactions(
   postID: number,
   reaction: string
 ) {
-  const existedReaction = await prisma.postReaction.findFirst({
-    where: {
-      username,
-      postID,
-    },
-  });
+  const existedReaction = await PostReactionData.read({ username, postID });
   if (!existedReaction) {
-    await prisma.postReaction.create({
-      data: {
-        username,
-        reaction: ReactionType[reaction as keyof typeof ReactionType],
-        postID,
-      },
-    });
+    PostReactionData.create({ username, postID, reaction });
   } else {
-    await prisma.postReaction.update({
-      where: {
-        id: existedReaction.id,
-      },
-      data: {
-        reaction: ReactionType[reaction as keyof typeof ReactionType],
-      },
-    });
+    await PostReactionData.update({ reactionID: existedReaction.id, reaction });
   }
-  const nUpvote = await prisma.postReaction.count({
-    where: {
-      postID: +postID,
-      reaction: 'UPVOTE',
-    },
-  });
-  const nDownvote = await prisma.postReaction.count({
-    where: {
-      postID: +postID,
-      reaction: 'DOWNVOTE',
-    },
-  });
-  return { nUpvote, nDownvote };
+  const updateReactions = PostReactionData.groupByPostID(postID);
+  return updateReactions;
 }
 
 const UpdateService = { UpdateComments, UpdatePostReactions };

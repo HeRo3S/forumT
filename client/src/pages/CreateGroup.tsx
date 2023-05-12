@@ -8,25 +8,32 @@ import {
 } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Socket } from 'socket.io-client';
 import { ContentContainer } from '../components/common/Layout';
-import socket from '../services/socket-io';
 import GroupService from '../api/group';
+import createSocket from '../services/socket-io';
 
 function CreateGroup() {
   const [groupname, setGroupname] = useState<string>('');
   const [displayname, setDisplayname] = useState<string>('');
   const [existedGroupname, setExistedGroupname] = useState<string>('');
+  const socketRef = useRef<Socket>();
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    socket.emit('search/exact/group', groupname);
-    socket.on('search/exact/group/response', (group) => {
-      setExistedGroupname(group);
-    });
+    socketRef.current = createSocket();
+    if (socketRef) {
+      socketRef.current.connect();
+      socketRef.current.emit('search/exact/group', groupname);
+      socketRef.current.on('search/exact/group/response', (group) => {
+        setExistedGroupname(group);
+      });
+    }
 
     return () => {
-      socket.off('search/exact/group/response');
+      if (socketRef.current)
+        socketRef.current.off('search/exact/group/response');
     };
   }, [groupname]);
 
