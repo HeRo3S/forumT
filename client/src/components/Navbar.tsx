@@ -1,5 +1,4 @@
 import Notifications from '@mui/icons-material/Notifications';
-import Search from '@mui/icons-material/Search';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import { Link, useNavigate } from 'react-router-dom';
@@ -10,9 +9,14 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { logout, refreshAccessToken } from '../redux/features/authSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hook';
+import SearchBar from './common/SearchBar';
 
 const StyledNavbarBox = styled(Box)<BoxProps>(({ theme }) => ({
   position: 'sticky',
+  backgroundColor: theme.palette.common.white,
+  zIndex: '1000',
+  top: '0',
+  marginBottom: '5px',
   padding: '5px 5px',
 }));
 
@@ -69,12 +73,14 @@ function Navbar() {
         </Grid>
 
         <Grid item container xs id="centerNav">
-          <Search />
+          <Grid item xs>
+            <SearchBar />
+          </Grid>
           <Notifications />
         </Grid>
 
         <Grid item container xs={3} direction="row-reverse">
-          {auth.userInfo ? (
+          {auth.accessToken.length > 0 ? (
             <>
               <Button
                 id="user-button"

@@ -32,7 +32,8 @@ async function readOnly(postID: number) {
 }
 
 interface IReadManyProps {
-  groupname: string;
+  groupname?: string;
+  username?: string;
 }
 async function readMany(props: IReadManyProps) {
   const posts = await prisma.post.findMany({
@@ -44,6 +45,28 @@ async function readMany(props: IReadManyProps) {
       id: true,
       groupname: true,
     },
+  });
+  return posts;
+}
+
+interface IReadContainKeywordsProps {
+  keyword: string;
+}
+async function readContainKeyword(props: IReadContainKeywordsProps) {
+  const { keyword } = props;
+  const posts = await prisma.post.findMany({
+    where: {
+      title: {
+        contains: keyword,
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      username: true,
+      groupname: true,
+    },
+    take: 5,
   });
   return posts;
 }
@@ -80,6 +103,13 @@ async function remove(id: number) {
   return transaction;
 }
 
-const PostData = { create, readOnly, readMany, update, remove };
+const PostData = {
+  create,
+  readOnly,
+  readMany,
+  readContainKeyword,
+  update,
+  remove,
+};
 
 export default PostData;

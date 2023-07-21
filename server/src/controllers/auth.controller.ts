@@ -14,13 +14,15 @@ const config = {
 
 async function PostLoginController(req: Request, res: Response) {
   try {
-    const existedUser = await UserData.read({ email: req?.body?.email });
+    const existedUser = await UserData.read({
+      email: req?.body?.email,
+    });
     // // return error when account is not existed
     if (!existedUser) {
       return res.status(400).json('This account is not existed!');
     }
     // return error when password is not corrected
-    if (!verifyPassword(req?.body?.password, existedUser.password)) {
+    if (!(await verifyPassword(req?.body?.password, existedUser.password))) {
       return res.status(403).json('Wrong password!');
     }
     // create token

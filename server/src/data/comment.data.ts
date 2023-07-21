@@ -15,6 +15,15 @@ async function create(props: ICreateProps) {
       username,
       content,
     },
+    include: {
+      user: {
+        select: {
+          avatarURL: true,
+          username: true,
+          displayname: true,
+        },
+      },
+    },
   });
   return comment;
 }
@@ -28,6 +37,15 @@ interface IReadManyProps {
 async function readMany(props: IReadManyProps) {
   const comments = await prisma.comment.findMany({
     where: props,
+    include: {
+      user: {
+        select: {
+          avatarURL: true,
+          username: true,
+          displayname: true,
+        },
+      },
+    },
   });
   return comments;
 }

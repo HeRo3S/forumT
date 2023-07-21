@@ -1,4 +1,5 @@
 import GroupData from '../data/group.data.js';
+import PostData from '../data/post.data.js';
 
 async function SearchGroups(keyword: string) {
   const matchingGroups = await GroupData.readContainKeyword({ keyword });
@@ -6,10 +7,15 @@ async function SearchGroups(keyword: string) {
 }
 
 async function SearchExactGroup(keyword: string) {
-  const matching = GroupData.read({ keyword });
-  return matching;
+  // const matching = await GroupData.readContainKeyword({ keyword });
+  // return matching;
 }
 
-const SearchService = { SearchGroups, SearchExactGroup };
+async function SearchPosts(keyword: string) {
+  const matchingPosts = await PostData.readContainKeyword({ keyword });
+  return matchingPosts;
+}
+
+const SearchService = { SearchGroups, SearchExactGroup, SearchPosts };
 
 export default SearchService;

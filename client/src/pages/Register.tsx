@@ -5,9 +5,15 @@ import Typography from '@mui/material/Typography';
 import React, { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
+import { styled } from '@mui/material/styles';
+import Box from '@mui/material/Box';
 import { register } from '../redux/features/authSlice';
 import { useAppDispatch } from '../redux/hook';
 import { ReqUser } from '../../types/interfaces/reqAPI';
+
+const StyledButton = styled(Button)(({ theme }) => ({
+  width: '150px',
+}));
 
 function Register() {
   const dispatch = useAppDispatch();
@@ -17,7 +23,7 @@ function Register() {
   const passwordRef = useRef<HTMLInputElement>();
   const retypePasswordRef = useRef<HTMLInputElement>();
 
-  function handleSubmitRegister(e: React.MouseEvent<HTMLButtonElement>): void {
+  function handleSubmitRegister(e: React.FormEvent<HTMLButtonElement>): void {
     e.preventDefault();
     // TODO return input error when retype password don't match
     if (passwordRef.current?.value !== retypePasswordRef.current?.value) {
@@ -37,6 +43,7 @@ function Register() {
   }
 
   function handleClickLoginButton(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
     navigate('/login');
   }
 
@@ -52,7 +59,7 @@ function Register() {
     >
       <form onSubmit={(e) => handleSubmitRegister(e)}>
         <Typography variant="h3">Đăng ký tài khoản</Typography>
-        <Stack>
+        <Stack spacing={1}>
           <TextField
             fullWidth
             label="Email"
@@ -81,23 +88,27 @@ function Register() {
             helperText="Nhập lại mật khẩu cho tài khoản bạn muốn đăng ký"
             inputRef={retypePasswordRef}
           />
-          <Button
-            variant="contained"
-            size="large"
-            className="longButton"
-            type="submit"
-            onClick={(e) => handleSubmitRegister(e)}
-          >
-            Đăng ký
-          </Button>
-          <Button
-            variant="contained"
-            size="large"
-            className="longButton"
-            onClick={(e) => handleClickLoginButton(e)}
-          >
-            Đăng nhập
-          </Button>
+          <Box display="flex" justifyContent="center">
+            <StyledButton
+              variant="contained"
+              size="large"
+              className="longButton"
+              type="submit"
+              onClick={(e) => handleSubmitRegister(e)}
+            >
+              Đăng ký
+            </StyledButton>
+          </Box>
+          <Box display="flex" justifyContent="center">
+            <StyledButton
+              variant="contained"
+              size="large"
+              className="longButton"
+              onClick={(e) => handleClickLoginButton(e)}
+            >
+              Đăng nhập
+            </StyledButton>
+          </Box>
         </Stack>
       </form>
     </Container>

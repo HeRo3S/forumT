@@ -6,8 +6,11 @@ import {
   SearchGroupsController,
 } from '../controllers/group.controller.js';
 import {
-  GetGroupsUserFollowingController,
-  GetGroupsUserModeratingController,
+  BanUsersFromGroupModController,
+  CheckModeratorMiddleware,
+  GetUsersFollowGroupModController,
+} from '../controllers/moderator.controller.js';
+import {
   CheckUserFollowingGroup,
   CreateUserFollowingGroup,
   DeleteUserFollowingGroup,
@@ -16,23 +19,13 @@ import { authenticateToken } from '../middleware/jwt.js';
 
 const groupRoute = Router();
 
-groupRoute.post('/create', authenticateToken, CreateGroupController);
-// search?keyword=''
+// NOTE: Unauthorize controller
 groupRoute.get('/search', SearchGroupsController);
-groupRoute.get(
-  '/following',
-  authenticateToken,
-  GetGroupsUserFollowingController
-);
-groupRoute.get(
-  '/moderating',
-  authenticateToken,
-  GetGroupsUserModeratingController
-);
-
 groupRoute.get('/:groupname', GetGroupInfo);
 groupRoute.get('/:groupname/posts', GetGroupPostsController);
 
+// NOTE: User controller
+groupRoute.post('/create', authenticateToken, CreateGroupController);
 groupRoute.get(
   '/:groupname/follow',
   authenticateToken,
@@ -47,5 +40,16 @@ groupRoute.post(
   '/:groupname/unfollow',
   authenticateToken,
   DeleteUserFollowingGroup
+);
+// NOTE: Moderator controller
+groupRoute.get(
+  '/:groupname/mod/users',
+  [authenticateToken, CheckModeratorMiddleware],
+  GetUsersFollowGroupModController
+);
+groupRoute.post(
+  `/:groupname/mod/ban`,
+  [authenticateToken, CheckModeratorMiddleware],
+  BanUsersFromGroupModController
 );
 export default groupRoute;

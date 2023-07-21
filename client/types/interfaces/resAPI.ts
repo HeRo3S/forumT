@@ -13,6 +13,7 @@ export interface ResUser {
 }
 
 export interface ResUserInfo {
+  [key: string]: unknown;
   username: string;
   displayname?: string;
   email: string;
@@ -57,6 +58,11 @@ export interface ResComment {
   createdAt: string;
   updatedAt: string;
   deletedAt: string;
+  user: {
+    avatarURL: string;
+    username: string;
+    displayname: string;
+  };
 }
 
 export interface ResPostReact {

@@ -45,13 +45,37 @@ async function readMany(props: IReadManyProps) {
       role: UserInGroupType[role as keyof typeof UserInGroupType],
     },
     select: {
+      username: true,
+      groupname: true,
       group: true,
     },
   });
   return userFollowGroupList;
 }
 
-async function update() {}
+interface IUpdateProps {
+  role?: string;
+  timeUnbanned?: string;
+  username: string;
+  groupname: string;
+}
+async function update(props: IUpdateProps) {
+  const { username, groupname, role, timeUnbanned } = props;
+  const awaited = await prisma.userFollowGroup.update({
+    where: {
+      username_groupname: {
+        username,
+        groupname,
+      },
+    },
+    data: {
+      role: UserInGroupType[role as keyof typeof UserInGroupType],
+      timeUnbanned,
+    },
+  });
+  return awaited;
+}
+
 interface IRemoveProps {
   username: string;
   groupname: string;

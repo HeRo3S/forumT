@@ -2,12 +2,13 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
+import useSWR from 'swr';
 import { styled } from '@mui/material/styles';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import DOMPurify from 'dompurify';
-import ReactionBar from './PostReactionBar';
+import { Avatar } from '@mui/material';
 import { ContentContainer } from '../common/Layout';
 import { ResComment } from '../../../types/interfaces/resAPI';
 
@@ -29,8 +30,10 @@ interface ICommentProps {
 }
 
 function Comment(props: ICommentProps) {
+  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { comment } = props;
-  const { id, username, content } = comment;
+  const { user, content } = comment;
+  const { username, avatarURL } = user;
   const sanitizedHTMLContent = DOMPurify.sanitize(content);
 
   function handleOnClickContainer(
@@ -44,13 +47,18 @@ function Comment(props: ICommentProps) {
         </Grid>
         <Grid item xs>
           <Stack>
-            <Box>
-              <Link to={`/u/${username}`}>
-                <StyledUsernameTypo variant="subtitle1">
-                  u/{username}
-                </StyledUsernameTypo>
-              </Link>
-            </Box>
+            <Grid container>
+              <Grid item xs={1}>
+                <Avatar src={PUBLIC_FOLDER + avatarURL} alt={username} />
+              </Grid>
+              <Grid item xs>
+                <Link to={`/u/${username}`}>
+                  <StyledUsernameTypo variant="subtitle1">
+                    u/{username}
+                  </StyledUsernameTypo>
+                </Link>
+              </Grid>
+            </Grid>
             <StyledPostBody
               dangerouslySetInnerHTML={{ __html: sanitizedHTMLContent }}
             />

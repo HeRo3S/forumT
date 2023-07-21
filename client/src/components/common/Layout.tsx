@@ -5,6 +5,8 @@ import { styled } from '@mui/material/styles';
 export const PageContainer = styled(Grid)<GridProps>({});
 
 export const LeftBarContainer = styled(Grid)<GridProps>(({ theme }) => ({
+  position: 'sticky',
+  top: '50px',
   height: '95vh',
   backgroundColor: theme.palette.grey[400],
 }));
@@ -18,4 +20,8 @@ export const ContentContainer = styled(Container)<ContainerProps>(
   })
 );
 
-export const RightBarContainer = styled(Grid)<GridProps>(({ theme }) => ({}));
+export const RightBarContainer = styled(Grid)<GridProps>(({ theme }) => ({
+  position: 'sticky',
+  top: '50px',
+  height: '90vh',
+}));

@@ -29,7 +29,28 @@ async function read(props: IReadProps) {
   return existedUser;
 }
 
-function update() {}
+interface IUpdateProps {
+  username: string;
+  password?: string;
+  avatarURL?: string;
+  displayname?: string;
+  description?: string;
+}
+async function update(props: IUpdateProps) {
+  const { username, avatarURL, displayname, description } = props;
+  const updatedUser = await prisma.user.update({
+    where: {
+      username,
+    },
+    data: {
+      avatarURL,
+      displayname,
+      description,
+    },
+  });
+  return updatedUser;
+}
+
 function remove() {}
 
 const UserData = { create, read, update, remove };

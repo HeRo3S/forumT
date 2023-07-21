@@ -4,11 +4,6 @@ import CommentData from '../data/comment.data.js';
 import PostData from '../data/post.data.js';
 import PostReactionData from '../data/postReactions.data.js';
 
-export async function CreatePostAttachmentController(
-  req: Request,
-  res: Response
-) {}
-
 export async function GetPostController(req: Request, res: Response) {
   try {
     const postID = req.params?.postID;

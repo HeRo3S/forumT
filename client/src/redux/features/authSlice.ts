@@ -1,16 +1,28 @@
 /* eslint-disable no-param-reassign */
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  createAction,
+  createAsyncThunk,
+  createReducer,
+  createSlice,
+} from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
 import AuthService from '../../api/auth';
 import { ReqUser } from '../../../types/interfaces/reqAPI';
+import { ResUserInfo } from '../../../types/interfaces/resAPI';
 
 interface State {
-  userInfo: { username?: string } | null;
+  userInfo: ResUserInfo;
   accessToken: string;
   isLoggedIn: boolean;
 }
 const INITIAL_STATE: State = {
-  userInfo: null,
+  userInfo: {
+    username: '',
+    displayname: '',
+    email: '',
+    userType: '',
+    createdAt: '',
+  },
   accessToken: '',
   isLoggedIn: false,
 };
@@ -44,6 +56,15 @@ export const logout = createAsyncThunk('auth/logout', async () => {
   return response;
 });
 
+export const updateUserInfo = createAction(
+  'auth/update',
+  (userInfo: ResUserInfo) => {
+    return {
+      payload: { userInfo },
+    };
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState: INITIAL_STATE,
@@ -56,7 +77,7 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(login.rejected, (state) => {
-        state.userInfo = null;
+        state.userInfo = INITIAL_STATE.userInfo;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
@@ -66,7 +87,7 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(register.rejected, (state) => {
-        state.userInfo = null;
+        state.userInfo = INITIAL_STATE.userInfo;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
@@ -76,26 +97,29 @@ const authSlice = createSlice({
         state.isLoggedIn = true;
       })
       .addCase(refreshAccessToken.rejected, (state) => {
-        state.userInfo = null;
+        state.userInfo = INITIAL_STATE.userInfo;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
       .addCase(logout.fulfilled, (state) => {
-        state.userInfo = null;
+        state.userInfo = INITIAL_STATE.userInfo;
         state.accessToken = '';
         state.isLoggedIn = false;
       })
       .addCase(logout.rejected, (state) => {
-        state.userInfo = null;
+        state.userInfo = INITIAL_STATE.userInfo;
         state.accessToken = '';
         state.isLoggedIn = false;
+      })
+      .addCase(updateUserInfo, (state, action) => {
+        state.userInfo = action.payload.userInfo;
       });
   },
 });
 
 function decodeJWT(accessToken: string) {
   const userInfo = jwt_decode(accessToken);
-  return userInfo as object;
+  return userInfo as ResUserInfo;
 }
 
 export default authSlice.reducer;

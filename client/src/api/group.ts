@@ -31,16 +31,6 @@ async function searchGroups(keyword: string): Promise<Partial<ResGroupInfo>[]> {
   return res.data;
 }
 
-async function fetchGroupsUserFollowing(): Promise<Partial<ResGroupInfo>[]> {
-  const res = await instance.get(`g/following`);
-  return res.data;
-}
-
-async function fetchGroupsUserModerating(): Promise<Partial<ResGroupInfo>[]> {
-  const res = await instance.get(`g/moderating`);
-  return res.data;
-}
-
 async function checkUserFollowingGroup(
   groupname: string
 ): Promise<ResUserFollowingGroup> {
@@ -63,9 +53,7 @@ const GroupService = {
   getGroupInfo,
   getGroupPosts,
   searchGroups,
-  fetchGroupsUserFollowing,
   checkUserFollowingGroup,
-  fetchGroupsUserModerating,
   followGroup,
   unfollowGroup,
 };

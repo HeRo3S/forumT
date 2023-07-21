@@ -5,12 +5,11 @@ import useSWR from 'swr';
 import Grid, { GridProps } from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import { useState } from 'react';
-import { Box } from '@mui/material';
+import { Avatar, Box } from '@mui/material';
 import GroupService from '../api/group';
 import { ContentContainer, PageContainer } from '../components/common/Layout';
 import Loading from '../components/Loading';
 import Post from '../components/post/Post';
-import GroupLogo from '../assets/dev_purpose/gamingLogo.png';
 import LeftBar from '../components/LeftBar';
 import { useAppSelector } from '../redux/hook';
 import UserList from '../components/moderator/UserList';
@@ -30,11 +29,12 @@ const StyledNavbarItem = styled(Grid)<IRenderButtonProps>(
 enum RENDERMODE {
   POSTS,
   USER_MANAGER,
+  INFO_MANAGER,
 }
 
 function Group() {
   const { groupname } = useParams();
-  const { userInfo } = useAppSelector((state) => state.auth);
+  const { userInfo, accessToken } = useAppSelector((state) => state.auth);
   const [renderMode, setRenderMode] = useState<RENDERMODE>(RENDERMODE.POSTS);
 
   if (!groupname)
@@ -55,7 +55,7 @@ function Group() {
     mutateUserFollowing,
   } = FetchUserFollowingGroup(groupname, userInfo);
 
-  if (groupInfoError || fetchUserFollowingError || groupPostErrors)
+  if (groupInfoError || groupPostErrors)
     return <Typography variant="h1">Error</Typography>;
 
   if (isGroupInfoLoading || isGroupPostsLoading || isFetchUserFollowingLoading)
@@ -82,6 +82,7 @@ function Group() {
   };
 
   const renderFollowButton = () => {
+    if (accessToken === '') return <Box />;
     if (!userFollowingGroup)
       return (
         <Button variant="contained" onClick={handleOnClickFollowButton}>
@@ -105,6 +106,7 @@ function Group() {
   };
 
   const renderNavBar = () => {
+    if (accessToken === '') return <Box />;
     return (
       <Grid container>
         <StyledNavbarItem
@@ -118,16 +120,28 @@ function Group() {
           <Typography>Danh sách bài viết</Typography>
         </StyledNavbarItem>
         {userFollowingGroup?.role === 'MODERATOR' && (
-          <StyledNavbarItem
-            item
-            xs
-            isSelected={renderMode === RENDERMODE.USER_MANAGER}
-            onClick={(e) =>
-              handleOnClickChangeRenderModeButton(e, RENDERMODE.USER_MANAGER)
-            }
-          >
-            <Typography>Quản lý thành viên</Typography>
-          </StyledNavbarItem>
+          <>
+            <StyledNavbarItem
+              item
+              xs
+              isSelected={renderMode === RENDERMODE.USER_MANAGER}
+              onClick={(e) =>
+                handleOnClickChangeRenderModeButton(e, RENDERMODE.USER_MANAGER)
+              }
+            >
+              <Typography>Quản lý thành viên</Typography>
+            </StyledNavbarItem>
+            <StyledNavbarItem
+              item
+              xs
+              isSelected={renderMode === RENDERMODE.INFO_MANAGER}
+              onClick={(e) =>
+                handleOnClickChangeRenderModeButton(e, RENDERMODE.INFO_MANAGER)
+              }
+            >
+              <Typography>Thay đổi thông tin</Typography>
+            </StyledNavbarItem>
+          </>
         )}
       </Grid>
     );
@@ -143,7 +157,7 @@ function Group() {
           return <Post key={id} groupname={groupname} id={id} />;
         });
       case RENDERMODE.USER_MANAGER:
-        return <UserList />;
+        return <UserList groupname={groupname} />;
       default:
         console.error("can't find mode");
         return <Box />;
@@ -157,7 +171,9 @@ function Group() {
         <ContentContainer>
           <Grid container>
             <Grid item xs>
-              <img src={GroupLogo} alt="GroupLogo" />
+              <Avatar alt="GroupLogo">
+                {groupInfo?.displayname?.at(0) || groupInfo?.groupname[0]}
+              </Avatar>
               <Typography variant="h4">
                 {groupInfo?.displayname || groupInfo?.groupname}
               </Typography>

@@ -1,4 +1,4 @@
-import { Button, Stack, Typography } from '@mui/material';
+import { Avatar, Button, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import { useAppSelector } from '../redux/hook';
@@ -8,10 +8,12 @@ const StyledUserProfilePlaceholder = styled(Stack)(({ theme }) => ({
   height: '400px',
   backgroundColor: theme.palette.common.white,
   borderRadius: '20px',
+  alignItems: 'center',
 }));
 
 function RightBar() {
-  const user = useAppSelector((state) => state.auth.userInfo);
+  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
+  const { userInfo, accessToken } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
   const handleCreatePostButtonClick = () => {
@@ -20,14 +22,23 @@ function RightBar() {
   const handleCreateGroupButtonClick = () => {
     navigate('/create/group');
   };
+  const handleUserProfileButtonClick = () => {
+    navigate(`u/${userInfo?.username}`);
+  };
 
-  if (!user) return <RightBarContainer item xs={2} />;
+  if (accessToken.length <= 0) return <RightBarContainer item xs={2} />;
   return (
     <RightBarContainer item xs={2}>
       <StyledUserProfilePlaceholder>
-        <Typography variant="h4">{user.username}</Typography>
-        <Typography variant="subtitle2">u/{user.username}</Typography>
-        <Button>Xem hồ sơ</Button>
+        <Avatar
+          src={PUBLIC_FOLDER + userInfo.avatarURL}
+          alt={userInfo.username}
+        />
+        <Typography variant="h4">
+          {userInfo.displayname || userInfo.username}
+        </Typography>
+        <Typography variant="subtitle2">u/{userInfo.username}</Typography>
+        <Button onClick={handleUserProfileButtonClick}>Xem hồ sơ</Button>
         <Button onClick={handleCreatePostButtonClick}>Tạo bài viết</Button>
         <Button onClick={handleCreateGroupButtonClick}>Tạo nhóm</Button>
       </StyledUserProfilePlaceholder>

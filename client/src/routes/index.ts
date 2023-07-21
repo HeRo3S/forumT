@@ -5,6 +5,7 @@ import Group from '../pages/Group';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
+import Profile from '../pages/Profile';
 import Register from '../pages/Register';
 
 interface RouteList {
@@ -16,6 +17,7 @@ const normalRoutes: RouteList[] = [
   { path: '/', component: Home },
   { path: '/g/:groupname', component: Group },
   { path: '/g/:groupname/post/:postID', component: DetailPost },
+  { path: '/u/:username', component: Profile },
   { path: '*', component: NotFound },
 ];
 

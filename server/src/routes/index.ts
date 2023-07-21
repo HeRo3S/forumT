@@ -4,9 +4,11 @@ import commentRoute from './comment.js';
 import groupRoute from './group.js';
 import postRoute from './post.js';
 import attachmentRoute from './attachment.js';
+import userRoute from './user.js';
 
 const routesList = [
   { path: '/auth', router: authRoute },
+  { path: '/u/:username', router: userRoute },
   { path: '/g', router: groupRoute },
   { path: '/g/:groupname/post', router: postRoute },
   { path: '/g/:groupname/post/:postID/comment', router: commentRoute },

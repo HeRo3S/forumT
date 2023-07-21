@@ -23,7 +23,7 @@ function WrappedApp() {
 }
 
 function App() {
-  const user = useAppSelector((state) => state.auth.userInfo);
+  const user = useAppSelector((state) => state.auth.accessToken);
   const { normalRoutes, authenticateRoutes, userRoutes } = routes;
 
   return (

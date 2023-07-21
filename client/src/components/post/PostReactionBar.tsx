@@ -16,7 +16,6 @@ import {
   IReactionGroupBy,
   ReactionStatsProps,
   ResPost,
-  ResPostReact,
 } from '../../../types/interfaces/resAPI';
 import { useAppSelector } from '../../redux/hook';
 import LoginDialog from '../common/dialog/LoginDialog';
@@ -147,7 +146,6 @@ function PostReactionBar(props: IProps) {
     setLoginDialogOpen(false);
   }
 
-  if (error) return <Typography>error</Typography>;
   return (
     <>
       <LoginDialog isOpen={isLoginDialogOpen} onClose={closeLoginDialog} />
