@@ -2,7 +2,6 @@ import { Router } from 'express';
 import {
   CreateGroupController,
   GetGroupInfo,
-  GetGroupPostsController,
   SearchGroupsController,
 } from '../controllers/group.controller.js';
 import {
@@ -16,6 +15,7 @@ import {
   DeleteUserFollowingGroup,
 } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
+import { GetGroupPostsController } from '../controllers/post.controller.js';
 
 const groupRoute = Router();
 

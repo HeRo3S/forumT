@@ -1,10 +1,11 @@
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { useParams } from 'react-router-dom';
+import useSWRInfinite from 'swr/infinite';
 import useSWR from 'swr';
 import Grid, { GridProps } from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Avatar, Box } from '@mui/material';
 import GroupService from '../api/group';
 import { ContentContainer, PageContainer } from '../components/common/Layout';
@@ -13,6 +14,7 @@ import Post from '../components/post/Post';
 import LeftBar from '../components/LeftBar';
 import { useAppSelector } from '../redux/hook';
 import UserList from '../components/moderator/UserList';
+import PaginationConfig from '../config/axios/pagination';
 
 interface IRenderButtonProps extends GridProps {
   isSelected: boolean;
@@ -25,6 +27,10 @@ const StyledNavbarItem = styled(Grid)<IRenderButtonProps>(
     backgroundColor: isSelected ? theme.palette.grey[200] : undefined,
   })
 );
+const StyledEndOfPostsDiv = styled(`div`)({
+  marginBottom: '20px',
+  height: '20px',
+});
 
 enum RENDERMODE {
   POSTS,
@@ -34,26 +40,56 @@ enum RENDERMODE {
 
 function Group() {
   const { groupname } = useParams();
-  const { userInfo, accessToken } = useAppSelector((state) => state.auth);
+  const { accessToken } = useAppSelector((state) => state.auth);
   const [renderMode, setRenderMode] = useState<RENDERMODE>(RENDERMODE.POSTS);
+  const endOfPostsRef = useRef<HTMLDivElement>(null);
+  const observerRef = useRef<IntersectionObserver | null>(null);
 
-  if (!groupname)
-    return <Typography variant="h1">Can`&apos`t find groupname</Typography>;
-
-  const { isGroupPostsLoading, posts, groupPostErrors } =
-    FetchGroupPostsData(groupname);
+  const { isGroupPostsLoading, pages, groupPostErrors, size, setSize } =
+    FetchGroupPostsData(groupname as string);
   const {
     isGroupInfoLoading,
     data: fetchGroupInfoData,
     groupInfoError,
     mutateGroupInfo,
-  } = FetchGroupInfo(groupname);
+  } = FetchGroupInfo(groupname as string);
   const {
     isFetchUserFollowingLoading,
     userFollowingGroup,
     fetchUserFollowingError,
     mutateUserFollowing,
-  } = FetchUserFollowingGroup(groupname, userInfo);
+  } = FetchUserFollowingGroup(groupname as string, accessToken);
+
+  useEffect(() => {
+    const handleLoadMore: IntersectionObserverCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (
+          entry.isIntersecting &&
+          pages &&
+          pages[pages.length - 1].nextCursorID !== -1
+        ) {
+          console.log(`intersection ${size}`);
+          setSize(size + 1);
+        }
+      });
+    };
+
+    const option = {
+      root: null,
+      threshold: 0,
+      margin: 0,
+    };
+    observerRef.current = new IntersectionObserver(handleLoadMore, option);
+    if (endOfPostsRef.current)
+      observerRef.current.observe(endOfPostsRef.current);
+
+    return () => {
+      if (observerRef?.current) observerRef.current.disconnect();
+    };
+  }, [pages, setSize, size]);
+
+  if (!groupname)
+    return <Typography variant="h1">Can`&apos`t find groupname</Typography>;
 
   if (groupInfoError || groupPostErrors)
     return <Typography variant="h1">Error</Typography>;
@@ -149,13 +185,28 @@ function Group() {
 
   const renderBody = () => {
     switch (renderMode) {
-      case RENDERMODE.POSTS:
-        if (!posts) return <Box />;
+      case RENDERMODE.POSTS: {
+        if (!pages) return <Box />;
 
-        return posts.map((p) => {
-          const { id } = p;
-          return <Post key={id} groupname={groupname} id={id} />;
+        const posts = pages.map((page) => {
+          const { groupPosts } = page;
+          return groupPosts.map((p) => {
+            const { id } = p;
+            return (
+              <>
+                <Post key={id} groupname={groupname} id={id} />;
+              </>
+            );
+          });
         });
+
+        return (
+          <>
+            {posts}
+            <StyledEndOfPostsDiv ref={endOfPostsRef} />
+          </>
+        );
+      }
       case RENDERMODE.USER_MANAGER:
         return <UserList groupname={groupname} />;
       default:
@@ -199,14 +250,23 @@ function Group() {
 }
 
 function FetchGroupPostsData(groupname: string) {
-  const { isLoading, error, data } = useSWR(`g/${groupname}/posts`, () =>
-    GroupService.getGroupPosts(groupname)
+  const { isLoading, error, data, size, setSize } = useSWRInfinite(
+    (index, previousData) => {
+      let url = `g/${groupname}/posts?limit=${PaginationConfig.groupPostsLimit}`;
+      if (!previousData?.nextCursorID) return url;
+      if (previousData.nextCursorID === -1) return null;
+      url += `&cursor=${previousData.nextCursorID}`;
+      return url;
+    },
+    (url) => GroupService.getGroupPosts(url)
   );
 
   return {
     isGroupPostsLoading: isLoading,
-    posts: data,
+    pages: data,
     groupPostErrors: error,
+    size,
+    setSize,
   };
 }
 
@@ -226,10 +286,10 @@ function FetchGroupInfo(groupname: string) {
   };
 }
 
-function FetchUserFollowingGroup(groupname: string, user: unknown) {
+function FetchUserFollowingGroup(groupname: string, accessToken: string) {
   const { isLoading, error, data, mutate } = useSWR(
     () => {
-      if (!user) return null;
+      if (accessToken === '') return null;
       return `g/${groupname}/follow`;
     },
     () => GroupService.checkUserFollowingGroup(groupname)

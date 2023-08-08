@@ -67,13 +67,3 @@ export async function SearchGroupsController(req: Request, res: Response) {
     throw err;
   }
 }
-
-export async function GetGroupPostsController(req: Request, res: Response) {
-  try {
-    const groupname = req.params?.groupname;
-    const groupPosts = await PostData.readMany({ groupname });
-    return res.status(200).json(groupPosts);
-  } catch (err) {
-    res.status(500).json(err);
-  }
-}

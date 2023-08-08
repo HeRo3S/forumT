@@ -84,6 +84,18 @@ async function postComment(
   return response.data;
 }
 
+async function postReport(
+  groupname: string,
+  parentPostID: number,
+  bannedReason: string
+) {
+  const response = await instance.post(
+    `g/${groupname}/post/${parentPostID}/report`,
+    { bannedReason }
+  );
+  return response.data;
+}
+
 const PostService = {
   getPostInfo,
   createPost,
@@ -93,6 +105,7 @@ const PostService = {
   postUserReact,
   getComments,
   postComment,
+  postReport,
 };
 
 export default PostService;

@@ -144,12 +144,12 @@ model CommentReaction {
 model PostReport {
   id           Int          @id @unique @default(autoincrement())
   username     String
-  postID       Int?
+  postID       Int
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   status       ReportStatus @default(UNHANDLED)
   bannedReason String       @db.VarChar(500)
-  reportedPost Post?        @relation(fields: [postID], references: [id])
+  reportedPost Post         @relation(fields: [postID], references: [id])
   reporter     User         @relation(fields: [username], references: [username])
 
   @@index([status, postID, bannedReason])
@@ -159,12 +159,12 @@ model PostReport {
 model CommentReport {
   id              Int          @id @unique @default(autoincrement())
   username        String
-  commentID       Int?
+  commentID       Int
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
   status          ReportStatus @default(UNHANDLED)
   bannedReason    String       @db.VarChar(500)
-  reportedComment Comment?     @relation(fields: [commentID], references: [id])
+  reportedComment Comment      @relation(fields: [commentID], references: [id])
   reporter        User         @relation(fields: [username], references: [username])
 
   @@index([status, commentID, bannedReason])

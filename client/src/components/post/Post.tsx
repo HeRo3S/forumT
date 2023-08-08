@@ -27,6 +27,7 @@ const StyledUsernameTypo = styled(Typography)<TypographyProps>({
 const StyledPostImage = styled('img')({
   width: '100%',
 });
+
 interface IProps {
   id: number;
   groupname: string;

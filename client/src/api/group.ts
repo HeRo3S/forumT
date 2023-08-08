@@ -6,6 +6,7 @@ import {
   ResGroupInfo,
   ResPost,
 } from '../../types/interfaces/resAPI';
+import PaginationConfig from '../config/axios/pagination';
 
 async function createGroup(groupname: string, displayname: string) {
   const res = await instance.post('/g/create', { groupname, displayname });
@@ -21,8 +22,12 @@ async function getGroupInfo(groupname: string): Promise<IGetGroupInfo> {
   return res.data;
 }
 
-async function getGroupPosts(groupname: string): Promise<ResPost[]> {
-  const res = await instance.get(`/g/${groupname}/posts`);
+interface IGetGroupPost {
+  groupPosts: ResPost[];
+  nextCursorID: number;
+}
+async function getGroupPosts(url: string): Promise<IGetGroupPost> {
+  const res = await instance.get(url);
   return res.data;
 }
 

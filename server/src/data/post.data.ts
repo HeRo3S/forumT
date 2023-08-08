@@ -32,12 +32,47 @@ async function readOnly(postID: number) {
 }
 
 interface IReadManyProps {
-  groupname?: string;
+  groupname?: string[];
   username?: string;
+  cursorID?: number;
+  take: number;
 }
+const setUpReadManyConfig = (props: IReadManyProps) => {
+  const { groupname, username, cursorID, take } = props;
+  let config: object = {
+    where: {
+      username,
+      groupname: {
+        in: groupname,
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    select: {
+      id: true,
+      groupname: true,
+    },
+    take,
+  };
+  if (cursorID)
+    config = {
+      ...config,
+      cursor: {
+        id: cursorID,
+      },
+      skip: 1,
+    };
+  return config;
+};
 async function readMany(props: IReadManyProps) {
+  const posts = await prisma.post.findMany(setUpReadManyConfig(props));
+  return posts;
+}
+
+async function readMostPopular() {
   const posts = await prisma.post.findMany({
-    where: props,
+    where: {},
     orderBy: {
       createdAt: 'desc',
     },
@@ -48,7 +83,6 @@ async function readMany(props: IReadManyProps) {
   });
   return posts;
 }
-
 interface IReadContainKeywordsProps {
   keyword: string;
 }
@@ -107,6 +141,7 @@ const PostData = {
   create,
   readOnly,
   readMany,
+  readMostPopular,
   readContainKeyword,
   update,
   remove,
