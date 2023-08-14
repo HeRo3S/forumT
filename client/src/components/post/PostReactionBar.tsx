@@ -20,7 +20,7 @@ import {
 import { useAppSelector } from '../../redux/hook';
 import LoginDialog from '../common/dialog/LoginDialog';
 import PostService from '../../api/post';
-import createSocket from '../../services/socket-io';
+import createSocket from '../../config/socket-io';
 
 const StyledReactionBar = styled(Stack)({
   alignItems: 'center',

@@ -14,6 +14,8 @@ import PostReactionBar from './PostReactionBar';
 import PostService from '../../api/post';
 import { useAppSelector } from '../../redux/hook';
 import DeletePostDialog from '../common/dialog/DeletePostDialog';
+import PostReportDialog from '../common/dialog/ReportDialog';
+import Reports from './Reports';
 
 const StyledPostBody = styled(Box)<BoxProps>({
   marginTop: '10px',
@@ -31,19 +33,28 @@ const StyledPostImage = styled('img')({
 interface IProps {
   id: number;
   groupname: string;
+  modVariant?: boolean;
 }
 
 function Post(props: IProps) {
-  const { id, groupname } = props;
+  const { id, groupname, modVariant } = props;
   const navigate = useNavigate();
   const { userInfo } = useAppSelector((state) => state.auth);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [isReportDialogOpen, setReportDialogOpen] = useState(false);
 
   const openDeleteDialog = () => {
     setDeleteDialogOpen(true);
   };
   const closeDeleteDialog = () => {
     setDeleteDialogOpen(false);
+  };
+
+  const openReportDialog = () => {
+    setReportDialogOpen(true);
+  };
+  const closeReportDialog = () => {
+    setReportDialogOpen(false);
   };
 
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {
@@ -54,15 +65,22 @@ function Post(props: IProps) {
     e.stopPropagation();
   }
 
-  function handleOnclickDeletePostButton(
+  async function handleOnclickDeletePostButton(
     e: React.MouseEvent<HTMLButtonElement>
   ) {
     e.stopPropagation();
     openDeleteDialog();
   }
+  async function handleOnclickReportPostButton(
+    e: React.MouseEvent<HTMLButtonElement>
+  ) {
+    e.stopPropagation();
+    openReportDialog();
+  }
 
   const handleOnClickConfirmDeletePost = async () => {
     const res = await PostService.deletePost(groupname, id);
+    navigate(0);
   };
 
   const { isLoading, data: postInfo, error } = FetchPostInfo(groupname, id);
@@ -76,6 +94,12 @@ function Post(props: IProps) {
         isOpen={isDeleteDialogOpen}
         onClose={closeDeleteDialog}
         handleOnClickConfirmButton={handleOnClickConfirmDeletePost}
+      />
+      <PostReportDialog
+        postID={id}
+        groupname={groupname}
+        isOpen={isReportDialogOpen}
+        onClose={closeReportDialog}
       />
       <ContentContainer
         onClick={(e: React.MouseEvent<HTMLDivElement>) =>
@@ -115,7 +139,7 @@ function Post(props: IProps) {
                 {renderBody(type, content, attachments)}
               </StyledPostBody>
               <Box display="flex">
-                <Button>
+                <Button onClick={(e) => handleOnclickReportPostButton(e)}>
                   <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
                 </Button>
                 {userInfo?.username === username && (
@@ -123,10 +147,13 @@ function Post(props: IProps) {
                     <Typography variant="subtitle2">Xoá bài viết</Typography>
                   </Button>
                 )}
-                {/* <Button>
-                  <Typography variant="subtitle2">Admin quản lý</Typography>
-                </Button> */}
+                {modVariant && (
+                  <Button>
+                    <Typography variant="subtitle2">Admin quản lý</Typography>
+                  </Button>
+                )}
               </Box>
+              <Reports groupname={groupname} postID={id} />
             </Stack>
           </Grid>
         </Grid>
@@ -182,5 +209,9 @@ function FetchPostInfo(groupname: string, postID: number) {
     error,
   };
 }
+
+Post.defaultProps = {
+  modVariant: false,
+};
 
 export default Post;

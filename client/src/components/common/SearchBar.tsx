@@ -5,7 +5,7 @@ import { Socket } from 'socket.io-client';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import { Typography } from '@mui/material';
-import createSocket from '../../services/socket-io';
+import createSocket from '../../config/socket-io';
 import { ResGroupInfo, ResPost } from '../../../types/interfaces/resAPI';
 
 interface IGroupOption extends ResGroupInfo {

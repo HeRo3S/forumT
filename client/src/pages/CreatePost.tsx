@@ -17,7 +17,7 @@ import { ResGroupInfo } from '../../types/interfaces/resAPI';
 import PostService from '../api/post';
 import { ContentContainer } from '../components/common/Layout';
 import Editor from '../components/common/richtextEditor/Editor';
-import createSocket from '../services/socket-io';
+import createSocket from '../config/socket-io';
 
 const StyledSelectedImage = styled('img')({
   width: '100%',

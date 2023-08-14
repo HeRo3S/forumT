@@ -109,3 +109,18 @@ export interface ResUserFollowingGroup {
   role: string;
   timeUnbanned: string;
 }
+
+export interface ResPostReports {
+  [key: string]: unknown;
+  id: number;
+  postID: number;
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+  bannedReason: string;
+}
+
+export interface ResGroupByPostReports {
+  bannedReason: string;
+  _count: number;
+}

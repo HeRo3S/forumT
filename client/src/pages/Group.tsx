@@ -183,7 +183,7 @@ function Group() {
     );
   };
 
-  const renderBody = () => {
+  const renderBody = (role?: string) => {
     switch (renderMode) {
       case RENDERMODE.POSTS: {
         if (!pages) return <Box />;
@@ -192,6 +192,12 @@ function Group() {
           const { groupPosts } = page;
           return groupPosts.map((p) => {
             const { id } = p;
+            if (role && role === 'MODERATOR')
+              return (
+                <>
+                  <Post key={id} groupname={groupname} id={id} modVariant />;
+                </>
+              );
             return (
               <>
                 <Post key={id} groupname={groupname} id={id} />;
@@ -243,7 +249,7 @@ function Group() {
           </Grid>
           {renderNavBar()}
         </ContentContainer>
-        {renderBody()}
+        {renderBody(userFollowingGroup?.role)}
       </Grid>
     </PageContainer>
   );

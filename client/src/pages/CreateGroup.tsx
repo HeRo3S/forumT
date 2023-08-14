@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
 import { ContentContainer } from '../components/common/Layout';
 import GroupService from '../api/group';
-import createSocket from '../services/socket-io';
+import createSocket from '../config/socket-io';
 
 function CreateGroup() {
   const [groupname, setGroupname] = useState<string>('');

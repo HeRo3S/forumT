@@ -1,10 +1,5 @@
 /* eslint-disable no-param-reassign */
-import {
-  createAction,
-  createAsyncThunk,
-  createReducer,
-  createSlice,
-} from '@reduxjs/toolkit';
+import { createAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
 import AuthService from '../../api/auth';
 import { ReqUser } from '../../../types/interfaces/reqAPI';

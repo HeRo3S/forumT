@@ -6,6 +6,7 @@ import {
   ResComment,
   ResPost,
   ResPostReact,
+  ResPostReports,
 } from '../../types/interfaces/resAPI';
 
 interface IGetPostInfo {
@@ -88,7 +89,7 @@ async function postReport(
   groupname: string,
   parentPostID: number,
   bannedReason: string
-) {
+): Promise<ResPostReports> {
   const response = await instance.post(
     `g/${groupname}/post/${parentPostID}/report`,
     { bannedReason }

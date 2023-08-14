@@ -13,7 +13,7 @@ import { useAppSelector } from '../redux/hook';
 import Editor from '../components/common/richtextEditor/Editor';
 import CommentService from '../api/comment';
 import { ResComment } from '../../types/interfaces/resAPI';
-import createSocket from '../services/socket-io';
+import createSocket from '../config/socket-io';
 
 function DetailPost() {
   const auth = useAppSelector((state) => state.auth);

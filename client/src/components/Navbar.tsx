@@ -1,7 +1,7 @@
 import Notifications from '@mui/icons-material/Notifications';
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Box, { BoxProps } from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import { useState } from 'react';
@@ -32,6 +32,10 @@ function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
+  const handleLogoButtonClick = () => {
+    navigate('/');
+  };
+
   const handleLoginButtonClick = async (
     event: React.MouseEvent<HTMLButtonElement>
   ) => {
@@ -56,7 +60,9 @@ function Navbar() {
     navigate(url);
   };
 
-  const handleLogoutButtonClick = () => {
+  const handleLogoutButtonClick = (
+    e: React.MouseEvent<HTMLLIElement, MouseEvent>
+  ) => {
     dispatch(logout());
   };
 
@@ -64,12 +70,10 @@ function Navbar() {
     <StyledNavbarBox>
       <Grid container>
         <Grid item container xs={3} id="leftNav">
-          <Link to="/">
-            <button type="button">
-              <StyledLogoImg src="../../../public/reddit.png" alt="Logo" />
-              <span>ForumT</span>
-            </button>
-          </Link>
+          <button type="button" onClick={handleLogoButtonClick}>
+            <StyledLogoImg src="../../../public/reddit.png" alt="Logo" />
+            <span>ForumT</span>
+          </button>
         </Grid>
 
         <Grid item container xs id="centerNav">

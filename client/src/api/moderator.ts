@@ -1,5 +1,8 @@
 import instance from '.';
-import { ResUserFollowingGroup } from '../../types/interfaces/resAPI';
+import {
+  ResGroupByPostReports,
+  ResUserFollowingGroup,
+} from '../../types/interfaces/resAPI';
 
 async function fetchUserFollowingGroups(
   groupname: string
@@ -8,6 +11,14 @@ async function fetchUserFollowingGroups(
   return res.data;
 }
 
-const ModeratorService = { fetchUserFollowingGroups };
+async function fetchPostReports(
+  groupname: string,
+  postID: number
+): Promise<ResGroupByPostReports[]> {
+  const res = await instance.get(`/g/${groupname}/post/${postID}/report`);
+  return res.data;
+}
+
+const ModeratorService = { fetchUserFollowingGroups, fetchPostReports };
 
 export default ModeratorService;

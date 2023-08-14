@@ -7,6 +7,7 @@ import { useAppSelector } from './redux/hook';
 import { store } from './redux/store';
 import routes from './routes';
 import defaultTheme from './style/muitheme';
+import GlobalAlert from './components/common/GlobalAlert';
 
 injectStore(store);
 
@@ -29,6 +30,7 @@ function App() {
   return (
     <div className="App">
       <Navbar />
+      <GlobalAlert />
       <Routes>
         {normalRoutes.map((route) => (
           <Route
