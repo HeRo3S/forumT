@@ -21,7 +21,7 @@ async function refreshAccessToken(): Promise<{ accessToken: string }> {
 }
 
 async function logout(): Promise<unknown> {
-  const res = await authInstance.get('/logout');
+  const res = await authInstance.get('auth/logout');
   return res.data;
 }
 

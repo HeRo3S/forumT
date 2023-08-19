@@ -1,13 +1,17 @@
 import instance from '.';
-import { ResGroupInfo, ResPost } from '../../types/interfaces/resAPI';
+import { ResPost } from '../../types/interfaces/resAPI';
 
-async function fetchDefaultPosts(): Promise<Partial<ResPost>[]> {
-  const res = await instance.get(`g/gaming/posts`);
+interface IResHomePosts {
+  posts: ResPost[];
+  nextCursorID: number;
+}
+async function basicFetcher(url: string): Promise<IResHomePosts> {
+  const res = await instance.get(url);
   return res.data;
 }
 
 const HomeService = {
-  fetchDefaultPosts,
+  basicFetcher,
 };
 
 export default HomeService;

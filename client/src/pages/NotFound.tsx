@@ -1,14 +1,20 @@
+import { Container, Typography } from '@mui/material';
 import Button from '@mui/material/Button';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function NotFound() {
+  const navigate = useNavigate();
+
+  const handleGoBackHomePageButton = () => {
+    navigate('/');
+  };
   return (
-    <div>
-      <p>NotFound</p>
-      <Button variant="contained">
-        <Link to="/">GO HOME</Link>
+    <Container>
+      <Typography variant="h3">Không tìm thấy trang</Typography>
+      <Button variant="contained" onClick={handleGoBackHomePageButton}>
+        Quay về trang chủ
       </Button>
-    </div>
+    </Container>
   );
 }
 

@@ -2,12 +2,15 @@ import Box, { BoxProps } from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
 import Stack from '@mui/material/Stack';
+import useSWR from 'swr';
 import { styled } from '@mui/material/styles';
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import React from 'react';
 import { Link } from 'react-router-dom';
-import ContentContainer from '../common/mui/Layout';
-import ReactionBar from './ReactionBar';
+import DOMPurify from 'dompurify';
+import { Avatar } from '@mui/material';
+import { ContentContainer } from '../common/Layout';
+import { ResComment } from '../../../types/interfaces/resAPI';
 
 const StyledPostBody = styled(Box)<BoxProps>({
   marginTop: '10px',
@@ -22,7 +25,17 @@ const StyledPostImage = styled('img')({
   width: '100%',
 });
 
-function Comment() {
+interface ICommentProps {
+  comment: ResComment;
+}
+
+function Comment(props: ICommentProps) {
+  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
+  const { comment } = props;
+  const { user, content } = comment;
+  const { username, avatarURL } = user;
+  const sanitizedHTMLContent = DOMPurify.sanitize(content);
+
   function handleOnClickContainer(
     e: React.MouseEvent<HTMLDivElement, MouseEvent>
   );
@@ -30,18 +43,25 @@ function Comment() {
     <ContentContainer>
       <Grid container>
         <Grid item xs={2}>
-          <ReactionBar variant="comment" id={1} />
+          {/* <ReactionBar variant="comment" id={id} /> */}
         </Grid>
         <Grid item xs>
           <Stack>
-            <Box>
-              <Link to="/u/123" onClick={(e) => handleOnClickLinkButton(e)}>
-                <StyledUsernameTypo variant="subtitle1">
-                  u/hung123
-                </StyledUsernameTypo>
-              </Link>
-            </Box>
-            <StyledPostBody>Bài viểt hay quá!</StyledPostBody>
+            <Grid container>
+              <Grid item xs={1}>
+                <Avatar src={PUBLIC_FOLDER + avatarURL} alt={username} />
+              </Grid>
+              <Grid item xs>
+                <Link to={`/u/${username}`}>
+                  <StyledUsernameTypo variant="subtitle1">
+                    u/{username}
+                  </StyledUsernameTypo>
+                </Link>
+              </Grid>
+            </Grid>
+            <StyledPostBody
+              dangerouslySetInnerHTML={{ __html: sanitizedHTMLContent }}
+            />
             <Box display="flex">
               <Button size="small">
                 <Typography variant="subtitle2">Báo cáo vi phạm</Typography>

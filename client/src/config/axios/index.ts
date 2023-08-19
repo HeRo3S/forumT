@@ -1,7 +1,7 @@
 import { AxiosRequestConfig } from 'axios';
 
 const axiosConfig: AxiosRequestConfig = {
-  baseURL: 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_APP_API_URL,
   timeout: 10000,
   withCredentials: true,
 };
