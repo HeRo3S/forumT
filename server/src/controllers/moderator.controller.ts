@@ -1,6 +1,8 @@
 import { UserInGroupType } from '@prisma/client';
 import { NextFunction, Request, Response } from 'express';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
+import PostData from '../data/post.data.js';
+import GroupData from '../data/group.data.js';
 
 export async function CheckModeratorMiddleware(
   req: Request,
@@ -27,6 +29,28 @@ export async function CheckModeratorMiddleware(
   next();
 }
 
+export async function UpdateGroupInfoController(req: Request, res: Response) {
+  try {
+    const { groupname } = req.params;
+    const { displayname, description } = req.body;
+    const updateGroupProps = {
+      groupname,
+      description,
+      displayname,
+    } as {
+      groupname: string;
+      description: string;
+      displayname: string;
+      avatarURL: string;
+    };
+    if (req.file) updateGroupProps.avatarURL = `uploads/${req.file.filename}`;
+    const updatedGroupInfo = await GroupData.update(updateGroupProps);
+    res.status(200).json(updatedGroupInfo);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
 export async function GetUsersFollowGroupModController(
   req: Request,
   res: Response
@@ -48,15 +72,71 @@ export async function BanUsersFromGroupModController(
 ) {
   try {
     const { groupname } = req.params;
-    const { username, timeUnbanned, role } = req.body;
+    const { username, banTime } = req.body;
     const userFollowingGroup = await UserFollowingGroupData.update({
       username,
       groupname,
-      timeUnbanned,
-      role,
+      banTime,
+      role: UserInGroupType.SOFTBANNED,
     });
     res.status(200).json(userFollowingGroup);
   } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
+export async function UnbanUsersFromGroupController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { groupname } = req.params;
+    const { username } = req.body;
+    const userFollowingGroup = await UserFollowingGroupData.update({
+      username,
+      groupname,
+      banTime: '0',
+      role: UserInGroupType.USER,
+    });
+    res.status(200).json(userFollowingGroup);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
+export async function SoftDeleteGroupPost(req: Request, res: Response) {
+  try {
+    const { postID } = req.body;
+    const deletedAt = new Date(Date.now());
+    const post = await PostData.update({ id: postID, deletedAt });
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
+export async function RestoreDeletedPost(req: Request, res: Response) {
+  try {
+    const { postID } = req.body;
+    const deletedAt = null;
+    const post = await PostData.update({ id: postID, deletedAt });
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
+export async function HardDeletePost(req: Request, res: Response) {
+  try {
+    const { postID } = req.params;
+    if (!postID) {
+      res.status(400).json("Can't find postID in URL");
+      return;
+    }
+    const post = await PostData.remove(+postID);
+    if (post) res.sendStatus(200);
+  } catch (err) {
+    console.error(err);
     res.status(500).json(err);
   }
 }

@@ -32,7 +32,7 @@ interface CursorPaginationRequest extends Request {
     cursor: string;
   };
 }
-const GuestGroupList = ['gaming'];
+const GuestGroupList = ['gaming', 'vietnam'];
 export async function GetHomePagePostsGuestController(
   req: CursorPaginationRequest,
   res: Response

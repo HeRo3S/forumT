@@ -1,4 +1,5 @@
 import { UserInGroupType } from '@prisma/client';
+import ms from 'ms';
 import prisma from '../addons/prismaClient.js';
 
 interface ICreateProps {
@@ -47,6 +48,8 @@ async function readMany(props: IReadManyProps) {
     select: {
       username: true,
       groupname: true,
+      role: true,
+      timeUnbanned: true,
       group: true,
     },
   });
@@ -55,12 +58,16 @@ async function readMany(props: IReadManyProps) {
 
 interface IUpdateProps {
   role?: string;
-  timeUnbanned?: string;
+  banTime?: string;
   username: string;
   groupname: string;
 }
 async function update(props: IUpdateProps) {
-  const { username, groupname, role, timeUnbanned } = props;
+  const { username, groupname, role, banTime } = props;
+  const now = new Date();
+  const timeUnbanned = banTime
+    ? new Date(now.getTime() + ms(banTime))
+    : undefined;
   const awaited = await prisma.userFollowGroup.update({
     where: {
       username_groupname: {

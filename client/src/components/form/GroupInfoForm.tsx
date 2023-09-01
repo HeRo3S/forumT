@@ -8,13 +8,11 @@ import {
   Grid,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserService from '../../../api/user';
-import { useAppDispatch, useAppSelector } from '../../../redux/hook';
-import { updateUserInfo as updateUserInfoAction } from '../../../redux/features/authSlice';
-import { ContentContainer } from '../Layout';
-import { ResUserInfo } from '../../../../types/interfaces/resAPI';
+import { ContentContainer } from '../common/Layout';
+import { ResGroupInfo } from '../../../types/interfaces/resAPI';
+import ModeratorService from '../../api/moderator';
 
 const StyledTitle = styled(Typography)({
   fontWeight: 'bold',
@@ -34,18 +32,16 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   minWidth: '80%',
 }));
 
-export default function UserInfoForm() {
+interface IProps {
+  groupInfo: ResGroupInfo;
+}
+export default function GroupInfoForm(props: IProps) {
   const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
-  const { userInfo } = useAppSelector((state) => state.auth);
+  const { groupInfo } = props;
   const navigate = useNavigate();
-  const dispatch = useAppDispatch();
 
-  const [updateUserInfo, setUpdateUserInfo] = useState({ ...userInfo });
+  const [updateGroupInfo, setUpdateGroupInfo] = useState({ ...groupInfo });
   const [selectedAvatar, setSelectedAvatar] = useState<File>();
-
-  useEffect(() => {
-    console.log(JSON.stringify(updateUserInfo) === JSON.stringify(userInfo));
-  }, [updateUserInfo, userInfo]);
 
   const onChangeAvatarInput = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,23 +49,24 @@ export default function UserInfoForm() {
     setSelectedAvatar(file);
   };
 
-  const onClickUpdateInfoButton = async (e: ChangeEvent<HTMLButtonElement>) => {
-    const { username } = updateUserInfo;
+  const onClickUpdateInfoButton = async () => {
+    const { groupname } = updateGroupInfo;
     const formData = new FormData();
-    formData.append('displayname', updateUserInfo.displayname);
-    formData.append('description', updateUserInfo.description);
+    if (updateGroupInfo.displayname)
+      formData.append('displayname', updateGroupInfo.displayname);
+    if (updateGroupInfo.description)
+      formData.append('description', updateGroupInfo.description);
     if (selectedAvatar) formData.append('file', selectedAvatar as Blob);
-    const newUserInfo = await UserService.updateUserInfo({
-      username,
+    const newUserInfo = await ModeratorService.updateGroupInfo({
+      groupname,
       formData,
     });
-    dispatch(updateUserInfoAction(newUserInfo as ResUserInfo));
-    navigate('/', { replace: true });
+    navigate(0, { replace: true });
   };
 
   return (
     <ContentContainer>
-      <StyledTitle variant="h5">THAY ĐỔI THÔNG TIN CÁ NHÂN</StyledTitle>
+      <StyledTitle variant="h5">THAY ĐỔI THÔNG TIN NHÓM</StyledTitle>
       <StyledStack spacing={3} alignItems="center">
         <StyledAvatarContainer>
           <Typography variant="h6">Ảnh đại diện</Typography>
@@ -79,9 +76,9 @@ export default function UserInfoForm() {
               src={
                 selectedAvatar
                   ? URL.createObjectURL(selectedAvatar)
-                  : PUBLIC_FOLDER + userInfo.avatarURL
+                  : PUBLIC_FOLDER + groupInfo.avatarURL
               }
-              alt={userInfo.displayname || userInfo?.username}
+              alt={groupInfo?.displayname || groupInfo.groupname}
             />
             <Button variant="outlined" component="label">
               Chọn ảnh mới
@@ -96,41 +93,35 @@ export default function UserInfoForm() {
           </Grid>
         </StyledAvatarContainer>
         <StyledTextField
-          label="Email"
+          label="Tên nhóm"
           variant="filled"
           disabled
-          defaultValue={userInfo?.email || ''}
-        />
-        <StyledTextField
-          label="Tên người dùng"
-          variant="filled"
-          disabled
-          defaultValue={userInfo?.username || ''}
+          defaultValue={groupInfo?.groupname || ''}
         />
         <StyledTextField
           label="Tên hiển thị"
-          defaultValue={userInfo?.displayname}
+          defaultValue={groupInfo?.displayname}
           onChange={(e) => {
-            setUpdateUserInfo((prev) => {
+            setUpdateGroupInfo((prev) => {
               prev.displayname = e.target.value;
               return prev;
             });
           }}
         />
         <StyledTextField
-          label="Thay đổi mật khẩu"
-          type="password"
-          defaultValue="aa@gmail.com"
-        />
-        <StyledTextField
-          label="Nhập lại mật khẩu"
-          type="password"
-          defaultValue="aa@gmail.com"
+          label="Miêu tả"
+          defaultValue={groupInfo?.description}
+          onChange={(e) => {
+            setUpdateGroupInfo((prev) => {
+              prev.description = e.target.value;
+              return prev;
+            });
+          }}
         />
         <Button
           variant="contained"
           // disabled={JSON.stringify(updateUserInfo) === JSON.stringify(userInfo)}
-          onClick={(e) => onClickUpdateInfoButton(e)}
+          onClick={onClickUpdateInfoButton}
         >
           Thay đổi
         </Button>

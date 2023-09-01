@@ -48,8 +48,26 @@ async function readContainKeyword(props: IReadContainKeywordsProps) {
   });
   return matchingGroups;
 }
-
-async function update() {}
+interface IUpdateProps {
+  groupname: string;
+  displayname?: string;
+  description?: string;
+  avatarURL?: string;
+}
+async function update(props: IUpdateProps) {
+  const { groupname, displayname, description, avatarURL } = props;
+  const updatedGroup = await prisma.group.update({
+    where: {
+      groupname,
+    },
+    data: {
+      displayname,
+      description,
+      avatarURL,
+    },
+  });
+  return updatedGroup;
+}
 async function remove() {}
 
 const GroupData = { create, read, readContainKeyword, update, remove };

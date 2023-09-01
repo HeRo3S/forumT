@@ -4,7 +4,7 @@ import CommentData from '../data/comment.data.js';
 
 export async function GetPostCommentsController(req: Request, res: Response) {
   try {
-    const comments = await CommentData.readMany({
+    const comments = await CommentData.readManyWithPostID({
       parentPostID: +req.params.postID,
     });
     res.status(200).json(comments);

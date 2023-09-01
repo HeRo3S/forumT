@@ -1,5 +1,6 @@
 import instance from '.';
 import {
+  ResComment,
   ResGroupInfo,
   ResPost,
   ResUserInfo,
@@ -32,9 +33,25 @@ async function updateUserInfo(
   return res.data;
 }
 
-async function fetchUserPosts(props: IDefaultUserProps): Promise<ResPost[]> {
-  const { username } = props;
-  const res = await instance.get(`u/${username}/posts`);
+interface IResUserPostsPaginationPage {
+  posts: ResPost[];
+  nextCursorID: number;
+}
+async function fetchUserPosts(
+  url: string
+): Promise<IResUserPostsPaginationPage> {
+  const res = await instance.get(url);
+  return res.data;
+}
+
+interface IResUserCommentsPaginationPage {
+  comments: ResComment[];
+  nextCursorID: number;
+}
+async function fetchUserComments(
+  url: string
+): Promise<IResUserCommentsPaginationPage> {
+  const res = await instance.get(url);
   return res.data;
 }
 
@@ -58,6 +75,7 @@ const UserService = {
   fetchUserInfo,
   updateUserInfo,
   fetchUserPosts,
+  fetchUserComments,
   fetchGroupsUserModerating,
   fetchGroupsUserFollowing,
 };

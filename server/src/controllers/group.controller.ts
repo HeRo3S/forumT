@@ -1,8 +1,39 @@
-import { Prisma } from '@prisma/client';
-import { Request, Response } from 'express';
+import { Prisma, User, UserInGroupType } from '@prisma/client';
+import { NextFunction, Request, Response } from 'express';
 import GroupData from '../data/group.data.js';
-import PostData from '../data/post.data.js';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
+
+export async function CheckIfUserHasBeenBlocked(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { username } = req.user as User;
+  const { groupname } = req.params;
+  if (!username) return res.status(403).json("Can't find username");
+  if (!groupname) return res.status(400).json("Can't find groupname");
+  const userFollowingGroup = await UserFollowingGroupData.read({
+    username,
+    groupname,
+  });
+  if (
+    userFollowingGroup?.role === 'BANNED' ||
+    userFollowingGroup?.role === 'SOFTBANNED'
+  ) {
+    const isStillBanned =
+      Date.now() < userFollowingGroup.timeUnbanned.getTime();
+    if (isStillBanned)
+      return res
+        .status(401)
+        .json({ message: 'User banned!', userFollowingGroup });
+    await UserFollowingGroupData.update({
+      username,
+      groupname,
+      role: UserInGroupType.USER,
+    });
+  }
+  next();
+}
 
 export async function CreateGroupController(req: Request, res: Response) {
   try {

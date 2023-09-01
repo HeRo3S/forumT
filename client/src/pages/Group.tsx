@@ -15,6 +15,8 @@ import LeftBar from '../components/LeftBar';
 import { useAppSelector } from '../redux/hook';
 import UserList from '../components/moderator/UserList';
 import PaginationConfig from '../config/axios/pagination';
+import GroupInfoForm from '../components/form/GroupInfoForm';
+import { ResGroupInfo } from '../../types/interfaces/resAPI';
 
 interface IRenderButtonProps extends GridProps {
   isSelected: boolean;
@@ -39,6 +41,7 @@ enum RENDERMODE {
 }
 
 function Group() {
+  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { groupname } = useParams();
   const { accessToken } = useAppSelector((state) => state.auth);
   const [renderMode, setRenderMode] = useState<RENDERMODE>(RENDERMODE.POSTS);
@@ -215,6 +218,8 @@ function Group() {
       }
       case RENDERMODE.USER_MANAGER:
         return <UserList groupname={groupname} />;
+      case RENDERMODE.INFO_MANAGER:
+        return <GroupInfoForm groupInfo={groupInfo as ResGroupInfo} />;
       default:
         console.error("can't find mode");
         return <Box />;
@@ -228,7 +233,14 @@ function Group() {
         <ContentContainer>
           <Grid container>
             <Grid item xs>
-              <Avatar alt="GroupLogo">
+              <Avatar
+                alt="GroupLogo"
+                src={
+                  groupInfo?.displayname
+                    ? PUBLIC_FOLDER + groupInfo.avatarURL
+                    : ''
+                }
+              >
                 {groupInfo?.displayname?.at(0) || groupInfo?.groupname[0]}
               </Avatar>
               <Typography variant="h4">

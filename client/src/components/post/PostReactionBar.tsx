@@ -18,7 +18,7 @@ import {
   ResPost,
 } from '../../../types/interfaces/resAPI';
 import { useAppSelector } from '../../redux/hook';
-import LoginDialog from '../common/dialog/LoginDialog';
+import LoginDialog from '../dialog/LoginDialog';
 import PostService from '../../api/post';
 import createSocket from '../../config/socket-io';
 
