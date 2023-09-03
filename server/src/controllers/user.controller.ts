@@ -5,11 +5,7 @@ import PostReactionData from '../data/postReactions.data.js';
 import UserData from '../data/user.data.js';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
 import CommentData from '../data/comment.data.js';
-
-const PaginationSetup = {
-  postsLimit: 7,
-  commentsLimit: 7,
-};
+import PaginationSetup from '../config/pagination.js';
 
 export async function GetProfileController(req: Request, res: Response) {
   try {
@@ -91,7 +87,7 @@ export async function GetUserPostsController(
 ) {
   try {
     const { username } = req.params;
-    const take = +req.query.limit || PaginationSetup.postsLimit;
+    const take = +req.query.limit || PaginationSetup.ProfilePostsLimit;
     const cursorID = +req.query.cursor || undefined;
     const posts = await PostData.readMany({ username, take, cursorID });
     const nextCursorID =
@@ -108,7 +104,7 @@ export async function GetUsersCommentsController(
 ) {
   try {
     const { username } = req.params;
-    const take = +req.query.limit || PaginationSetup.commentsLimit;
+    const take = +req.query.limit || PaginationSetup.ProfileCommentsLimit;
     const cursorID = +req.query.cursor || undefined;
     const comments = await CommentData.readManyWithUsername({
       username,
@@ -210,8 +206,17 @@ export async function GetGroupsUserModeratingController(
     const moderatingGroupList = await UserFollowingGroupData.readMany({
       username: req.params.username,
       role: 'MODERATOR',
+      limit: 10000,
     });
-    const result = moderatingGroupList.map((item) => item.group);
+    const owningGroupList = await UserFollowingGroupData.readMany({
+      username: req.params.username,
+      role: 'OWNER',
+      limit: 10000,
+    });
+    const result = [
+      ...moderatingGroupList.map((item) => item.group),
+      ...owningGroupList.map((item) => item.group),
+    ];
     return res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);

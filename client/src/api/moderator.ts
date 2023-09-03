@@ -18,10 +18,19 @@ async function updateGroupInfo(props: IUpdateGroupInfoProps) {
   return res;
 }
 
+interface IResUserFollowingGroup {
+  users: ResUserFollowingGroup[];
+  nPages: number;
+}
 async function fetchUserFollowingGroups(
-  groupname: string
-): Promise<ResUserFollowingGroup[]> {
-  const res = await instance.get(`/g/${groupname}/manage/users/list`);
+  groupname: string,
+  limit: number,
+  page: number,
+  role: string
+): Promise<IResUserFollowingGroup> {
+  const res = await instance.get(
+    `/g/${groupname}/manage/users/list?page=${page}&limit=${limit}&role=${role}`
+  );
   return res.data;
 }
 
@@ -52,6 +61,20 @@ async function unbanUser(groupname: string, username: string) {
   return res.data;
 }
 
+async function promoteUserToMod(groupname: string, username: string) {
+  const res = await instance.post(`g/${groupname}/manage/users/promote`, {
+    username,
+  });
+  return res.data;
+}
+
+async function demoteModToUser(groupname: string, username: string) {
+  const res = await instance.post(`g/${groupname}/manage/users/demote`, {
+    username,
+  });
+  return res.data;
+}
+
 async function hardDeletePost(groupname: string, postID: number) {
   const res = await instance.get(
     `g/${groupname}/manage/posts/delete/${postID}`
@@ -65,6 +88,8 @@ const ModeratorService = {
   fetchPostReports,
   banUser,
   unbanUser,
+  promoteUserToMod,
+  demoteModToUser,
   hardDeletePost,
 };
 

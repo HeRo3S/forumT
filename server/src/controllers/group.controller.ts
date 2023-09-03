@@ -48,7 +48,7 @@ export async function CreateGroupController(req: Request, res: Response) {
       await UserFollowingGroupData.create({
         username: req.user.username,
         groupname: createdGroup.groupname,
-        role: 'MODERATOR',
+        role: 'OWNER',
       });
     }
     return res.status(200).json(createdGroup);

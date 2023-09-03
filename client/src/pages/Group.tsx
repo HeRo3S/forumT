@@ -17,6 +17,8 @@ import UserList from '../components/moderator/UserList';
 import PaginationConfig from '../config/axios/pagination';
 import GroupInfoForm from '../components/form/GroupInfoForm';
 import { ResGroupInfo } from '../../types/interfaces/resAPI';
+import ModeratorList from '../components/moderator/ModeratorList';
+import SoftBannedList from '../components/moderator/SoftBannedList';
 
 interface IRenderButtonProps extends GridProps {
   isSelected: boolean;
@@ -130,6 +132,8 @@ function Group() {
       );
     const { role } = userFollowingGroup;
     switch (role) {
+      case 'OWNER':
+        return <Button variant="outlined">Người thành lập</Button>;
       case 'MODERATOR':
         return <Button variant="outlined">Quản trị viên</Button>;
       case 'USER':
@@ -158,7 +162,8 @@ function Group() {
         >
           <Typography>Danh sách bài viết</Typography>
         </StyledNavbarItem>
-        {userFollowingGroup?.role === 'MODERATOR' && (
+        {(userFollowingGroup?.role === 'MODERATOR' ||
+          userFollowingGroup?.role === 'OWNER') && (
           <>
             <StyledNavbarItem
               item
@@ -195,7 +200,7 @@ function Group() {
           const { groupPosts } = page;
           return groupPosts.map((p) => {
             const { id } = p;
-            if (role && role === 'MODERATOR')
+            if (role && (role === 'MODERATOR' || role === 'OWNER'))
               return (
                 <>
                   <Post key={id} groupname={groupname} id={id} modVariant />;
@@ -217,7 +222,13 @@ function Group() {
         );
       }
       case RENDERMODE.USER_MANAGER:
-        return <UserList groupname={groupname} />;
+        return (
+          <>
+            <ModeratorList groupname={groupname} />
+            <SoftBannedList groupname={groupname} />
+            <UserList groupname={groupname} />
+          </>
+        );
       case RENDERMODE.INFO_MANAGER:
         return <GroupInfoForm groupInfo={groupInfo as ResGroupInfo} />;
       default:

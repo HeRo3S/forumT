@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
 import PostData from '../data/post.data.js';
 import GroupData from '../data/group.data.js';
+import PaginationSetup from '../config/pagination.js';
 
 export async function CheckModeratorMiddleware(
   req: Request,
@@ -20,10 +21,36 @@ export async function CheckModeratorMiddleware(
     groupname,
   });
   if (
-    !userFollowingGroup ||
-    userFollowingGroup.role !== UserInGroupType.MODERATOR
+    userFollowingGroup &&
+    (userFollowingGroup.role === UserInGroupType.MODERATOR ||
+      userFollowingGroup.role === UserInGroupType.OWNER)
   ) {
+    next();
+  } else {
     res.status(401).json('Not mod of this group');
+  }
+}
+
+export async function CheckOwnerMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  if (!req.user) {
+    res.status(401).json("Can't find user");
+    return;
+  }
+  const username = req.user.username as string;
+  const { groupname } = req.params;
+  const userFollowingGroup = await UserFollowingGroupData.read({
+    username,
+    groupname,
+  });
+  if (
+    !userFollowingGroup ||
+    userFollowingGroup.role !== UserInGroupType.OWNER
+  ) {
+    res.status(401).json('Not owner of this group');
     return;
   }
   next();
@@ -51,16 +78,80 @@ export async function UpdateGroupInfoController(req: Request, res: Response) {
   }
 }
 
+interface IGetUsersFollowGroupModControllerRequest extends Request {
+  query: {
+    role: string;
+    limit: string;
+    page: string;
+  };
+}
+// TODO: setup pagination here
 export async function GetUsersFollowGroupModController(
+  req: IGetUsersFollowGroupModControllerRequest,
+  res: Response
+) {
+  try {
+    const { groupname } = req.params;
+    const { role, page } = req.query;
+    const limit = +req.query.limit || PaginationSetup.UsersFollowingGroupLimit;
+    const usersFollowingGroup = await UserFollowingGroupData.readMany({
+      groupname,
+      role,
+      limit,
+      page: +page,
+    });
+    const count = await UserFollowingGroupData.count({
+      groupname,
+      role,
+    });
+    let users = usersFollowingGroup.map(({ group, ...result }) => result);
+
+    if (role === 'MODERATOR') {
+      const owner = await UserFollowingGroupData.readMany({
+        groupname,
+        role: 'OWNER',
+        limit,
+        page: +page,
+      });
+      users = [...owner.map(({ group, ...result }) => result), ...users];
+    }
+    const nPages = Math.ceil(count / limit);
+    res.status(200).json({ users, nPages });
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+export async function PromoteUserToModOwnerController(
   req: Request,
   res: Response
 ) {
   try {
-    const usersfollowinggroup = await UserFollowingGroupData.readMany({
-      groupname: req.params.groupname,
+    const { groupname } = req.params;
+    const { username } = req.body;
+    const userFollowingGroup = await UserFollowingGroupData.update({
+      username,
+      groupname,
+      role: UserInGroupType.MODERATOR,
     });
-    const users = usersfollowinggroup.map(({ group, ...result }) => result);
-    res.status(200).json(users);
+    res.status(200).json(userFollowingGroup);
+  } catch (err) {
+    res.status(500).json(err);
+  }
+}
+
+export async function DemoteUserToModOwnerController(
+  req: Request,
+  res: Response
+) {
+  try {
+    const { groupname } = req.params;
+    const { username } = req.body;
+    const userFollowingGroup = await UserFollowingGroupData.update({
+      username,
+      groupname,
+      role: UserInGroupType.USER,
+    });
+    res.status(200).json(userFollowingGroup);
   } catch (err) {
     res.status(500).json(err);
   }
@@ -136,7 +227,6 @@ export async function HardDeletePost(req: Request, res: Response) {
     const post = await PostData.remove(+postID);
     if (post) res.sendStatus(200);
   } catch (err) {
-    console.error(err);
     res.status(500).json(err);
   }
 }

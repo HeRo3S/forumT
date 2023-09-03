@@ -178,7 +178,7 @@ enum UserType {
 }
 
 enum UserInGroupType {
-  SUPERADMIN
+  OWNER
   MODERATOR
   USER
   SOFTBANNED

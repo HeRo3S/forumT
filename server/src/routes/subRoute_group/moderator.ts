@@ -2,8 +2,11 @@ import { Router } from 'express';
 import {
   BanUsersFromGroupModController,
   CheckModeratorMiddleware,
+  CheckOwnerMiddleware,
+  DemoteUserToModOwnerController,
   GetUsersFollowGroupModController,
   HardDeletePost,
+  PromoteUserToModOwnerController,
   RestoreDeletedPost,
   SoftDeleteGroupPost,
   UnbanUsersFromGroupController,
@@ -27,5 +30,16 @@ moderatorRoute.post('/users/unban', UnbanUsersFromGroupController);
 moderatorRoute.post('/posts/block', SoftDeleteGroupPost);
 moderatorRoute.post('/posts/unblock', RestoreDeletedPost);
 moderatorRoute.get('/posts/delete/:postID', HardDeletePost);
+// *: OWNER route
+moderatorRoute.post(
+  '/users/promote',
+  [CheckOwnerMiddleware],
+  PromoteUserToModOwnerController
+);
+moderatorRoute.post(
+  '/users/demote',
+  [CheckOwnerMiddleware],
+  DemoteUserToModOwnerController
+);
 
 export default moderatorRoute;
