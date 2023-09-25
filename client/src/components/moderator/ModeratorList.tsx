@@ -95,7 +95,7 @@ function ModeratorList(props: IUserListProps) {
                 >
                   Xem hồ sơ
                 </Button>
-                {user.role === 'MODERATOR' && (
+                {user.role === 'OWNER' && (
                   <Button
                     onClick={(e) => onClickDemoteUserButton(e, user.username)}
                   >

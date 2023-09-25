@@ -3,6 +3,7 @@ const PaginationSetup = {
   ProfilePostsLimit: 7,
   ProfileCommentsLimit: 7,
   UsersFollowingGroupLimit: 7,
+  SuperadminGroupLimit: 10,
 };
 
 export default PaginationSetup;

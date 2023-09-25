@@ -85,7 +85,7 @@ interface IGetUsersFollowGroupModControllerRequest extends Request {
     page: string;
   };
 }
-// TODO: setup pagination here
+
 export async function GetUsersFollowGroupModController(
   req: IGetUsersFollowGroupModControllerRequest,
   res: Response

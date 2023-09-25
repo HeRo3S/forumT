@@ -8,6 +8,7 @@ import { store } from './redux/store';
 import routes from './routes';
 import defaultTheme from './style/muitheme';
 import GlobalAlert from './components/common/GlobalAlert';
+import NotFound from './pages/NotFound';
 
 injectStore(store);
 
@@ -24,8 +25,30 @@ function WrappedApp() {
 }
 
 function App() {
-  const user = useAppSelector((state) => state.auth.accessToken);
-  const { normalRoutes, authenticateRoutes, userRoutes } = routes;
+  const { userInfo, accessToken } = useAppSelector((state) => state.auth);
+  const { normalRoutes, authenticateRoutes, userRoutes, superAdminRoutes } =
+    routes;
+
+  const setUpSuperAdminRoutes = () => {
+    if (userInfo.userType !== 'SUPERADMIN') return <Routes />;
+    return (
+      <>
+        {superAdminRoutes.map((route) => (
+          <Route
+            key={route.path}
+            path={route.path}
+            element={
+              userInfo?.userType === 'SUPERADMIN' ? (
+                <route.component />
+              ) : (
+                <NotFound />
+              )
+            }
+          />
+        ))}
+      </>
+    );
+  };
 
   return (
     <div className="App">
@@ -43,16 +66,17 @@ function App() {
           <Route
             key={route.path}
             path={route.path}
-            element={user ? <Navigate to="/" /> : <route.component />}
+            element={accessToken ? <Navigate to="/" /> : <route.component />}
           />
         ))}
         {userRoutes.map((route) => (
           <Route
             key={route.path}
             path={route.path}
-            element={user ? <route.component /> : <Navigate to="/" />}
+            element={accessToken ? <route.component /> : <Navigate to="/" />}
           />
         ))}
+        {setUpSuperAdminRoutes()}
       </Routes>
     </div>
   );

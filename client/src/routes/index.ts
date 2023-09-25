@@ -7,6 +7,7 @@ import Login from '../pages/Login';
 import NotFound from '../pages/NotFound';
 import Profile from '../pages/Profile';
 import Register from '../pages/Register';
+import SuperAdmin from '../pages/SuperAdmin';
 
 interface RouteList {
   path: string;
@@ -31,10 +32,15 @@ const userRoutes: RouteList[] = [
   { path: '/create/group', component: CreateGroup },
 ];
 
+const superAdminRoutes: RouteList[] = [
+  { path: '/admin', component: SuperAdmin },
+];
+
 const routes = {
   normalRoutes,
   authenticateRoutes,
   userRoutes,
+  superAdminRoutes,
 };
 
 export default routes;

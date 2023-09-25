@@ -42,6 +42,7 @@ export interface ResGroupInfo {
   groupname: string;
   displayname?: string;
   ownername: string;
+  status: string;
   description?: string;
   createdAt: string;
   updatedAt: string;
