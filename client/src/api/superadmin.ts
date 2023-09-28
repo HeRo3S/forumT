@@ -26,9 +26,21 @@ async function getAllGroups(
   return res.data;
 }
 
+async function banGroup(groupname: string): Promise<ResGroupInfo> {
+  const res = await instance.post(`superadmin/groups/ban`, { groupname });
+  return res.data;
+}
+
+async function unbanGroup(groupname: string): Promise<ResGroupInfo> {
+  const res = await instance.post(`superadmin/groups/unban`, { groupname });
+  return res.data;
+}
+
 const SuperAdminService = {
   basicFetcher,
   getAllGroups,
+  banGroup,
+  unbanGroup,
 };
 
 export default SuperAdminService;

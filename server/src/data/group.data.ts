@@ -89,9 +89,10 @@ interface IUpdateProps {
   displayname?: string;
   description?: string;
   avatarURL?: string;
+  status?: string;
 }
 async function update(props: IUpdateProps) {
-  const { groupname, displayname, description, avatarURL } = props;
+  const { groupname, displayname, description, avatarURL, status } = props;
   const updatedGroup = await prisma.group.update({
     where: {
       groupname,
@@ -100,6 +101,7 @@ async function update(props: IUpdateProps) {
       displayname,
       description,
       avatarURL,
+      status: GroupStatus[status as keyof typeof GroupStatus],
     },
   });
   return updatedGroup;

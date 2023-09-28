@@ -30,7 +30,7 @@ function App() {
     routes;
 
   const setUpSuperAdminRoutes = () => {
-    if (userInfo.userType !== 'SUPERADMIN') return <Routes />;
+    if (userInfo.userType !== 'SUPERADMIN') return <Route />;
     return (
       <>
         {superAdminRoutes.map((route) => (

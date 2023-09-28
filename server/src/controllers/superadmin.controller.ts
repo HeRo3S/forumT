@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { UserType } from '@prisma/client';
+import { GroupStatus, UserType } from '@prisma/client';
 import UserData from '../data/user.data.js';
 import GroupData from '../data/group.data.js';
 import PaginationSetup from '../config/pagination.js';
@@ -43,4 +43,22 @@ export async function GetAllGroupsController(
   });
   const nPages = Math.ceil((await GroupData.count()) / limit);
   res.status(200).json({ groups, nPages });
+}
+
+export async function BlockGroupController(req: Request, res: Response) {
+  const { groupname } = req.body;
+  const group = await GroupData.update({
+    groupname,
+    status: 'BANNED',
+  });
+  res.status(200).json(group);
+}
+
+export async function UnBlockGroupController(req: Request, res: Response) {
+  const { groupname } = req.body;
+  const group = await GroupData.update({
+    groupname,
+    status: 'ACTIVE',
+  });
+  res.status(200).json(group);
 }

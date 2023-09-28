@@ -15,14 +15,13 @@ import { useNavigate } from 'react-router-dom';
 import PaginationConfig from '../../config/axios/pagination';
 import SuperAdminService from '../../api/superadmin';
 import { ContentContainer } from '../common/Layout';
+import AdminBlockGroupDialog from '../dialog/AdminBlockGroupDialog';
 
 function NonBannedGroupsList() {
   const navigate = useNavigate();
   const [page, setPage] = useState(0);
-  const [username, setUsername] = useState<string>('');
-  const [isUserBanned, setUserBanned] = useState<boolean>(false);
+  const [groupname, setGroupname] = useState<string>('');
   const [isBanDialogOpen, setBanDialogOpen] = useState<boolean>(false);
-  const [isPromoteDialogOpen, setPromoteDialogOpen] = useState<boolean>(false);
 
   const { isLoading, data, error } = FetchGroupsList(
     page,
@@ -37,76 +36,78 @@ function NonBannedGroupsList() {
     setPage(value);
   };
 
-  const closeModerateBanUserDialog = () => {
+  const closeAdminBanGroupDialog = () => {
     setBanDialogOpen(false);
   };
-  const openModerateBanUserDialog = () => {
+  const openAdminBanGroupDialog = () => {
     setBanDialogOpen(true);
   };
 
   const onClickViewGroupButton = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    usernameData: string
+    groupnameData: string
   ) => {
-    navigate(`/u/${usernameData}`);
+    navigate(`/g/${groupnameData}`);
   };
 
   const onClickBanUserButton = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    usernameData: string
+    groupnameData: string
   ) => {
-    setUsername(usernameData);
-    setUserBanned(false);
-    openModerateBanUserDialog();
+    setGroupname(groupnameData);
+    openAdminBanGroupDialog();
   };
 
   return (
-    <ContentContainer>
-      <Typography variant="h5">Nhóm thông thường</Typography>
-      <TableContainer component={Paper}>
-        <TableHead>
-          <TableCell>Groupname</TableCell>
-          <TableCell>Owner</TableCell>
-          <TableCell>Trạng thái</TableCell>
-          <TableCell>Tuỳ chọn khác</TableCell>
-        </TableHead>
-        <TableBody>
-          {data?.groups.map((g) => (
-            <TableRow key={g.id}>
-              <TableCell>{g.groupname}</TableCell>
-              <TableCell>{g.ownername}</TableCell>
-              <TableCell>{g.status}</TableCell>
-              {/* <TableCell>
+    <>
+      <AdminBlockGroupDialog
+        isBanned={false}
+        groupname={groupname}
+        isOpen={isBanDialogOpen}
+        onClose={closeAdminBanGroupDialog}
+      />
+      <ContentContainer>
+        <Typography variant="h5">Nhóm thông thường</Typography>
+        <TableContainer component={Paper}>
+          <TableHead>
+            <TableCell>Groupname</TableCell>
+            <TableCell>Owner</TableCell>
+            <TableCell>Trạng thái</TableCell>
+            <TableCell>Tuỳ chọn khác</TableCell>
+          </TableHead>
+          <TableBody>
+            {data?.groups.map((g) => (
+              <TableRow key={g.id}>
+                <TableCell>{g.groupname}</TableCell>
+                <TableCell>{g.ownername}</TableCell>
+                <TableCell>{g.status}</TableCell>
+                {/* <TableCell>
                 {new Date(g.createdAt).toLocaleString('vi-VN', {
                   timeZone: 'Asia/Ho_Chi_Minh',
                 })}
               </TableCell> */}
-              {/* <TableCell>
-                <Button
-                  onClick={(e) => onClickViewProfileButton(e, user.username)}
-                >
-                  Xem hồ sơ
-                </Button>
+                <TableCell>
+                  <Button
+                    onClick={(e) => onClickViewGroupButton(e, g.groupname)}
+                  >
+                    Xem nhóm
+                  </Button>
 
-                <Button
-                  onClick={(e) => onClickPromoteToModButton(e, user.username)}
-                >
-                  Thăng cấp
-                </Button>
-                <Button onClick={(e) => onClickBanUserButton(e, user.username)}>
-                  Cấm
-                </Button>
-              </TableCell> */}
-            </TableRow>
-          ))}
-        </TableBody>
-        <Pagination
-          count={data?.nPages}
-          color="primary"
-          onChange={onChangePaginationHandle}
-        />
-      </TableContainer>
-    </ContentContainer>
+                  <Button onClick={(e) => onClickBanUserButton(e, g.groupname)}>
+                    Cấm
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+          <Pagination
+            count={data?.nPages}
+            color="primary"
+            onChange={onChangePaginationHandle}
+          />
+        </TableContainer>
+      </ContentContainer>
+    </>
   );
 }
 

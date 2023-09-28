@@ -1,68 +1,50 @@
-import {
-  Checkbox,
-  DialogContentText,
-  FormControl,
-  FormControlLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
-  Typography,
-} from '@mui/material';
+import { Typography } from '@mui/material';
 import Button from '@mui/material/Button';
 import Dialog, { DialogProps } from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import { styled } from '@mui/material/styles';
-import { useState } from 'react';
-import ModeratorService from '../../api/moderator';
 import { showAlert } from '../../redux/features/alertSlice';
 import { useAppDispatch } from '../../redux/hook';
+import SuperAdminService from '../../api/superadmin';
 
-const StyledDialog = styled(Dialog)<DialogProps>(({ theme }) => ({}));
+const StyledDialog = styled(Dialog)<DialogProps>({});
 
 interface IProps {
   isBanned: boolean | false;
   groupname: string;
-  username: string;
   isOpen: boolean | false;
   onClose: () => void;
 }
 function AdminBlockGroupDialog(props: IProps) {
-  const { isBanned, groupname, username, isOpen, onClose } = props;
+  const { isBanned, groupname, isOpen, onClose } = props;
   const dispatch = useAppDispatch();
-  const [banTime, setBanTime] = useState('');
 
   const closeDialog = () => {
     onClose();
   };
 
-  const onChangeBanTimeSelect = (e: SelectChangeEvent) => {
-    setBanTime(e.target.value);
-  };
-
-  const handleOnClickBanUsers = async () => {
-    const banRes = await ModeratorService.banUser(groupname, banTime, username);
+  const handleOnClickBanGroups = async () => {
+    const banRes = await SuperAdminService.banGroup(groupname);
 
     dispatch(
       showAlert({
         severity: 'success',
-        message: `Cẩm người dùng ${banRes.username} đến ${new Date(
-          banRes.timeUnbanned
-        ).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })}`,
+        message: `Cẩm nhóm ${banRes.groupname} thành công!`,
       })
     );
 
     closeDialog();
   };
 
-  const handleOnClickUnbanUsers = async () => {
-    const banRes = await ModeratorService.unbanUser(groupname, username);
+  const handleOnClickUnbanGroups = async () => {
+    const banRes = await SuperAdminService.unbanGroup(groupname);
 
     dispatch(
       showAlert({
         severity: 'success',
-        message: `Gỡ cẩm người dùng ${banRes.username} thành công!`,
+        message: `Gỡ cẩm nhóm ${banRes.groupname} thành công!`,
       })
     );
 
@@ -72,18 +54,16 @@ function AdminBlockGroupDialog(props: IProps) {
   if (isBanned)
     return (
       <StyledDialog open={isOpen}>
-        <DialogTitle>Quản lý thành viên</DialogTitle>
+        <DialogTitle>Quản lý nhóm</DialogTitle>
         <DialogContent>
-          <Typography variant="body1">
-            {`Gỡ cẩm người dùng ${username}?`}
-          </Typography>
+          <Typography variant="body1">{`Gỡ cẩm nhóm ${groupname}?`}</Typography>
         </DialogContent>
 
         <DialogActions>
           <Button variant="outlined" color="secondary" onClick={closeDialog}>
             Huỷ bỏ
           </Button>
-          <Button variant="outlined" onClick={handleOnClickUnbanUsers}>
+          <Button variant="outlined" onClick={handleOnClickUnbanGroups}>
             Đồng ý
           </Button>
         </DialogActions>
@@ -92,30 +72,18 @@ function AdminBlockGroupDialog(props: IProps) {
 
   return (
     <StyledDialog open={isOpen}>
-      <DialogTitle>Quản lý thành viên</DialogTitle>
+      <DialogTitle>Quản lý nhóm</DialogTitle>
       <DialogContent>
         <Typography variant="body1">
-          {`Người dùng ${username} sẽ bị cấm. Đồng ý?`}
+          {`Nhóm ${groupname} sẽ bị cấm. Đồng ý?`}
         </Typography>
       </DialogContent>
-      <DialogContent>
-        <DialogContentText>Thời gian cấm</DialogContentText>
-        <FormControl>
-          <div>
-            <Select onChange={onChangeBanTimeSelect} defaultValue="5m">
-              <MenuItem value="5m">5 phút</MenuItem>
-              <MenuItem value="7d">7 ngày</MenuItem>
-              <MenuItem value="14d">14 ngày</MenuItem>
-              <MenuItem value="30d">30 ngày</MenuItem>
-            </Select>
-          </div>
-        </FormControl>
-      </DialogContent>
+
       <DialogActions>
         <Button variant="outlined" color="secondary" onClick={closeDialog}>
           Huỷ bỏ
         </Button>
-        <Button variant="outlined" onClick={handleOnClickBanUsers}>
+        <Button variant="outlined" onClick={handleOnClickBanGroups}>
           Đồng ý
         </Button>
       </DialogActions>
