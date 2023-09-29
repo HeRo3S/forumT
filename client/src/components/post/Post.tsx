@@ -1,7 +1,7 @@
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Box, { BoxProps } from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
@@ -40,6 +40,7 @@ interface IProps {
 function Post(props: IProps) {
   const { id, groupname, modVariant } = props;
   const navigate = useNavigate();
+  const { postID } = useParams();
   const { userInfo } = useAppSelector((state) => state.auth);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isReportDialogOpen, setReportDialogOpen] = useState(false);
@@ -93,7 +94,9 @@ function Post(props: IProps) {
 
   const handleOnClickConfirmDeletePost = async () => {
     const res = await PostService.deletePost(groupname, id);
-    navigate(0);
+    if (postID) {
+      navigate('/');
+    } else navigate(0);
   };
 
   const { isLoading, data: postInfo, error } = FetchPostInfo(groupname, id);
@@ -208,7 +211,11 @@ function renderBody(
         />
       );
     case 'LINK':
-      return <Link to={content}>content</Link>;
+      return (
+        <a href={content} target="_blank" rel="noopener noreferrer">
+          {content}
+        </a>
+      );
     default:
       return (
         <Typography variant="body1" className="text">

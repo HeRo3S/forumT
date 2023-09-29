@@ -22,7 +22,7 @@ const alertSlice = createSlice({
     },
     clearAlert(state) {
       state.message = INITIAL_ALERT_STATE.message;
-      state.severity = INITIAL_ALERT_STATE.severity;
+      // state.severity = INITIAL_ALERT_STATE.severity;
     },
   },
 });

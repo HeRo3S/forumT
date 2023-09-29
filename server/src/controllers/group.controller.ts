@@ -3,6 +3,18 @@ import { NextFunction, Request, Response } from 'express';
 import GroupData from '../data/group.data.js';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
 
+export async function CheckIfGroupHasBeenBanned(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  const { groupname } = req.params;
+  const group = await GroupData.read({ groupname });
+  if (group?.status === 'BANNED')
+    return res.status(401).json('Group has been banned');
+  next();
+}
+
 export async function CheckIfUserHasBeenBlocked(
   req: Request,
   res: Response,

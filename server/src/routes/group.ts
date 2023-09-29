@@ -5,11 +5,6 @@ import {
   SearchGroupsController,
 } from '../controllers/group.controller.js';
 import {
-  BanUsersFromGroupModController,
-  CheckModeratorMiddleware,
-  GetUsersFollowGroupModController,
-} from '../controllers/moderator.controller.js';
-import {
   CheckUserFollowingGroup,
   CreateUserFollowingGroup,
   DeleteUserFollowingGroup,

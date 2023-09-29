@@ -128,6 +128,13 @@ function CreatePost() {
             })}!`,
           })
         );
+      if (err.response && err.response.data === 'Group has been banned')
+        dispatch(
+          showAlert({
+            severity: 'error',
+            message: 'Nhóm hiện tại đang bị chặn bởi người quản trị!',
+          })
+        );
     }
   };
 
@@ -158,7 +165,13 @@ function CreatePost() {
         // TODO for attachment input
         break;
       case POSTTYPE.LINK:
-        return <Editor value={content} setValue={setContent} />;
+        return (
+          <TextField
+            fullWidth
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        );
       case POSTTYPE.POLL:
         // TODO incoming poll feature
         break;

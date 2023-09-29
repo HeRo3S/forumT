@@ -7,20 +7,23 @@ import {
   PostReactController,
 } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
-import { CheckIfUserHasBeenBlocked } from '../controllers/group.controller.js';
+import {
+  CheckIfGroupHasBeenBanned,
+  CheckIfUserHasBeenBlocked,
+} from '../controllers/group.controller.js';
 
 const postRoute = Router({ mergeParams: true });
 
 postRoute.post(
   '/create',
-  [authenticateToken, CheckIfUserHasBeenBlocked],
+  [authenticateToken, CheckIfGroupHasBeenBanned, CheckIfUserHasBeenBlocked],
   CreateGroupPostController
 );
 postRoute.get('/:postID', GetPostController);
 postRoute.get('/:postID/react', authenticateToken, GetUserPostReactController);
 postRoute.post(
   '/:postID/react',
-  [authenticateToken, CheckIfUserHasBeenBlocked],
+  [authenticateToken, CheckIfGroupHasBeenBanned, CheckIfUserHasBeenBlocked],
   PostReactController
 );
 postRoute.post('/:postID/delete', authenticateToken, DeleteGroupPostController);

@@ -153,17 +153,11 @@ export async function PostReactController(req: Request, res: Response) {
     const postID = +req.params.postID;
     const { reaction } = req.body;
     const existedReaction = await PostReactionData.read({ username, postID });
-    if (!existedReaction) {
-      const newReaction = await PostReactionData.create({
-        username,
-        postID,
-        reaction,
-      });
-      return res.status(200).json(newReaction);
-    }
-
-    const updatedReaction = await PostReactionData.update({
-      reactionID: existedReaction.id,
+    const reactionID = existedReaction?.id;
+    const updatedReaction = await PostReactionData.upsert({
+      username,
+      postID,
+      reactionID,
       reaction,
     });
     return res.status(200).json(updatedReaction);
@@ -189,6 +183,7 @@ export async function GetGroupsUserFollowingController(
     const followingGroupList = await UserFollowingGroupData.readMany({
       username: req.params.username,
       role: 'USER',
+      limit: 10000,
     });
     const result = followingGroupList.map((item) => item.group);
     return res.status(200).json(result);

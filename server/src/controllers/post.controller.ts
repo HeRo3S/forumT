@@ -29,7 +29,7 @@ interface CursorPaginationRequest extends Request {
     cursor: string;
   };
 }
-const GuestGroupList = ['gaming', 'vietnam'];
+const GuestGroupList = ['askanything', 'gaming'];
 export async function GetHomePagePostsGuestController(
   req: CursorPaginationRequest,
   res: Response
@@ -56,6 +56,7 @@ export async function GetHomePagePostsUserController(
     }
     const userFollowGroup = await UserFollowingGroupData.readMany({
       username: req.user.username,
+      limit: 10000,
     });
     const groupLists = userFollowGroup.map((item) => item.groupname);
 

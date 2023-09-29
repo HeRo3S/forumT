@@ -16,7 +16,7 @@ export default function GlobalAlert() {
     setOpen(message !== '');
     const timer = setTimeout(() => {
       setOpen(false);
-      dispatch(clearAlert);
+      dispatch(clearAlert());
     }, 3000);
 
     return () => clearTimeout(timer);

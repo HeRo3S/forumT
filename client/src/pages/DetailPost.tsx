@@ -66,7 +66,7 @@ function DetailPost() {
     socketRef.current.emit('update/comment', groupname, postID, comment);
   };
 
-  if (!post) return <ContentContainer></ContentContainer>;
+  if (!post) return <ContentContainer />;
   return (
     <ContentContainer>
       <Post groupname={groupname} id={+postID} />

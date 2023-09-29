@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import { GroupStatus, UserType } from '@prisma/client';
+import { UserType } from '@prisma/client';
 import UserData from '../data/user.data.js';
 import GroupData from '../data/group.data.js';
 import PaginationSetup from '../config/pagination.js';

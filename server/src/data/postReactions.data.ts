@@ -59,8 +59,39 @@ async function update(props: IUpdateProps) {
   });
   return updatedReaction;
 }
+interface IUpsertProps {
+  username: string;
+  reaction: string;
+  postID: number;
+  reactionID?: number;
+}
+async function upsert(props: IUpsertProps) {
+  const { username, reaction, postID } = props;
+  const reactionID = props.reactionID || -1;
+  const newReaction = await prisma.postReaction.upsert({
+    create: {
+      username,
+      reaction: ReactionType[reaction as keyof typeof ReactionType],
+      postID,
+    },
+    update: {
+      reaction: ReactionType[reaction as keyof typeof ReactionType],
+    },
+    where: {
+      id: reactionID,
+    },
+  });
+  return newReaction;
+}
 async function remove() {}
 
-const PostReactionData = { create, read, groupByPostID, update, remove };
+const PostReactionData = {
+  create,
+  read,
+  groupByPostID,
+  update,
+  upsert,
+  remove,
+};
 
 export default PostReactionData;

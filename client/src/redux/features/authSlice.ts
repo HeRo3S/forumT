@@ -1,9 +1,11 @@
 /* eslint-disable no-param-reassign */
 import { createAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
+import axios, { AxiosError } from 'axios';
 import AuthService from '../../api/auth';
 import { ReqUser } from '../../../types/interfaces/reqAPI';
 import { ResUserInfo } from '../../../types/interfaces/resAPI';
+import { showAlert } from './alertSlice';
 
 interface State {
   userInfo: ResUserInfo;
@@ -25,16 +27,39 @@ const INITIAL_STATE: State = {
 export const login = createAsyncThunk(
   'auth/login',
   async (reqUser: ReqUser, thunkAPI) => {
-    const response = await AuthService.login(reqUser);
-    return response;
+    try {
+      const response = await AuthService.login(reqUser);
+      thunkAPI.dispatch(
+        showAlert({ severity: 'success', message: 'Đăng nhập thành công!' })
+      );
+      return response;
+    } catch (err) {
+      thunkAPI.dispatch(
+        showAlert({ severity: 'error', message: err.response.data })
+      );
+      return thunkAPI.rejectWithValue(err.response.data);
+    }
   }
 );
 
 export const register = createAsyncThunk(
   'auth/register',
   async (reqUser: ReqUser, thunkAPI) => {
-    const response = await AuthService.register(reqUser);
-    return response;
+    try {
+      const response = await AuthService.register(reqUser);
+      thunkAPI.dispatch(
+        showAlert({
+          severity: 'success',
+          message: 'Đăng ký tài khoản thành công!',
+        })
+      );
+      return response;
+    } catch (err) {
+      thunkAPI.dispatch(
+        showAlert({ severity: 'error', message: err.response.data })
+      );
+      return thunkAPI.rejectWithValue(err.response.data);
+    }
   }
 );
 

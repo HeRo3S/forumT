@@ -29,8 +29,12 @@ function Home() {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          if (data && data[data.length - 1].nextCursorID !== -1)
-            setSize(size + 1);
+          if (
+            data &&
+            data.length === size &&
+            data[data.length - 1].nextCursorID !== -1
+          )
+            setSize((prev) => prev + 1);
         }
       });
     },
@@ -48,7 +52,7 @@ function Home() {
       observerRef.current.observe(endOfPostsRef.current);
     }
     return () => {
-      if (observerRef.current) observerRef.current.disconnect();
+      if (observerRef?.current) observerRef.current.disconnect();
     };
   }, [handleLoadMore]);
 
@@ -62,6 +66,11 @@ function Home() {
       <LeftBar />
       <Grid item xs={8}>
         <Box>
+          {data?.length === 1 && data[0].posts.length === 0 && (
+            <Typography variant="h4">
+              Không có bài viết nào! Vui lòng theo dõi một nhóm để tải bài đăng!
+            </Typography>
+          )}
           {data?.length && (
             <>
               {data.map((page) => {
