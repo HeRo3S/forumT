@@ -1,5 +1,5 @@
 import useSWR from 'swr';
-import { Stack, Typography, styled } from '@mui/material';
+import { Box, Stack, Typography, styled } from '@mui/material';
 import ModeratorService from '../../api/moderator';
 import BannedReasons from '../../config/variables';
 
@@ -13,22 +13,20 @@ interface IProps {
 function Reports(props: IProps) {
   const { groupname, postID } = props;
   const { data, error, isLoading } = FetchPostReports(groupname, postID);
+  if (data?.length === 0) return <Box />;
   return (
-    data &&
-    data?.length > 0 && (
-      <StyledContainer>
-        <Typography variant="h5">Người dùng báo cáo</Typography>
-        {data?.map((r) => {
-          const { bannedReason, _count: count } = r;
-          const reason = BannedReasons.find((b) => b.code === bannedReason);
-          return (
-            <Typography key={reason?.code} variant="body1">{`${count}: ${
-              reason?.vi || 'key not found'
-            }`}</Typography>
-          );
-        })}
-      </StyledContainer>
-    )
+    <StyledContainer>
+      <Typography variant="h5">Người dùng báo cáo</Typography>
+      {data?.map((r) => {
+        const { bannedReason, _count: count } = r;
+        const reason = BannedReasons.find((b) => b.code === bannedReason);
+        return (
+          <Typography key={reason?.code} variant="body1">{`${count}: ${
+            reason?.vi || 'key not found'
+          }`}</Typography>
+        );
+      })}
+    </StyledContainer>
   );
 }
 

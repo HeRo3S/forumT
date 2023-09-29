@@ -1,3 +1,4 @@
+import { GroupStatus } from '@prisma/client';
 import prisma from '../addons/prismaClient.js';
 
 interface ICreateProps {
@@ -27,6 +28,36 @@ async function read(props: IReadProps) {
   return group;
 }
 
+interface IReadManyWithPagination {
+  limit: number;
+  page?: number;
+  status?: string[];
+}
+const setUpReadManyWithPaginationConfig = (props: IReadManyWithPagination) => {
+  const { limit, page } = props;
+  const status = props.status?.map(
+    (s) => GroupStatus[s as keyof typeof GroupStatus]
+  );
+  let config: object = {
+    where: {
+      status: {
+        in: status,
+      },
+    },
+    take: limit,
+  };
+  if (page) {
+    config = { ...config, skip: limit * page };
+  }
+  return config;
+};
+async function readManyWithPagination(props: IReadManyWithPagination) {
+  const groups = await prisma.group.findMany(
+    setUpReadManyWithPaginationConfig(props)
+  );
+  return groups;
+}
+
 interface IReadContainKeywordsProps {
   keyword: string;
 }
@@ -49,9 +80,42 @@ async function readContainKeyword(props: IReadContainKeywordsProps) {
   return matchingGroups;
 }
 
-async function update() {}
+async function count() {
+  const res = await prisma.group.count();
+  return res;
+}
+interface IUpdateProps {
+  groupname: string;
+  displayname?: string;
+  description?: string;
+  avatarURL?: string;
+  status?: string;
+}
+async function update(props: IUpdateProps) {
+  const { groupname, displayname, description, avatarURL, status } = props;
+  const updatedGroup = await prisma.group.update({
+    where: {
+      groupname,
+    },
+    data: {
+      displayname,
+      description,
+      avatarURL,
+      status: GroupStatus[status as keyof typeof GroupStatus],
+    },
+  });
+  return updatedGroup;
+}
 async function remove() {}
 
-const GroupData = { create, read, readContainKeyword, update, remove };
+const GroupData = {
+  create,
+  read,
+  readManyWithPagination,
+  readContainKeyword,
+  count,
+  update,
+  remove,
+};
 
 export default GroupData;

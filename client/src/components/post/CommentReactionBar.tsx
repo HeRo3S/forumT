@@ -17,7 +17,7 @@ import {
   ResPost,
 } from '../../../types/interfaces/resAPI';
 import { useAppSelector } from '../../redux/hook';
-import LoginDialog from '../common/dialog/LoginDialog';
+import LoginDialog from '../dialog/LoginDialog';
 import PostService from '../../api/post';
 
 const StyledReactionBar = styled(Stack)({

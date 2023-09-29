@@ -5,11 +5,6 @@ import {
   SearchGroupsController,
 } from '../controllers/group.controller.js';
 import {
-  BanUsersFromGroupModController,
-  CheckModeratorMiddleware,
-  GetUsersFollowGroupModController,
-} from '../controllers/moderator.controller.js';
-import {
   CheckUserFollowingGroup,
   CreateUserFollowingGroup,
   DeleteUserFollowingGroup,
@@ -41,15 +36,5 @@ groupRoute.post(
   authenticateToken,
   DeleteUserFollowingGroup
 );
-// NOTE: Moderator controller
-groupRoute.get(
-  '/:groupname/mod/users',
-  [authenticateToken, CheckModeratorMiddleware],
-  GetUsersFollowGroupModController
-);
-groupRoute.post(
-  `/:groupname/mod/ban`,
-  [authenticateToken, CheckModeratorMiddleware],
-  BanUsersFromGroupModController
-);
+
 export default groupRoute;

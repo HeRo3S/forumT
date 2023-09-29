@@ -4,6 +4,8 @@ import PostData from '../data/post.data.js';
 import PostReactionData from '../data/postReactions.data.js';
 import UserData from '../data/user.data.js';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
+import CommentData from '../data/comment.data.js';
+import PaginationSetup from '../config/pagination.js';
 
 export async function GetProfileController(req: Request, res: Response) {
   try {
@@ -51,15 +53,6 @@ export async function CreateGroupPostController(req: Request, res: Response) {
     if (!groupname) return res.status(400).json('cannot find group');
     const { title, content, type } = req.body;
     const username = <string>req.user?.username;
-    const userFollowingGroup = await UserFollowingGroupData.read({
-      username,
-      groupname,
-    });
-    if (
-      userFollowingGroup?.role === 'BANNED' ||
-      userFollowingGroup?.role === 'SOFTBANNED'
-    )
-      return res.status(401).json('User banned!');
     const post = await PostData.create({
       username,
       groupname,
@@ -81,13 +74,46 @@ export async function CreateGroupPostController(req: Request, res: Response) {
     }
   }
 }
-
-export async function GetUserPostsController(req: Request, res: Response) {
+interface CursorPaginationRequest extends Request {
+  query: {
+    limit: string;
+    cursor: string;
+  };
+}
+// TODO: config api with pagination
+export async function GetUserPostsController(
+  req: CursorPaginationRequest,
+  res: Response
+) {
   try {
     const { username } = req.params;
-    const posts = await PostData.readMany({ username });
-    if (!posts) return res.status(400).json("can't find user");
-    return res.status(200).json(posts);
+    const take = +req.query.limit || PaginationSetup.ProfilePostsLimit;
+    const cursorID = +req.query.cursor || undefined;
+    const posts = await PostData.readMany({ username, take, cursorID });
+    const nextCursorID =
+      posts.length === take ? posts[posts.length - 1].id : -1;
+    return res.status(200).json({ posts, nextCursorID });
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+}
+
+export async function GetUsersCommentsController(
+  req: CursorPaginationRequest,
+  res: Response
+) {
+  try {
+    const { username } = req.params;
+    const take = +req.query.limit || PaginationSetup.ProfileCommentsLimit;
+    const cursorID = +req.query.cursor || undefined;
+    const comments = await CommentData.readManyWithUsername({
+      username,
+      cursorID,
+      take,
+    });
+    const nextCursorID =
+      comments.length === take ? comments[comments.length - 1].id : -1;
+    return res.status(200).json({ comments, nextCursorID });
   } catch (err) {
     return res.status(500).json(err);
   }
@@ -127,17 +153,11 @@ export async function PostReactController(req: Request, res: Response) {
     const postID = +req.params.postID;
     const { reaction } = req.body;
     const existedReaction = await PostReactionData.read({ username, postID });
-    if (!existedReaction) {
-      const newReaction = await PostReactionData.create({
-        username,
-        postID,
-        reaction,
-      });
-      return res.status(200).json(newReaction);
-    }
-
-    const updatedReaction = await PostReactionData.update({
-      reactionID: existedReaction.id,
+    const reactionID = existedReaction?.id;
+    const updatedReaction = await PostReactionData.upsert({
+      username,
+      postID,
+      reactionID,
       reaction,
     });
     return res.status(200).json(updatedReaction);
@@ -163,6 +183,7 @@ export async function GetGroupsUserFollowingController(
     const followingGroupList = await UserFollowingGroupData.readMany({
       username: req.params.username,
       role: 'USER',
+      limit: 10000,
     });
     const result = followingGroupList.map((item) => item.group);
     return res.status(200).json(result);
@@ -180,8 +201,17 @@ export async function GetGroupsUserModeratingController(
     const moderatingGroupList = await UserFollowingGroupData.readMany({
       username: req.params.username,
       role: 'MODERATOR',
+      limit: 10000,
     });
-    const result = moderatingGroupList.map((item) => item.group);
+    const owningGroupList = await UserFollowingGroupData.readMany({
+      username: req.params.username,
+      role: 'OWNER',
+      limit: 10000,
+    });
+    const result = [
+      ...moderatingGroupList.map((item) => item.group),
+      ...owningGroupList.map((item) => item.group),
+    ];
     return res.status(200).json(result);
   } catch (err) {
     res.status(500).json(err);

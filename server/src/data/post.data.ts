@@ -105,7 +105,29 @@ async function readContainKeyword(props: IReadContainKeywordsProps) {
   return posts;
 }
 
-async function update() {}
+interface IUpdate {
+  id: number;
+  title?: string;
+  content?: string;
+  deletedAt?: Date | null;
+}
+async function update(props: IUpdate) {
+  const { id, title, content, deletedAt } = props;
+  const updatedAt = new Date(Date.now());
+  const post = await prisma.post.update({
+    where: {
+      id,
+    },
+    data: {
+      title,
+      content,
+      deletedAt,
+      updatedAt,
+    },
+  });
+  return post;
+}
+
 async function remove(id: number) {
   const transaction = await prisma.$transaction([
     prisma.postReport.deleteMany({

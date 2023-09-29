@@ -42,6 +42,7 @@ export interface ResGroupInfo {
   groupname: string;
   displayname?: string;
   ownername: string;
+  status: string;
   description?: string;
   createdAt: string;
   updatedAt: string;
@@ -53,7 +54,7 @@ export interface ResComment {
   [key: string]: unknown;
   id: number;
   content: string;
-  parentPostId: number;
+  parentPostID: number;
   username: string;
   createdAt: string;
   updatedAt: string;
@@ -62,6 +63,11 @@ export interface ResComment {
     avatarURL: string;
     username: string;
     displayname: string;
+  };
+  parentPost: {
+    title: string;
+    groupname: string;
+    username: string;
   };
 }
 

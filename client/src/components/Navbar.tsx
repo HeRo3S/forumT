@@ -4,7 +4,7 @@ import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import Box, { BoxProps } from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import { logout, refreshAccessToken } from '../redux/features/authSlice';
@@ -66,6 +66,10 @@ function Navbar() {
     dispatch(logout());
   };
 
+  const handleAdminButtonClick = () => {
+    navigate('/admin');
+  };
+
   return (
     <StyledNavbarBox>
       <Grid container>
@@ -86,6 +90,9 @@ function Navbar() {
         <Grid item container xs={3} direction="row-reverse">
           {auth.accessToken.length > 0 ? (
             <>
+              {auth.userInfo.userType === 'SUPERADMIN' && (
+                <Button onClick={handleAdminButtonClick}>ADMIN</Button>
+              )}
               <Button
                 id="user-button"
                 aria-controls={open ? 'basic-menu' : undefined}
@@ -111,9 +118,7 @@ function Navbar() {
                 >
                   Profile
                 </MenuItem>
-                <MenuItem onClick={(e) => handleLogoutButtonClick(e)}>
-                  Logout
-                </MenuItem>
+                <MenuItem onClick={handleLogoutButtonClick}>Logout</MenuItem>
               </Menu>
             </>
           ) : (

@@ -11,30 +11,27 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ContentContainer } from '../common/Layout';
 import ModeratorService from '../../api/moderator';
-import ModerateBanUser from '../dialog/ModerateBanUser';
 import PaginationConfig from '../../config/axios/pagination';
-import { PromoteDialog } from '../dialog/OwnerPromoteDemote';
+import { DemoteDialog } from '../dialog/OwnerPromoteDemote';
 
 interface IUserListProps {
   groupname: string;
 }
-function UserList(props: IUserListProps) {
+function ModeratorList(props: IUserListProps) {
   const navigate = useNavigate();
   const { groupname } = props;
   const [page, setPage] = useState(0);
   const [username, setUsername] = useState<string>('');
-  const [isUserBanned, setUserBanned] = useState<boolean>(false);
-  const [isBanDialogOpen, setBanDialogOpen] = useState<boolean>(false);
-  const [isPromoteDialogOpen, setPromoteDialogOpen] = useState<boolean>(false);
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
 
   const { isLoading, data, error } = FetchUsersList(
     groupname,
     page,
     PaginationConfig.usersFollowingGroupLimit,
-    'USER'
+    'MODERATOR'
   );
 
   const onChangePaginationHandle = (
@@ -44,18 +41,11 @@ function UserList(props: IUserListProps) {
     setPage(value);
   };
 
-  const closeModerateBanUserDialog = () => {
-    setBanDialogOpen(false);
-  };
-  const openModerateBanUserDialog = () => {
-    setBanDialogOpen(true);
-  };
-
-  const closeOwnerPromoteDialog = () => {
-    setPromoteDialogOpen(false);
+  const closeOwnerDemoteDialog = () => {
+    setDialogOpen(false);
   };
   const openOwnerDemoteDialog = () => {
-    setPromoteDialogOpen(true);
+    setDialogOpen(true);
   };
 
   const onClickViewProfileButton = (
@@ -65,15 +55,7 @@ function UserList(props: IUserListProps) {
     navigate(`/u/${usernameData}`);
   };
 
-  const onClickBanUserButton = (
-    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    usernameData: string
-  ) => {
-    setUsername(usernameData);
-    setUserBanned(false);
-    openModerateBanUserDialog();
-  };
-  const onClickPromoteToModButton = (
+  const onClickDemoteUserButton = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     usernameData: string
   ) => {
@@ -83,25 +65,18 @@ function UserList(props: IUserListProps) {
 
   return (
     <ContentContainer>
-      <Typography variant="h5">Ngưới đang theo dõi</Typography>
-      <ModerateBanUser
+      <Typography variant="h5">Quản trị viên</Typography>
+      <DemoteDialog
         groupname={groupname}
         username={username}
-        isBanned={isUserBanned}
-        isOpen={isBanDialogOpen}
-        onClose={closeModerateBanUserDialog}
-      />
-      <PromoteDialog
-        groupname={groupname}
-        username={username}
-        isOpen={isPromoteDialogOpen}
-        onClose={closeOwnerPromoteDialog}
+        isOpen={isDialogOpen}
+        onClose={closeOwnerDemoteDialog}
       />
       <TableContainer component={Paper}>
         <TableHead>
           <TableCell>Tên người dùng</TableCell>
           <TableCell>Phân quyền</TableCell>
-          <TableCell>Ngày được gỡ cấm</TableCell>
+          <TableCell>Ngày được phân quyền</TableCell>
           <TableCell>Tuỳ chọn khác</TableCell>
         </TableHead>
         <TableBody>
@@ -120,15 +95,13 @@ function UserList(props: IUserListProps) {
                 >
                   Xem hồ sơ
                 </Button>
-
-                <Button
-                  onClick={(e) => onClickPromoteToModButton(e, user.username)}
-                >
-                  Thăng cấp
-                </Button>
-                <Button onClick={(e) => onClickBanUserButton(e, user.username)}>
-                  Cấm
-                </Button>
+                {user.role === 'OWNER' && (
+                  <Button
+                    onClick={(e) => onClickDemoteUserButton(e, user.username)}
+                  >
+                    Hạ quyến
+                  </Button>
+                )}
               </TableCell>
             </TableRow>
           ))}
@@ -167,4 +140,4 @@ function FetchUsersList(
   };
 }
 
-export default UserList;
+export default ModeratorList;

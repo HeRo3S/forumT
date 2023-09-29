@@ -37,6 +37,7 @@ model Group {
   displayname      String?
   ownername        String
   description      String?           @db.MediumText
+  status           GroupStatus       @default(ACTIVE)
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   deletedAt        DateTime?
@@ -177,10 +178,16 @@ enum UserType {
 }
 
 enum UserInGroupType {
-  SUPERADMIN
+  OWNER
   MODERATOR
   USER
   SOFTBANNED
+  BANNED
+}
+
+enum GroupStatus {
+  ACTIVE
+  INACTIVE
   BANNED
 }
 

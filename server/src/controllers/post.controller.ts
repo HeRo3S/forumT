@@ -4,10 +4,7 @@ import CommentData from '../data/comment.data.js';
 import PostData from '../data/post.data.js';
 import PostReactionData from '../data/postReactions.data.js';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
-
-const PaginationSetup = {
-  limit: 7,
-};
+import PaginationSetup from '../config/pagination.js';
 
 export async function GetPostController(req: Request, res: Response) {
   try {
@@ -32,12 +29,12 @@ interface CursorPaginationRequest extends Request {
     cursor: string;
   };
 }
-const GuestGroupList = ['gaming'];
+const GuestGroupList = ['askanything', 'gaming'];
 export async function GetHomePagePostsGuestController(
   req: CursorPaginationRequest,
   res: Response
 ) {
-  const take = +req.query.limit || PaginationSetup.limit;
+  const take = +req.query.limit || PaginationSetup.DefaultPostsLimit;
   const cursorID = +req.query.cursor || undefined;
   const posts = await PostData.readMany({
     groupname: GuestGroupList,
@@ -59,10 +56,11 @@ export async function GetHomePagePostsUserController(
     }
     const userFollowGroup = await UserFollowingGroupData.readMany({
       username: req.user.username,
+      limit: 10000,
     });
     const groupLists = userFollowGroup.map((item) => item.groupname);
 
-    const take = +req.query.limit || PaginationSetup.limit;
+    const take = +req.query.limit || PaginationSetup.DefaultPostsLimit;
     const cursorID = +req.query.cursor || undefined;
     const posts = await PostData.readMany({
       groupname: groupLists,
@@ -83,7 +81,7 @@ export async function GetGroupPostsController(
 ) {
   try {
     const groupname = req.params?.groupname;
-    const take = +req.query.limit || PaginationSetup.limit;
+    const take = +req.query.limit || PaginationSetup.DefaultPostsLimit;
     const cursorID = +req.query.cursor || undefined;
     const groupPosts = await PostData.readMany({
       groupname: [groupname],

@@ -1,4 +1,5 @@
 import { UserInGroupType } from '@prisma/client';
+import ms from 'ms';
 import prisma from '../addons/prismaClient.js';
 
 interface ICreateProps {
@@ -35,10 +36,12 @@ interface IReadManyProps {
   groupname?: string;
   username?: string;
   role?: string;
+  limit: number;
+  page?: number;
 }
-async function readMany(props: IReadManyProps) {
-  const { groupname, username, role } = props;
-  const userFollowGroupList = await prisma.userFollowGroup.findMany({
+function setUpReadManyConfig(props: IReadManyProps) {
+  const { groupname, username, role, limit, page } = props;
+  let config: object = {
     where: {
       groupname,
       username,
@@ -47,28 +50,52 @@ async function readMany(props: IReadManyProps) {
     select: {
       username: true,
       groupname: true,
+      role: true,
+      timeUnbanned: true,
       group: true,
     },
-  });
+    take: limit,
+  };
+  if (page)
+    config = {
+      ...config,
+      skip: limit * page,
+    };
+  return config;
+}
+async function readMany(props: IReadManyProps) {
+  const userFollowGroupList = await prisma.userFollowGroup.findMany(
+    setUpReadManyConfig(props)
+  );
   return userFollowGroupList;
 }
 
 interface IUpdateProps {
   role?: string;
-  timeUnbanned?: string;
+  banTime?: string;
   username: string;
   groupname: string;
 }
 async function update(props: IUpdateProps) {
-  const { username, groupname, role, timeUnbanned } = props;
-  const awaited = await prisma.userFollowGroup.update({
+  const { username, groupname, role, banTime } = props;
+  const now = new Date();
+  const timeUnbanned = banTime
+    ? new Date(now.getTime() + ms(banTime))
+    : undefined;
+  const awaited = await prisma.userFollowGroup.upsert({
     where: {
       username_groupname: {
         username,
         groupname,
       },
     },
-    data: {
+    update: {
+      role: UserInGroupType[role as keyof typeof UserInGroupType],
+      timeUnbanned,
+    },
+    create: {
+      username,
+      groupname,
       role: UserInGroupType[role as keyof typeof UserInGroupType],
       timeUnbanned,
     },
@@ -91,10 +118,15 @@ async function remove(props: IRemoveProps) {
 
 interface ICountProps {
   groupname: string;
+  role?: string;
 }
 async function count(props: ICountProps) {
+  const { groupname, role } = props;
   const followers = await prisma.userFollowGroup.count({
-    where: props,
+    where: {
+      groupname,
+      role: UserInGroupType[role as keyof typeof UserInGroupType],
+    },
   });
   return followers;
 }

@@ -31,10 +31,10 @@ async function create(props: ICreateProps) {
 interface IReadProps {}
 async function read(props: IReadProps) {}
 
-interface IReadManyProps {
+interface IReadManyWithPostIDProps {
   parentPostID: number;
 }
-async function readMany(props: IReadManyProps) {
+async function readManyWithPostID(props: IReadManyWithPostIDProps) {
   const comments = await prisma.comment.findMany({
     where: props,
     include: {
@@ -50,6 +50,48 @@ async function readMany(props: IReadManyProps) {
   return comments;
 }
 
+interface IReadManyWithUsernameProps {
+  username: string;
+  cursorID?: number;
+  take: number;
+}
+const setUpReadManyWithUsernameConfig = (props: IReadManyWithUsernameProps) => {
+  const { username, cursorID, take } = props;
+  let config: object = {
+    where: {
+      username,
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take,
+    include: {
+      parentPost: {
+        select: {
+          title: true,
+          groupname: true,
+          username: true,
+        },
+      },
+    },
+  };
+  if (cursorID)
+    config = {
+      ...config,
+      cursor: {
+        id: cursorID,
+      },
+      skip: 1,
+    };
+  return config;
+};
+async function readManyWithUsername(props: IReadManyWithUsernameProps) {
+  const comments = await prisma.comment.findMany(
+    setUpReadManyWithUsernameConfig(props)
+  );
+  return comments;
+}
+
 async function update() {}
 async function remove() {}
 interface ICountProps {
@@ -62,6 +104,14 @@ async function count(props: ICountProps) {
   return result;
 }
 
-const CommentData = { create, read, readMany, update, remove, count };
+const CommentData = {
+  create,
+  read,
+  readManyWithPostID,
+  readManyWithUsername,
+  update,
+  remove,
+  count,
+};
 
 export default CommentData;

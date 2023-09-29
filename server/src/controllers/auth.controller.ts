@@ -153,7 +153,6 @@ export function generateToken(user: User): {
 } {
   const userInfo: Partial<User> = { ...user };
   delete userInfo.password;
-  delete userInfo.refreshToken;
   const accessToken = jwt.sign(userInfo, process.env.ACCESS_TOKEN as string, {
     expiresIn: process.env.ACCESS_EXPIRE,
   });

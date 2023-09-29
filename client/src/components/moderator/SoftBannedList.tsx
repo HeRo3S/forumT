@@ -11,30 +11,28 @@ import {
   Typography,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ContentContainer } from '../common/Layout';
 import ModeratorService from '../../api/moderator';
 import ModerateBanUser from '../dialog/ModerateBanUser';
 import PaginationConfig from '../../config/axios/pagination';
-import { PromoteDialog } from '../dialog/OwnerPromoteDemote';
 
 interface IUserListProps {
   groupname: string;
 }
-function UserList(props: IUserListProps) {
+function SoftBannedList(props: IUserListProps) {
   const navigate = useNavigate();
   const { groupname } = props;
   const [page, setPage] = useState(0);
   const [username, setUsername] = useState<string>('');
   const [isUserBanned, setUserBanned] = useState<boolean>(false);
-  const [isBanDialogOpen, setBanDialogOpen] = useState<boolean>(false);
-  const [isPromoteDialogOpen, setPromoteDialogOpen] = useState<boolean>(false);
+  const [isDialogOpen, setDialogOpen] = useState<boolean>(false);
 
   const { isLoading, data, error } = FetchUsersList(
     groupname,
     page,
     PaginationConfig.usersFollowingGroupLimit,
-    'USER'
+    'SOFTBANNED'
   );
 
   const onChangePaginationHandle = (
@@ -45,17 +43,10 @@ function UserList(props: IUserListProps) {
   };
 
   const closeModerateBanUserDialog = () => {
-    setBanDialogOpen(false);
+    setDialogOpen(false);
   };
   const openModerateBanUserDialog = () => {
-    setBanDialogOpen(true);
-  };
-
-  const closeOwnerPromoteDialog = () => {
-    setPromoteDialogOpen(false);
-  };
-  const openOwnerDemoteDialog = () => {
-    setPromoteDialogOpen(true);
+    setDialogOpen(true);
   };
 
   const onClickViewProfileButton = (
@@ -73,35 +64,30 @@ function UserList(props: IUserListProps) {
     setUserBanned(false);
     openModerateBanUserDialog();
   };
-  const onClickPromoteToModButton = (
+  const onClickUnbanUserButton = (
     e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     usernameData: string
   ) => {
     setUsername(usernameData);
-    openOwnerDemoteDialog();
+    setUserBanned(true);
+    openModerateBanUserDialog();
   };
 
   return (
     <ContentContainer>
-      <Typography variant="h5">Ngưới đang theo dõi</Typography>
+      <Typography variant="h5">Thành viên đang cấm</Typography>
       <ModerateBanUser
         groupname={groupname}
         username={username}
         isBanned={isUserBanned}
-        isOpen={isBanDialogOpen}
+        isOpen={isDialogOpen}
         onClose={closeModerateBanUserDialog}
-      />
-      <PromoteDialog
-        groupname={groupname}
-        username={username}
-        isOpen={isPromoteDialogOpen}
-        onClose={closeOwnerPromoteDialog}
       />
       <TableContainer component={Paper}>
         <TableHead>
           <TableCell>Tên người dùng</TableCell>
           <TableCell>Phân quyền</TableCell>
-          <TableCell>Ngày được gỡ cấm</TableCell>
+          <TableCell>Hạn cấm</TableCell>
           <TableCell>Tuỳ chọn khác</TableCell>
         </TableHead>
         <TableBody>
@@ -121,11 +107,6 @@ function UserList(props: IUserListProps) {
                   Xem hồ sơ
                 </Button>
 
-                <Button
-                  onClick={(e) => onClickPromoteToModButton(e, user.username)}
-                >
-                  Thăng cấp
-                </Button>
                 <Button onClick={(e) => onClickBanUserButton(e, user.username)}>
                   Cấm
                 </Button>
@@ -167,4 +148,4 @@ function FetchUsersList(
   };
 }
 
-export default UserList;
+export default SoftBannedList;

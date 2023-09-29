@@ -22,11 +22,13 @@ async function UpdatePostReactions(
   reaction: string
 ) {
   const existedReaction = await PostReactionData.read({ username, postID });
-  if (!existedReaction) {
-    PostReactionData.create({ username, postID, reaction });
-  } else {
-    await PostReactionData.update({ reactionID: existedReaction.id, reaction });
-  }
+  const reactionID = existedReaction?.id;
+  await PostReactionData.upsert({
+    username,
+    postID,
+    reactionID,
+    reaction,
+  });
   const updateReactions = PostReactionData.groupByPostID(postID);
   return updateReactions;
 }

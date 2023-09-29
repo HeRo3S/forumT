@@ -23,7 +23,7 @@ function Register() {
   const passwordRef = useRef<HTMLInputElement>();
   const retypePasswordRef = useRef<HTMLInputElement>();
 
-  function handleSubmitRegister(e: React.FormEvent<HTMLButtonElement>): void {
+  function handleSubmitRegister(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
     // TODO return input error when retype password don't match
     if (passwordRef.current?.value !== retypePasswordRef.current?.value) {
@@ -94,7 +94,6 @@ function Register() {
               size="large"
               className="longButton"
               type="submit"
-              onClick={(e) => handleSubmitRegister(e)}
             >
               Đăng ký
             </StyledButton>

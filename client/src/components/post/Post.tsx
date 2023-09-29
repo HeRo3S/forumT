@@ -1,7 +1,7 @@
 import Typography, { TypographyProps } from '@mui/material/Typography';
 import Grid from '@mui/material/Grid';
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import Stack from '@mui/material/Stack';
 import Box, { BoxProps } from '@mui/material/Box';
 import { styled } from '@mui/material/styles';
@@ -13,9 +13,10 @@ import { ContentContainer } from '../common/Layout';
 import PostReactionBar from './PostReactionBar';
 import PostService from '../../api/post';
 import { useAppSelector } from '../../redux/hook';
-import DeletePostDialog from '../common/dialog/DeletePostDialog';
-import PostReportDialog from '../common/dialog/ReportDialog';
+import DeletePostDialog from '../dialog/DeletePostDialog';
+import PostReportDialog from '../dialog/ReportDialog';
 import Reports from './Reports';
+import ModeratePost from '../dialog/ModeratePost';
 
 const StyledPostBody = styled(Box)<BoxProps>({
   marginTop: '10px',
@@ -39,9 +40,11 @@ interface IProps {
 function Post(props: IProps) {
   const { id, groupname, modVariant } = props;
   const navigate = useNavigate();
+  const { postID } = useParams();
   const { userInfo } = useAppSelector((state) => state.auth);
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isReportDialogOpen, setReportDialogOpen] = useState(false);
+  const [isModDialogOpen, setModDialogOpen] = useState(false);
 
   const openDeleteDialog = () => {
     setDeleteDialogOpen(true);
@@ -57,6 +60,13 @@ function Post(props: IProps) {
     setReportDialogOpen(false);
   };
 
+  const openModDialog = () => {
+    setModDialogOpen(true);
+  };
+  const closeModDialog = () => {
+    setModDialogOpen(false);
+  };
+
   function handleOnClickContainer(e: React.MouseEvent<HTMLDivElement>) {
     e.preventDefault();
     navigate(`/g/${groupname}/post/${id}`);
@@ -65,22 +75,28 @@ function Post(props: IProps) {
     e.stopPropagation();
   }
 
-  async function handleOnclickDeletePostButton(
+  function handleOnclickDeletePostButton(
     e: React.MouseEvent<HTMLButtonElement>
   ) {
     e.stopPropagation();
     openDeleteDialog();
   }
-  async function handleOnclickReportPostButton(
+  function handleOnclickReportPostButton(
     e: React.MouseEvent<HTMLButtonElement>
   ) {
     e.stopPropagation();
     openReportDialog();
   }
+  function handleOnclickModButton(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    openModDialog();
+  }
 
   const handleOnClickConfirmDeletePost = async () => {
     const res = await PostService.deletePost(groupname, id);
-    navigate(0);
+    if (postID) {
+      navigate('/');
+    } else navigate(0);
   };
 
   const { isLoading, data: postInfo, error } = FetchPostInfo(groupname, id);
@@ -100,6 +116,13 @@ function Post(props: IProps) {
         groupname={groupname}
         isOpen={isReportDialogOpen}
         onClose={closeReportDialog}
+      />
+      <ModeratePost
+        postID={id}
+        groupname={groupname}
+        username={username}
+        isOpen={isModDialogOpen}
+        onClose={closeModDialog}
       />
       <ContentContainer
         onClick={(e: React.MouseEvent<HTMLDivElement>) =>
@@ -148,12 +171,12 @@ function Post(props: IProps) {
                   </Button>
                 )}
                 {modVariant && (
-                  <Button>
+                  <Button onClick={(e) => handleOnclickModButton(e)}>
                     <Typography variant="subtitle2">Admin quản lý</Typography>
                   </Button>
                 )}
               </Box>
-              <Reports groupname={groupname} postID={id} />
+              {modVariant && <Reports groupname={groupname} postID={id} />}
             </Stack>
           </Grid>
         </Grid>
@@ -188,7 +211,11 @@ function renderBody(
         />
       );
     case 'LINK':
-      return <Link to={content}>content</Link>;
+      return (
+        <a href={content} target="_blank" rel="noopener noreferrer">
+          {content}
+        </a>
+      );
     default:
       return (
         <Typography variant="body1" className="text">

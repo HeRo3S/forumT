@@ -11,9 +11,12 @@ import { ContentContainer, PageContainer } from '../components/common/Layout';
 import Loading from '../components/Loading';
 import Post from '../components/post/Post';
 import LeftBar from '../components/LeftBar';
-import { useAppSelector } from '../redux/hook';
+import { useAppDispatch, useAppSelector } from '../redux/hook';
 import UserService from '../api/user';
-import UserInfoForm from '../components/common/form/UserInfoForm';
+import UserInfoForm from '../components/form/UserInfoForm';
+import { showAlert } from '../redux/features/alertSlice';
+import UserPostsList from '../components/profile/UserPostsList';
+import UserCommentsList from '../components/profile/UserCommentsList';
 
 interface IRenderButtonProps extends GridProps {
   isSelected: boolean;
@@ -35,6 +38,7 @@ enum RENDERMODE {
 
 function Profile() {
   const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
+  const dispatch = useAppDispatch();
   const { username } = useParams();
   const clientUserData = useAppSelector((state) => state.auth.userInfo);
   const [renderMode, setRenderMode] = useState<RENDERMODE>(RENDERMODE.POSTS);
@@ -48,8 +52,6 @@ function Profile() {
     userInfoError,
     mutateUserInfo,
   } = FetchUserInfo(username);
-
-  const { data: userPosts } = FetchUserPosts(username);
 
   const handleOnClickChangeRenderModeButton = (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -100,15 +102,13 @@ function Profile() {
   const renderBody = () => {
     switch (renderMode) {
       case RENDERMODE.POSTS:
-        if (!userPosts) return <Box />;
-        return userPosts.map((p) => {
-          const { id, groupname } = p;
-          return <Post key={id} id={id} groupname={groupname} />;
-        });
+        return <UserPostsList username={username} />;
+      case RENDERMODE.COMMENTS:
+        return <UserCommentsList username={username} />;
       case RENDERMODE.USER_MANAGER:
         return <UserInfoForm />;
       default:
-        console.error("can't find mode");
+        dispatch(showAlert({ message: "can't find mode", severity: 'alert' }));
         return <Box />;
     }
   };
@@ -158,18 +158,4 @@ function FetchUserInfo(username: string) {
   };
 }
 
-function FetchUserPosts(username: string) {
-  const { isLoading, error, data } = useSWR(
-    `u/${username}/posts`,
-    () => UserService.fetchUserPosts({ username }),
-    {
-      revalidateOnFocus: false,
-    }
-  );
-  return {
-    isUserInfoLoading: isLoading,
-    data,
-    userInfoError: error,
-  };
-}
 export default Profile;

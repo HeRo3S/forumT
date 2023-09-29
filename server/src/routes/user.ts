@@ -4,6 +4,7 @@ import {
   GetGroupsUserModeratingController,
   GetProfileController,
   GetUserPostsController,
+  GetUsersCommentsController,
   UpdateProfileController,
 } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
@@ -20,6 +21,8 @@ userRoute.post(
 );
 
 userRoute.get('/posts', GetUserPostsController);
+
+userRoute.get('/comments', GetUsersCommentsController);
 
 userRoute.get('/following', GetGroupsUserFollowingController);
 

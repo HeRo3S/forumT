@@ -18,6 +18,8 @@ import PostService from '../api/post';
 import { ContentContainer } from '../components/common/Layout';
 import Editor from '../components/common/richtextEditor/Editor';
 import createSocket from '../config/socket-io';
+import { useAppDispatch } from '../redux/hook';
+import { showAlert } from '../redux/features/alertSlice';
 
 const StyledSelectedImage = styled('img')({
   width: '100%',
@@ -30,6 +32,7 @@ function CreatePost() {
   const [type, setType] = useState(POSTTYPE.DEFAULT);
   const socketRef = useRef<Socket>();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   const [groupFetchList, setGroupFetchList] = useState<ResGroupInfo[]>([]);
   const [selectedImage, setSelectedImage] = useState<File>();
@@ -91,14 +94,48 @@ function CreatePost() {
       content,
       type: typeKey,
     };
-    const post = await PostService.createPost(groupname as string, requestPost);
-    if (post && typeKey === 'MEDIA') {
-      const formData = new FormData();
-      formData.append('file', selectedImage as Blob);
-      formData.append('postID', post.id.toString());
-      await PostService.uploadFile(formData);
+    try {
+      const post = await PostService.createPost(
+        groupname as string,
+        requestPost
+      );
+      if (post && typeKey === 'MEDIA') {
+        const formData = new FormData();
+        formData.append('file', selectedImage as Blob);
+        formData.append('postID', post.id.toString());
+        await PostService.uploadFile(formData);
+      }
+      if (post) {
+        dispatch(
+          showAlert({
+            severity: 'success',
+            message: `Tạo bài viểt thành công! ID: ${post.id}`,
+          })
+        );
+        navigate(`/g/${post.groupname}/post/${post.id}`);
+      }
+    } catch (err) {
+      if (err.response && err.response.data.message === 'User banned!')
+        dispatch(
+          showAlert({
+            severity: 'error',
+            message: `Người dùng đã bị cấm đăng bài ở nhóm ${
+              err.response.data.userFollowingGroup.groupname
+            } đển ${new Date(
+              err.response.data.userFollowingGroup.timeUnbanned
+            ).toLocaleString('vi-VN', {
+              timeZone: 'Asia/Ho_Chi_Minh',
+            })}!`,
+          })
+        );
+      if (err.response && err.response.data === 'Group has been banned')
+        dispatch(
+          showAlert({
+            severity: 'error',
+            message: 'Nhóm hiện tại đang bị chặn bởi người quản trị!',
+          })
+        );
     }
-    if (post) navigate(`/g/${post.groupname}/post/${post.id}`);
   };
 
   function renderContentInput(currentType: POSTTYPE) {
@@ -128,7 +165,13 @@ function CreatePost() {
         // TODO for attachment input
         break;
       case POSTTYPE.LINK:
-        return <Editor value={content} setValue={setContent} />;
+        return (
+          <TextField
+            fullWidth
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+          />
+        );
       case POSTTYPE.POLL:
         // TODO incoming poll feature
         break;
