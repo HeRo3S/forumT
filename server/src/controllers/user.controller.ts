@@ -74,6 +74,18 @@ export async function CreateGroupPostController(req: Request, res: Response) {
     }
   }
 }
+
+export async function UpdateGroupPostController(req: Request, res: Response) {
+  try {
+    const { postID } = req.params;
+    const { title, content, type } = req.body;
+    const post = await PostData.update({ id: +postID, title, content });
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
+  }
+}
 interface CursorPaginationRequest extends Request {
   query: {
     limit: string;
