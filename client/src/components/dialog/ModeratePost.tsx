@@ -71,10 +71,9 @@ function ModeratePost(props: IProps) {
               message: `Cẩm người dùng ${banRes.username} đến ${banRes.timeUnbanned}`,
             })
           ),
-        3000
+        1500
       );
     }
-
     closeDialog();
     if (URLPostID) navigate(-1);
   };

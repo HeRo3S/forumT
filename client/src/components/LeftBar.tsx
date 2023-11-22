@@ -58,10 +58,18 @@ function LeftBar() {
                   }
                 >
                   <ListItemAvatar>
-                    <Avatar
-                      alt="Group"
-                      src={g.avatarURL ? PUBLIC_FOLDER + g.avatarURL : ''}
-                    />
+                    <Avatar>
+                      <img
+                        src={g.avatarURL ? PUBLIC_FOLDER + g.avatarURL : ''}
+                        alt="Group"
+                        crossOrigin="use-credentials"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Avatar>
                   </ListItemAvatar>
                   <ListItemText>g/{g.groupname}</ListItemText>
                 </ListItemButton>
@@ -81,10 +89,18 @@ function LeftBar() {
                   }
                 >
                   <ListItemAvatar>
-                    <Avatar
-                      alt="Group"
-                      src={g.avatarURL ? PUBLIC_FOLDER + g.avatarURL : ''}
-                    />
+                    <Avatar>
+                      <img
+                        src={g.avatarURL ? PUBLIC_FOLDER + g.avatarURL : ''}
+                        alt="Group"
+                        crossOrigin="use-credentials"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          objectFit: 'cover',
+                        }}
+                      />
+                    </Avatar>
                   </ListItemAvatar>
                   <ListItemText>g/{g.groupname}</ListItemText>
                 </ListItemButton>

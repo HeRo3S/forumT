@@ -30,10 +30,15 @@ function RightBar() {
   return (
     <RightBarContainer item xs={2}>
       <StyledUserProfilePlaceholder>
-        <Avatar
-          src={PUBLIC_FOLDER + userInfo.avatarURL}
-          alt={userInfo.username}
-        />
+        <Avatar>
+          <img
+            src={PUBLIC_FOLDER + userInfo.avatarURL}
+            alt={userInfo.username}
+            crossOrigin="use-credentials"
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </Avatar>
+
         <Typography variant="h4">
           {userInfo.displayname || userInfo.username}
         </Typography>

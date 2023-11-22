@@ -1,7 +1,6 @@
 /* eslint-disable no-param-reassign */
 import { createAction, createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import jwt_decode from 'jwt-decode';
-import axios, { AxiosError } from 'axios';
 import AuthService from '../../api/auth';
 import { ReqUser } from '../../../types/interfaces/reqAPI';
 import { ResUserInfo } from '../../../types/interfaces/resAPI';

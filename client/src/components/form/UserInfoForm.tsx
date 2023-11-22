@@ -72,15 +72,19 @@ export default function UserInfoForm() {
         <StyledAvatarContainer>
           <Typography variant="h6">Ảnh đại diện</Typography>
           <Grid container alignItems="center">
-            <Avatar
-              sx={{ height: '150px', width: '150px' }}
-              src={
-                selectedAvatar
-                  ? URL.createObjectURL(selectedAvatar)
-                  : PUBLIC_FOLDER + userInfo.avatarURL
-              }
-              alt={userInfo.displayname || userInfo?.username}
-            />
+            <Avatar sx={{ height: '150px', width: '150px' }}>
+              <img
+                src={
+                  selectedAvatar
+                    ? URL.createObjectURL(selectedAvatar)
+                    : PUBLIC_FOLDER + userInfo.avatarURL
+                }
+                alt={userInfo.displayname || userInfo?.username}
+                crossOrigin="use-credentials"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Avatar>
+
             <Button variant="outlined" component="label">
               Chọn ảnh mới
               <input

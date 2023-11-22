@@ -12,6 +12,8 @@ import { Socket } from 'socket.io-client';
 import { ContentContainer } from '../components/common/Layout';
 import GroupService from '../api/group';
 import createSocket from '../config/socket-io';
+import { useAppDispatch } from '../redux/hook';
+import { showAlert } from '../redux/features/alertSlice';
 
 function CreateGroup() {
   const [groupname, setGroupname] = useState<string>('');
@@ -20,6 +22,7 @@ function CreateGroup() {
   const socketRef = useRef<Socket>();
 
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     socketRef.current = createSocket();
@@ -40,7 +43,15 @@ function CreateGroup() {
   const handleOnClickSubmitButton = async () => {
     if (displayname === '') setDisplayname(groupname);
     const res = await GroupService.createGroup(groupname, displayname);
-    if (res) navigate('/');
+    if (res) {
+      dispatch(
+        showAlert({
+          severity: 'success',
+          message: `Tạo nhóm ${res.groupname} thành công!`,
+        })
+      );
+      navigate(`/g/${groupname}`);
+    }
   };
 
   const handleCancelButton = () => {

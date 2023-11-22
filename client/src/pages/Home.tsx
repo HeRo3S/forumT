@@ -103,8 +103,8 @@ function FetchDefaultPosts(accessToken: string) {
         URL += `&cursor=${previousData?.nextCursorID}`;
       return URL;
     },
-    HomeService.basicFetcher,
-    { revalidateFirstPage: false }
+    HomeService.basicFetcher
+    // { revalidateFirstPage: false }
   );
 
   return {
