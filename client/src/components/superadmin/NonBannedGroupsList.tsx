@@ -33,7 +33,7 @@ function NonBannedGroupsList() {
     e: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value - 1);
   };
 
   const closeAdminBanGroupDialog = () => {

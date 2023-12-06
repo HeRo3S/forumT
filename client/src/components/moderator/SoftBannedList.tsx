@@ -39,7 +39,7 @@ function SoftBannedList(props: IUserListProps) {
     e: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value - 1);
   };
 
   const closeModerateBanUserDialog = () => {

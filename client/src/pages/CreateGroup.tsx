@@ -9,7 +9,10 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
-import { ContentContainer } from '../components/common/Layout';
+import {
+  ContentContainer,
+  GrayContentContainer,
+} from '../components/common/Layout';
 import GroupService from '../api/group';
 import createSocket from '../config/socket-io';
 import { useAppDispatch } from '../redux/hook';
@@ -18,7 +21,7 @@ import { showAlert } from '../redux/features/alertSlice';
 function CreateGroup() {
   const [groupname, setGroupname] = useState<string>('');
   const [displayname, setDisplayname] = useState<string>('');
-  const [existedGroupname, setExistedGroupname] = useState<string>('');
+  const [existedGroupname, setExistedGroupname] = useState<string | null>(null);
   const socketRef = useRef<Socket>();
 
   const navigate = useNavigate();
@@ -26,18 +29,24 @@ function CreateGroup() {
 
   useEffect(() => {
     socketRef.current = createSocket();
-    if (socketRef) {
-      socketRef.current.connect();
+    socketRef.current.connect();
+
+    return () => {
+      if (socketRef.current) socketRef.current.disconnect();
+    };
+  }, []);
+  useEffect(() => {
+    if (socketRef.current) {
       socketRef.current.emit('search/exact/group', groupname);
       socketRef.current.on('search/exact/group/response', (group) => {
-        setExistedGroupname(group);
+        setExistedGroupname(group.groupname);
       });
     }
 
-    return () => {
-      if (socketRef.current)
-        socketRef.current.off('search/exact/group/response');
-    };
+    // return () => {
+    //   if (socketRef.current)
+    //     socketRef.current.off('search/exact/group/response');
+    // };
   }, [groupname]);
 
   const handleOnClickSubmitButton = async () => {
@@ -59,7 +68,9 @@ function CreateGroup() {
   };
   return (
     <>
-      <Typography variant="h4">Tạo nhóm</Typography>
+      <GrayContentContainer>
+        <Typography variant="h4">Tạo nhóm</Typography>
+      </GrayContentContainer>
       <ContentContainer>
         <Stack>
           <TextField

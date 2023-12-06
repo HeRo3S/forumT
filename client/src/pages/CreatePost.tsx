@@ -15,7 +15,10 @@ import { Socket } from 'socket.io-client';
 import { POSTTYPE } from '../../types/enum';
 import { ResGroupInfo } from '../../types/interfaces/resAPI';
 import PostService from '../api/post';
-import { ContentContainer } from '../components/common/Layout';
+import {
+  ContentContainer,
+  GrayContentContainer,
+} from '../components/common/Layout';
 import Editor from '../components/common/richtextEditor/Editor';
 import createSocket from '../config/socket-io';
 import { useAppDispatch } from '../redux/hook';
@@ -182,7 +185,9 @@ function CreatePost() {
   }
   return (
     <>
-      <Typography variant="h4">Tạo bài đăng</Typography>
+      <GrayContentContainer>
+        <Typography variant="h4">Tạo bài đăng</Typography>
+      </GrayContentContainer>
       <ContentContainer>
         <Autocomplete
           options={groupFetchList.map((group) => group.groupname)}

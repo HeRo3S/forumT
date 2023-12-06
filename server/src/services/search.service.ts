@@ -7,8 +7,8 @@ async function SearchGroups(keyword: string) {
 }
 
 async function SearchExactGroup(keyword: string) {
-  // const matching = await GroupData.readContainKeyword({ keyword });
-  // return matching;
+  const matching = await GroupData.read({ groupname: keyword });
+  return matching;
 }
 
 async function SearchPosts(keyword: string) {

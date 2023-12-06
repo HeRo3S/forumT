@@ -71,15 +71,19 @@ export default function GroupInfoForm(props: IProps) {
         <StyledAvatarContainer>
           <Typography variant="h6">Ảnh đại diện</Typography>
           <Grid container alignItems="center">
-            <Avatar
-              sx={{ height: '150px', width: '150px' }}
-              src={
-                selectedAvatar
-                  ? URL.createObjectURL(selectedAvatar)
-                  : PUBLIC_FOLDER + groupInfo.avatarURL
-              }
-              alt={groupInfo?.displayname || groupInfo.groupname}
-            />
+            <Avatar sx={{ height: '150px', width: '150px' }}>
+              <img
+                src={
+                  selectedAvatar
+                    ? URL.createObjectURL(selectedAvatar)
+                    : PUBLIC_FOLDER + groupInfo.avatarURL
+                }
+                alt={groupInfo?.displayname || groupInfo.groupname}
+                crossOrigin="use-credentials"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Avatar>
+
             <Button variant="outlined" component="label">
               Chọn ảnh mới
               <input

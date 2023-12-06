@@ -75,7 +75,7 @@ function Navbar() {
       <Grid container>
         <Grid item container xs={3} id="leftNav">
           <button type="button" onClick={handleLogoButtonClick}>
-            <StyledLogoImg src="../../../public/reddit.png" alt="Logo" />
+            <StyledLogoImg src="../../../public/steam.png" alt="Logo" />
             <span>ForumT</span>
           </button>
         </Grid>
@@ -84,7 +84,6 @@ function Navbar() {
           <Grid item xs>
             <SearchBar />
           </Grid>
-          <Notifications />
         </Grid>
 
         <Grid item container xs={3} direction="row-reverse">
