@@ -180,6 +180,7 @@ function EditPost() {
                   ? URL.createObjectURL(selectedImage)
                   : PUBLIC_FOLDER + (data?.attachments[0].url as string)
               }
+              crossOrigin="use-credentials"
               alt="selected"
             />
           </Box>

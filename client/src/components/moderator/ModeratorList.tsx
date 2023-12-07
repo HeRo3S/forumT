@@ -99,7 +99,7 @@ function ModeratorList(props: IUserListProps) {
                   <Button
                     onClick={(e) => onClickDemoteUserButton(e, user.username)}
                   >
-                    Hạ quyến
+                    Hạ quyền
                   </Button>
                 )}
               </TableCell>

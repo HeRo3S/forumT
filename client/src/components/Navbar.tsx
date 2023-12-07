@@ -75,7 +75,7 @@ function Navbar() {
       <Grid container>
         <Grid item container xs={3} id="leftNav">
           <button type="button" onClick={handleLogoButtonClick}>
-            <StyledLogoImg src="../../../public/steam.png" alt="Logo" />
+            <StyledLogoImg src="/steam.png" alt="Logo" />
             <span>ForumT</span>
           </button>
         </Grid>
