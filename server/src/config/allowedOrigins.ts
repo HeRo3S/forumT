@@ -1,4 +1,3 @@
-export default [
-  'http://localhost:3000',
-  'https://forumt-frontend.onrender.com',
-];
+import 'dotenv/config';
+
+export default [process.env.CLIENT_DEV_URL, process.env.CLIENT_PROD_URL];
