@@ -131,3 +131,6 @@ dist
 
 # api testing
 *.http
+
+# database backup
+*.sql
