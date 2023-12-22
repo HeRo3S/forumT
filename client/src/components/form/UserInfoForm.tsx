@@ -35,7 +35,6 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 export default function UserInfoForm() {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { userInfo } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -72,15 +71,19 @@ export default function UserInfoForm() {
         <StyledAvatarContainer>
           <Typography variant="h6">Ảnh đại diện</Typography>
           <Grid container alignItems="center">
-            <Avatar
-              sx={{ height: '150px', width: '150px' }}
-              src={
-                selectedAvatar
-                  ? URL.createObjectURL(selectedAvatar)
-                  : PUBLIC_FOLDER + userInfo.avatarURL
-              }
-              alt={userInfo.displayname || userInfo?.username}
-            />
+            <Avatar sx={{ height: '150px', width: '150px' }}>
+              <img
+                src={
+                  selectedAvatar
+                    ? URL.createObjectURL(selectedAvatar)
+                    : userInfo.avatarURL
+                }
+                alt={userInfo.displayname || userInfo?.username}
+                crossOrigin="use-credentials"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Avatar>
+
             <Button variant="outlined" component="label">
               Chọn ảnh mới
               <input

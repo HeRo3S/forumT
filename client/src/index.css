@@ -86,3 +86,7 @@ button:focus-visible {
 .grayText.MuiTypography-root {
   color: gray;
 }
+
+.ql-editor {
+  min-height: 250px;
+}

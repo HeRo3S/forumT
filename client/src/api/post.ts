@@ -28,6 +28,18 @@ async function createPost(groupname: string, post: ReqPost): Promise<ResPost> {
   return response.data;
 }
 
+async function updatePost(
+  groupname: string,
+  postID: number,
+  post: ReqPost
+): Promise<ResPost> {
+  const response = await instance.post(
+    `g/${groupname}/post/${postID}/update`,
+    post
+  );
+  return response.data;
+}
+
 async function uploadFile(formData: FormData) {
   const response = await instance.post('/upload', formData, {
     headers: {
@@ -101,6 +113,7 @@ const PostService = {
   getPostInfo,
   createPost,
   uploadFile,
+  updatePost,
   deletePost,
   getUserReact,
   postUserReact,

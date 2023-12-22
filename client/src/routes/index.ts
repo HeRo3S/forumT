@@ -1,6 +1,7 @@
 import CreateGroup from '../pages/CreateGroup';
 import CreatePost from '../pages/CreatePost';
 import DetailPost from '../pages/DetailPost';
+import EditPost from '../pages/EditPost';
 import Group from '../pages/Group';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
@@ -30,6 +31,7 @@ const authenticateRoutes: RouteList[] = [
 const userRoutes: RouteList[] = [
   { path: '/create/post', component: CreatePost },
   { path: '/create/group', component: CreateGroup },
+  { path: '/g/:groupname/post/:postID/edit', component: EditPost },
 ];
 
 const superAdminRoutes: RouteList[] = [

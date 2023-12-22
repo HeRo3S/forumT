@@ -35,7 +35,7 @@ function ModeratePost(props: IProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const [banUser, setBanUser] = useState(false);
-  const [banTime, setBanTime] = useState('');
+  const [banTime, setBanTime] = useState('5m');
 
   const closeDialog = () => {
     onClose();
@@ -60,8 +60,8 @@ function ModeratePost(props: IProps) {
     if (banUser) {
       const banRes = await ModeratorService.banUser(
         groupname,
-        username,
-        banTime
+        banTime,
+        username
       );
       setTimeout(
         () =>
@@ -71,10 +71,9 @@ function ModeratePost(props: IProps) {
               message: `Cẩm người dùng ${banRes.username} đến ${banRes.timeUnbanned}`,
             })
           ),
-        3000
+        1500
       );
     }
-
     closeDialog();
     if (URLPostID) navigate(-1);
   };
@@ -100,7 +99,7 @@ function ModeratePost(props: IProps) {
               }
               label="Cẩm người dùng đăng bài trong "
             />
-            <Select onChange={onChangeBanTimeSelect} defaultValue="5m">
+            <Select onChange={onChangeBanTimeSelect} defaultValue={banTime}>
               <MenuItem value="5m">5 phút</MenuItem>
               <MenuItem value="7d">7 ngày</MenuItem>
               <MenuItem value="14d">14 ngày</MenuItem>

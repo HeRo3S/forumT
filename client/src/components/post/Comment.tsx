@@ -36,9 +36,9 @@ function Comment(props: ICommentProps) {
   const { username, avatarURL } = user;
   const sanitizedHTMLContent = DOMPurify.sanitize(content);
 
-  function handleOnClickContainer(
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>
-  );
+  // function handleOnClickContainer(
+  //   e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  // );
   return (
     <ContentContainer>
       <Grid container>
@@ -49,7 +49,18 @@ function Comment(props: ICommentProps) {
           <Stack>
             <Grid container>
               <Grid item xs={1}>
-                <Avatar src={PUBLIC_FOLDER + avatarURL} alt={username} />
+                <Avatar>
+                  <img
+                    src={PUBLIC_FOLDER + avatarURL}
+                    alt={username}
+                    crossOrigin="use-credentials"
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                </Avatar>
               </Grid>
               <Grid item xs>
                 <Link to={`/u/${username}`}>
@@ -66,12 +77,12 @@ function Comment(props: ICommentProps) {
               <Button size="small">
                 <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
               </Button>
-              <Button>
+              {/* <Button>
                 <Typography variant="subtitle2">Xoá bình luận</Typography>
               </Button>
               <Button>
                 <Typography variant="subtitle2">Admin quản lý</Typography>
-              </Button>
+              </Button> */}
             </Box>
           </Stack>
         </Grid>

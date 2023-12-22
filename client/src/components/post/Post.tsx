@@ -75,6 +75,10 @@ function Post(props: IProps) {
     e.stopPropagation();
   }
 
+  function handleOnclickEditPostButton(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    navigate(`/g/${groupname}/post/${id}/edit`);
+  }
   function handleOnclickDeletePostButton(
     e: React.MouseEvent<HTMLButtonElement>
   ) {
@@ -166,9 +170,14 @@ function Post(props: IProps) {
                   <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
                 </Button>
                 {userInfo?.username === username && (
-                  <Button onClick={(e) => handleOnclickDeletePostButton(e)}>
-                    <Typography variant="subtitle2">Xoá bài viết</Typography>
-                  </Button>
+                  <>
+                    <Button onClick={(e) => handleOnclickEditPostButton(e)}>
+                      <Typography variant="subtitle2">Sửa bài viết</Typography>
+                    </Button>
+                    <Button onClick={(e) => handleOnclickDeletePostButton(e)}>
+                      <Typography variant="subtitle2">Xoá bài viết</Typography>
+                    </Button>
+                  </>
                 )}
                 {modVariant && (
                   <Button onClick={(e) => handleOnclickModButton(e)}>
@@ -190,7 +199,6 @@ function renderBody(
   content: string,
   attachments: ResAttachment[]
 ) {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   switch (type) {
     case 'DEFAULT':
       // eslint-disable-next-line no-case-declarations
@@ -206,7 +214,7 @@ function renderBody(
         return <Typography variant="h4">Error</Typography>;
       return (
         <StyledPostImage
-          src={PUBLIC_FOLDER + attachments[0].url}
+          src={attachments[0].url}
           alt="postImage"
         />
       );

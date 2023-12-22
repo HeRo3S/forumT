@@ -38,7 +38,7 @@ function ModeratorList(props: IUserListProps) {
     e: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value - 1);
   };
 
   const closeOwnerDemoteDialog = () => {
@@ -95,11 +95,11 @@ function ModeratorList(props: IUserListProps) {
                 >
                   Xem hồ sơ
                 </Button>
-                {user.role === 'OWNER' && (
+                {user.role === 'MODERATOR' && (
                   <Button
                     onClick={(e) => onClickDemoteUserButton(e, user.username)}
                   >
-                    Hạ quyến
+                    Hạ quyền
                   </Button>
                 )}
               </TableCell>

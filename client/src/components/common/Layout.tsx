@@ -20,6 +20,13 @@ export const ContentContainer = styled(Container)<ContainerProps>(
   })
 );
 
+export const GrayContentContainer = styled(ContentContainer)<ContainerProps>(
+  ({ theme }) => ({
+    marginTop: '20px',
+    backgroundColor: '#dae0e6',
+  })
+);
+
 export const RightBarContainer = styled(Grid)<GridProps>(({ theme }) => ({
   position: 'sticky',
   top: '50px',

@@ -7,9 +7,11 @@ import Grid from '@mui/material/Grid';
 import React, { useState } from 'react';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
+import { Select } from '@mui/material';
 import { logout, refreshAccessToken } from '../redux/features/authSlice';
 import { useAppDispatch, useAppSelector } from '../redux/hook';
 import SearchBar from './common/SearchBar';
+import { Languages } from '../config/variables/index';
 
 const StyledNavbarBox = styled(Box)<BoxProps>(({ theme }) => ({
   position: 'sticky',
@@ -75,7 +77,7 @@ function Navbar() {
       <Grid container>
         <Grid item container xs={3} id="leftNav">
           <button type="button" onClick={handleLogoButtonClick}>
-            <StyledLogoImg src="../../../public/reddit.png" alt="Logo" />
+            <StyledLogoImg src="/steam.png" alt="Logo" />
             <span>ForumT</span>
           </button>
         </Grid>
@@ -84,7 +86,6 @@ function Navbar() {
           <Grid item xs>
             <SearchBar />
           </Grid>
-          <Notifications />
         </Grid>
 
         <Grid item container xs={3} direction="row-reverse">
@@ -130,6 +131,15 @@ function Navbar() {
               Đăng nhập
             </Button>
           )}
+          {/* <Grid item xs>
+            <Select>
+              {Languages.map((l) => (
+                <MenuItem key={l.code} value={l.code}>
+                  {l.lang}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid> */}
         </Grid>
       </Grid>
     </StyledNavbarBox>

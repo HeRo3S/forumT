@@ -44,7 +44,6 @@ enum RENDERMODE {
 }
 
 function Group() {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { groupname } = useParams();
   const { accessToken } = useAppSelector((state) => state.auth);
   const [renderMode, setRenderMode] = useState<RENDERMODE>(RENDERMODE.POSTS);
@@ -192,15 +191,16 @@ function Group() {
         <ContentContainer>
           <Grid container>
             <Grid item xs>
-              <Avatar
-                alt="GroupLogo"
-                src={
-                  groupInfo?.displayname
-                    ? PUBLIC_FOLDER + groupInfo.avatarURL
-                    : ''
-                }
-              >
-                {groupInfo?.displayname?.at(0) || groupInfo?.groupname[0]}
+              <Avatar>
+                <img
+                  alt={groupInfo?.displayname?.at(0) || groupInfo?.groupname[0]}
+                  src={
+                    groupInfo?.displayname
+                      ? groupInfo.avatarURL
+                      : ''
+                  }
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
               </Avatar>
               <Typography variant="h4">
                 {groupInfo?.displayname || groupInfo?.groupname}

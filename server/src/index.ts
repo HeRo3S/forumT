@@ -35,10 +35,10 @@ io.on('connection', (socket: AuthenticatedSocket) => {
     socket.emit('search/post/response', posts);
   });
 
-  // socket.on('search/exact/group', async (keyword) => {
-  //   const group = await SearchService.SearchExactGroup(keyword);
-  //   socket.emit('search/exact/group/response', group);
-  // });
+  socket.on('search/exact/group', async (keyword) => {
+    const group = await SearchService.SearchExactGroup(keyword);
+    socket.emit('search/exact/group/response', group);
+  });
 
   socket.on('join/post', (postID) => {
     socket.join(`post-${postID}`);

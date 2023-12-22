@@ -34,7 +34,7 @@ export async function GetAllGroupsController(
   res: Response
 ) {
   const page = +req.query.page;
-  const limit = +req.query || PaginationSetup.SuperadminGroupLimit;
+  const limit = +req.query.limit || PaginationSetup.SuperadminGroupLimit;
   const { status } = req.query;
   const groups = await GroupData.readManyWithPagination({
     limit,

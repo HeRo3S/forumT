@@ -5,6 +5,7 @@ import {
   DeleteGroupPostController,
   GetUserPostReactController,
   PostReactController,
+  UpdateGroupPostController,
 } from '../controllers/user.controller.js';
 import { authenticateToken } from '../middleware/jwt.js';
 import {
@@ -25,6 +26,11 @@ postRoute.post(
   '/:postID/react',
   [authenticateToken, CheckIfGroupHasBeenBanned, CheckIfUserHasBeenBlocked],
   PostReactController
+);
+postRoute.post(
+  '/:postID/update',
+  [authenticateToken, CheckIfGroupHasBeenBanned, CheckIfUserHasBeenBlocked],
+  UpdateGroupPostController
 );
 postRoute.post('/:postID/delete', authenticateToken, DeleteGroupPostController);
 

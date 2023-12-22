@@ -39,7 +39,7 @@ function SoftBannedList(props: IUserListProps) {
     e: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value - 1);
   };
 
   const closeModerateBanUserDialog = () => {
@@ -79,7 +79,7 @@ function SoftBannedList(props: IUserListProps) {
       <ModerateBanUser
         groupname={groupname}
         username={username}
-        isBanned={isUserBanned}
+        isBanned
         isOpen={isDialogOpen}
         onClose={closeModerateBanUserDialog}
       />
@@ -108,7 +108,7 @@ function SoftBannedList(props: IUserListProps) {
                 </Button>
 
                 <Button onClick={(e) => onClickBanUserButton(e, user.username)}>
-                  Cấm
+                  Gỡ cấm
                 </Button>
               </TableCell>
             </TableRow>

@@ -119,12 +119,16 @@ function Profile() {
       <Grid item xs={8}>
         <ContentContainer>
           <Grid container>
-            <Avatar
-              alt={userData?.displayname}
-              src={
-                userData?.avatarURL ? PUBLIC_FOLDER + userData.avatarURL : ''
-              }
-            />
+            <Avatar>
+              <img
+                alt={userData?.displayname}
+                src={
+                  userData?.avatarURL ? PUBLIC_FOLDER + userData.avatarURL : ''
+                }
+                crossOrigin="use-credentials"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Avatar>
             <Stack>
               <Typography variant="h4">
                 {userData?.displayname || userData?.username}

@@ -36,7 +36,6 @@ interface IProps {
   groupInfo: ResGroupInfo;
 }
 export default function GroupInfoForm(props: IProps) {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { groupInfo } = props;
   const navigate = useNavigate();
 
@@ -56,7 +55,7 @@ export default function GroupInfoForm(props: IProps) {
       formData.append('displayname', updateGroupInfo.displayname);
     if (updateGroupInfo.description)
       formData.append('description', updateGroupInfo.description);
-    if (selectedAvatar) formData.append('file', selectedAvatar as Blob);
+    if (selectedAvatar) formData.append('file', selectedAvatar as File);
     const newUserInfo = await ModeratorService.updateGroupInfo({
       groupname,
       formData,
@@ -71,15 +70,18 @@ export default function GroupInfoForm(props: IProps) {
         <StyledAvatarContainer>
           <Typography variant="h6">Ảnh đại diện</Typography>
           <Grid container alignItems="center">
-            <Avatar
-              sx={{ height: '150px', width: '150px' }}
-              src={
-                selectedAvatar
-                  ? URL.createObjectURL(selectedAvatar)
-                  : PUBLIC_FOLDER + groupInfo.avatarURL
-              }
-              alt={groupInfo?.displayname || groupInfo.groupname}
-            />
+            <Avatar sx={{ height: '150px', width: '150px' }}>
+              <img
+                src={
+                  selectedAvatar
+                    ? URL.createObjectURL(selectedAvatar)
+                    : groupInfo.avatarURL
+                }
+                alt={groupInfo?.displayname || groupInfo.groupname}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+            </Avatar>
+
             <Button variant="outlined" component="label">
               Chọn ảnh mới
               <input

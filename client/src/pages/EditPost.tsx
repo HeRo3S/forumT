@@ -10,35 +10,50 @@ import {
   styled,
 } from '@mui/material';
 import React, { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Socket } from 'socket.io-client';
+import useSWR from 'swr';
+import DOMPurify from 'dompurify';
 import { POSTTYPE } from '../../types/enum';
 import { ResGroupInfo } from '../../types/interfaces/resAPI';
 import PostService from '../api/post';
-import {
-  ContentContainer,
-  GrayContentContainer,
-} from '../components/common/Layout';
+import { ContentContainer } from '../components/common/Layout';
 import Editor from '../components/common/richtextEditor/Editor';
 import createSocket from '../config/socket-io';
-import { useAppDispatch } from '../redux/hook';
+import { useAppDispatch, useAppSelector } from '../redux/hook';
 import { showAlert } from '../redux/features/alertSlice';
 
 const StyledSelectedImage = styled('img')({
   width: '100%',
 });
 
-function CreatePost() {
-  const [groupname, setGroupname] = useState<string | null>('');
+function EditPost() {
+  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
+  const { groupname: groupnameParams, postID } = useParams();
+  const { userInfo } = useAppSelector((state) => state.auth);
+
+  const [groupname, setGroupname] = useState<string | null>(
+    groupnameParams as string
+  );
   const title = useRef('');
   const [content, setContent] = useState('');
-  const [type, setType] = useState(POSTTYPE.DEFAULT);
+  const [type, setType] = useState<POSTTYPE>(POSTTYPE.DEFAULT);
   const socketRef = useRef<Socket>();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
 
   const [groupFetchList, setGroupFetchList] = useState<ResGroupInfo[]>([]);
   const [selectedImage, setSelectedImage] = useState<File>();
+
+  const { data } = FetchPostInfo(
+    groupnameParams as string,
+    +(postID as string)
+  );
+  useEffect(() => {
+    title.current = data?.post.title as string;
+    setContent(DOMPurify.sanitize(data?.post.content as string));
+    setType(POSTTYPE[data?.post.type as keyof typeof POSTTYPE]);
+  }, [data]);
 
   useEffect(() => {
     socketRef.current = createSocket();
@@ -98,8 +113,9 @@ function CreatePost() {
       type: typeKey,
     };
     try {
-      const post = await PostService.createPost(
+      const post = await PostService.updatePost(
         groupname as string,
+        +(postID as string),
         requestPost
       );
       if (post && typeKey === 'MEDIA') {
@@ -112,7 +128,7 @@ function CreatePost() {
         dispatch(
           showAlert({
             severity: 'success',
-            message: `Tạo bài viểt thành công! ID: ${post.id}`,
+            message: `Cập nhật bài viết thành công! ID: ${post.id}`,
           })
         );
         navigate(`/g/${post.groupname}/post/${post.id}`);
@@ -159,7 +175,12 @@ function CreatePost() {
               />
             </Button>
             <StyledSelectedImage
-              src={selectedImage ? URL.createObjectURL(selectedImage) : ''}
+              src={
+                selectedImage
+                  ? URL.createObjectURL(selectedImage)
+                  : PUBLIC_FOLDER + (data?.attachments[0].url as string)
+              }
+              crossOrigin="use-credentials"
               alt="selected"
             />
           </Box>
@@ -183,14 +204,18 @@ function CreatePost() {
     }
     return null;
   }
+  if (data?.post.username !== userInfo.username)
+    return (
+      <Typography>Từ chối truy cập. Không phài tác giả bài đăng</Typography>
+    );
   return (
     <>
-      <GrayContentContainer>
-        <Typography variant="h4">Tạo bài đăng</Typography>
-      </GrayContentContainer>
+      <Typography variant="h4">Tạo bài đăng</Typography>
       <ContentContainer>
         <Autocomplete
+          disabled
           options={groupFetchList.map((group) => group.groupname)}
+          value={groupname}
           onChange={(event, value) => {
             setGroupname(value);
           }}
@@ -210,7 +235,11 @@ function CreatePost() {
       </ContentContainer>
       <ContentContainer sx={{ p: 1 }}>
         <Stack spacing={2}>
-          <Input placeholder="Tiêu đề" onChange={handleOnchangeTitle} />
+          <Input
+            placeholder="Tiêu đề"
+            value={title.current}
+            onChange={handleOnchangeTitle}
+          />
           <Box>
             <Grid container>
               <Grid item xs>
@@ -244,7 +273,9 @@ function CreatePost() {
             {renderContentInput(type)}
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'row-reverse' }}>
-            <Button onClick={(e) => handleOnClickSubmitButton(e)}>Đăng</Button>
+            <Button onClick={(e) => handleOnClickSubmitButton(e)}>
+              Cập nhật
+            </Button>
             <Button color="secondary">Huỷ</Button>
           </Box>
         </Stack>
@@ -253,4 +284,15 @@ function CreatePost() {
   );
 }
 
-export default CreatePost;
+function FetchPostInfo(groupname: string, postID: number) {
+  const { isLoading, data, error } = useSWR(
+    `g/${groupname}/post/${postID}`,
+    () => PostService.getPostInfo(groupname, postID.toString())
+  );
+  return {
+    isLoading,
+    data,
+    error,
+  };
+}
+export default EditPost;

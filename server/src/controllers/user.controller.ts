@@ -6,6 +6,7 @@ import UserData from '../data/user.data.js';
 import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
 import CommentData from '../data/comment.data.js';
 import PaginationSetup from '../config/pagination.js';
+import CloudinaryService from '../services/cloudinary.service.js';
 
 export async function GetProfileController(req: Request, res: Response) {
   try {
@@ -37,7 +38,8 @@ export async function UpdateProfileController(req: Request, res: Response) {
       avatarURL?: string;
     };
     if (req.file) {
-      updateUserProps.avatarURL = `uploads/${req.file.filename}`;
+      const avatar = await CloudinaryService.uploadPhoto(req.file);
+      updateUserProps.avatarURL = avatar?.secure_url || undefined;
     }
     const updatedUser = await UserData.update(updateUserProps);
     const { password, ...result } = updatedUser;
@@ -72,6 +74,18 @@ export async function CreateGroupPostController(req: Request, res: Response) {
       res.status(500).json(err);
       throw err;
     }
+  }
+}
+
+export async function UpdateGroupPostController(req: Request, res: Response) {
+  try {
+    const { postID } = req.params;
+    const { title, content, type } = req.body;
+    const post = await PostData.update({ id: +postID, title, content });
+    res.status(200).json(post);
+  } catch (err) {
+    res.status(500).json(err);
+    throw err;
   }
 }
 interface CursorPaginationRequest extends Request {

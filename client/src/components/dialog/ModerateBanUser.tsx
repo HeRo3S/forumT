@@ -31,7 +31,7 @@ interface IProps {
 function ModerateBanUser(props: IProps) {
   const { isBanned, groupname, username, isOpen, onClose } = props;
   const dispatch = useAppDispatch();
-  const [banTime, setBanTime] = useState('');
+  const [banTime, setBanTime] = useState('5m');
 
   const closeDialog = () => {
     onClose();
@@ -102,7 +102,7 @@ function ModerateBanUser(props: IProps) {
         <DialogContentText>Thời gian cấm</DialogContentText>
         <FormControl>
           <div>
-            <Select onChange={onChangeBanTimeSelect} defaultValue="5m">
+            <Select onChange={onChangeBanTimeSelect} defaultValue={banTime}>
               <MenuItem value="5m">5 phút</MenuItem>
               <MenuItem value="7d">7 ngày</MenuItem>
               <MenuItem value="14d">14 ngày</MenuItem>

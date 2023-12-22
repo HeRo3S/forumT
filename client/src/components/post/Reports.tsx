@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { Box, Stack, Typography, styled } from '@mui/material';
 import ModeratorService from '../../api/moderator';
-import BannedReasons from '../../config/variables';
+import { BannedReasons } from '../../config/variables';
 
 const StyledContainer = styled(Stack)({
   backgroundColor: 'yellow',

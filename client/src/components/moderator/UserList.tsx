@@ -41,7 +41,7 @@ function UserList(props: IUserListProps) {
     e: React.ChangeEvent<unknown>,
     value: number
   ) => {
-    setPage(value);
+    setPage(value - 1);
   };
 
   const closeModerateBanUserDialog = () => {
@@ -83,7 +83,7 @@ function UserList(props: IUserListProps) {
 
   return (
     <ContentContainer>
-      <Typography variant="h5">Ngưới đang theo dõi</Typography>
+      <Typography variant="h5">Người đang theo dõi</Typography>
       <ModerateBanUser
         groupname={groupname}
         username={username}
