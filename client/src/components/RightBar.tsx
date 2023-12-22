@@ -12,7 +12,6 @@ const StyledUserProfilePlaceholder = styled(Stack)(({ theme }) => ({
 }));
 
 function RightBar() {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { userInfo, accessToken } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -32,9 +31,8 @@ function RightBar() {
       <StyledUserProfilePlaceholder>
         <Avatar>
           <img
-            src={PUBLIC_FOLDER + userInfo.avatarURL}
+            src={userInfo.avatarURL}
             alt={userInfo.username}
-            crossOrigin="use-credentials"
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         </Avatar>

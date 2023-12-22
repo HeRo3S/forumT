@@ -77,12 +77,12 @@ function Comment(props: ICommentProps) {
               <Button size="small">
                 <Typography variant="subtitle2">Báo cáo vi phạm</Typography>
               </Button>
-              <Button>
+              {/* <Button>
                 <Typography variant="subtitle2">Xoá bình luận</Typography>
               </Button>
               <Button>
                 <Typography variant="subtitle2">Admin quản lý</Typography>
-              </Button>
+              </Button> */}
             </Box>
           </Stack>
         </Grid>

@@ -44,7 +44,6 @@ enum RENDERMODE {
 }
 
 function Group() {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { groupname } = useParams();
   const { accessToken } = useAppSelector((state) => state.auth);
   const [renderMode, setRenderMode] = useState<RENDERMODE>(RENDERMODE.POSTS);
@@ -197,10 +196,9 @@ function Group() {
                   alt={groupInfo?.displayname?.at(0) || groupInfo?.groupname[0]}
                   src={
                     groupInfo?.displayname
-                      ? PUBLIC_FOLDER + groupInfo.avatarURL
+                      ? groupInfo.avatarURL
                       : ''
                   }
-                  crossOrigin="use-credentials"
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
               </Avatar>

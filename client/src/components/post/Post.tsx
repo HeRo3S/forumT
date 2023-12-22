@@ -199,7 +199,6 @@ function renderBody(
   content: string,
   attachments: ResAttachment[]
 ) {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   switch (type) {
     case 'DEFAULT':
       // eslint-disable-next-line no-case-declarations
@@ -215,9 +214,8 @@ function renderBody(
         return <Typography variant="h4">Error</Typography>;
       return (
         <StyledPostImage
-          src={PUBLIC_FOLDER + attachments[0].url}
+          src={attachments[0].url}
           alt="postImage"
-          crossOrigin="use-credentials"
         />
       );
     case 'LINK':

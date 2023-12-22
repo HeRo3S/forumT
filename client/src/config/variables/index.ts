@@ -3,7 +3,7 @@ export interface BannedReason {
   vi: string;
   en: string;
 }
-const BannedReasons: BannedReason[] = [
+export const BannedReasons: BannedReason[] = [
   {
     code: 'hate-speech',
     vi: 'Ngôn ngữ không đúng mực',
@@ -22,4 +22,13 @@ const BannedReasons: BannedReason[] = [
   },
 ];
 
-export default BannedReasons;
+export const Languages: { code: string; lang: string }[] = [
+  {
+    code: 'vi',
+    lang: 'Tiếng Việt',
+  },
+  {
+    code: 'en',
+    lang: 'English',
+  },
+];

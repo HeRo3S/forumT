@@ -35,7 +35,6 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
 }));
 
 export default function UserInfoForm() {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { userInfo } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
@@ -77,7 +76,7 @@ export default function UserInfoForm() {
                 src={
                   selectedAvatar
                     ? URL.createObjectURL(selectedAvatar)
-                    : PUBLIC_FOLDER + userInfo.avatarURL
+                    : userInfo.avatarURL
                 }
                 alt={userInfo.displayname || userInfo?.username}
                 crossOrigin="use-credentials"

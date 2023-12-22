@@ -36,7 +36,6 @@ interface IProps {
   groupInfo: ResGroupInfo;
 }
 export default function GroupInfoForm(props: IProps) {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { groupInfo } = props;
   const navigate = useNavigate();
 
@@ -76,10 +75,9 @@ export default function GroupInfoForm(props: IProps) {
                 src={
                   selectedAvatar
                     ? URL.createObjectURL(selectedAvatar)
-                    : PUBLIC_FOLDER + groupInfo.avatarURL
+                    : groupInfo.avatarURL
                 }
                 alt={groupInfo?.displayname || groupInfo.groupname}
-                crossOrigin="use-credentials"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             </Avatar>

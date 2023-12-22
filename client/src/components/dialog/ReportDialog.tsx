@@ -8,7 +8,7 @@ import { styled } from '@mui/material/styles';
 import { ChangeEvent, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FormControlLabel, FormGroup } from '@mui/material';
-import BannedReasons from '../../config/variables';
+import { BannedReasons } from '../../config/variables';
 import PostService from '../../api/post';
 import { useAppDispatch } from '../../redux/hook';
 import { showAlert } from '../../redux/features/alertSlice';

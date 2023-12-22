@@ -15,7 +15,6 @@ import { LeftBarContainer } from './common/Layout';
 import UserService from '../api/user';
 
 function LeftBar() {
-  const PUBLIC_FOLDER = import.meta.env.VITE_APP_API_URL;
   const { userInfo: user, accessToken } = useAppSelector((state) => state.auth);
   const navigate = useNavigate();
   const {
@@ -60,9 +59,8 @@ function LeftBar() {
                   <ListItemAvatar>
                     <Avatar>
                       <img
-                        src={g.avatarURL ? PUBLIC_FOLDER + g.avatarURL : ''}
+                        src={g.avatarURL ? g.avatarURL : ''}
                         alt="Group"
-                        crossOrigin="use-credentials"
                         style={{
                           width: '100%',
                           height: '100%',
@@ -91,9 +89,8 @@ function LeftBar() {
                   <ListItemAvatar>
                     <Avatar>
                       <img
-                        src={g.avatarURL ? PUBLIC_FOLDER + g.avatarURL : ''}
+                        src={g.avatarURL ? g.avatarURL : ''}
                         alt="Group"
-                        crossOrigin="use-credentials"
                         style={{
                           width: '100%',
                           height: '100%',
