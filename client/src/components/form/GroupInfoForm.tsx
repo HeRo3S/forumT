@@ -55,7 +55,7 @@ export default function GroupInfoForm(props: IProps) {
       formData.append('displayname', updateGroupInfo.displayname);
     if (updateGroupInfo.description)
       formData.append('description', updateGroupInfo.description);
-    if (selectedAvatar) formData.append('file', selectedAvatar as Blob);
+    if (selectedAvatar) formData.append('file', selectedAvatar as File);
     const newUserInfo = await ModeratorService.updateGroupInfo({
       groupname,
       formData,

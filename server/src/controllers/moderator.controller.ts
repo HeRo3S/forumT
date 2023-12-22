@@ -4,6 +4,7 @@ import UserFollowingGroupData from '../data/userFollowingGroup.data.js';
 import PostData from '../data/post.data.js';
 import GroupData from '../data/group.data.js';
 import PaginationSetup from '../config/pagination.js';
+import CloudinaryService from '../services/cloudinary.service.js';
 
 export async function CheckModeratorMiddleware(
   req: Request,
@@ -68,12 +69,17 @@ export async function UpdateGroupInfoController(req: Request, res: Response) {
       groupname: string;
       description: string;
       displayname: string;
-      avatarURL: string;
+      avatarURL: string | undefined;
     };
-    if (req.file) updateGroupProps.avatarURL = `uploads/${req.file.filename}`;
+    // if (req.file) updateGroupProps.avatarURL = `uploads/${req.file.filename}`;
+    if (req.file) {
+      const avatar = await CloudinaryService.uploadPhoto(req.file);
+      updateGroupProps.avatarURL = avatar?.secure_url || undefined;
+    }
     const updatedGroupInfo = await GroupData.update(updateGroupProps);
     res.status(200).json(updatedGroupInfo);
   } catch (err) {
+    console.log(err);
     res.status(500).json(err);
   }
 }
