@@ -25,3 +25,4 @@ dist-ssr
 
 #User defined
 dev_purpose
+*.env
