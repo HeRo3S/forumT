@@ -4,7 +4,7 @@
 
 ## Introduction
 
-ForumT is a social web-based application. It's depended on user to create groups according to whatever topics they want to make, then create posts for that group. Other user then can follow the group to update the newest post of that group on the homepage.
+ForumT is a group-focused web-based social network application. It's depended on user to create groups according to whatever topics they want to make, then create posts for that group. Other user then can follow the group to update the newest post of that group on the homepage.
 
 The system is currently running at [this](https:forumt.hero3s.site) address. But because the server is hosted in Render free-trial instance, after a long time of inactive,
 it'll need approximately 1 - 1.5 minutes to get back working.
